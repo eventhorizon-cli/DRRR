@@ -1,1 +1,55 @@
 /* You can add global styles to this file, and also import other style files */
+.form-user {
+  max-width: 330px;
+  padding: 15px;
+  margin: 0 auto;
+}
+
+.form-user .form-user-heading,
+.form-user .checkbox {
+  margin-bottom: 10px;
+}
+.form-user .checkbox {
+  font-weight: normal;
+}
+.form-user .form-control {
+  position: relative;
+  height: auto;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-user .form-control:focus {
+  z-index: 2;
+}
+
+.main-nav {
+  background: #1976D2;
+  height: 56px;
+  min-height: 56px;
+  padding: 0;
+  box-shadow: 0 2px 5px 0 rgba(0,0,0,0.24);
+}
+
+.main-nav a {
+  color: #fff;
+}
+
+.navbar-header a{
+  font-size: 30px;
+}
+
+.footer {
+  text-align: left;
+  font-size: 15px;
+  padding: 10px 20px;
+  background: #263238;
+  color: #fff;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+

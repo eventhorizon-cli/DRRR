@@ -1,0 +1,9 @@
+.login-extra {
+  margin-top: 10px;
+  text-align: center;
+}
+
+p, .checkbox label {
+  color: #808080;
+  font-size: 14px;
+}
