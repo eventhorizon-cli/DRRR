@@ -1,23 +1,34 @@
-<form class="form-user">
+<form [formGroup]="loginForm"
+      (submit)="onSubmit(loginForm.value)"
+      class="form-user">
   <h2 class="form-user-heading">账号登录</h2>
   <div class="form-group">
-    <input type="email" class="form-control" placeholder="用户名" required autofocus>
+    <input type="text"
+           class="form-control"
+           placeholder="用户名"
+           autofocus
+           appTextTrim
+           [formControl]="loginForm.controls['username']">
   </div>
   <div class="form-group">
-     <input type="password" minlength="5" class="form-control" placeholder="密码" required>
+     <input type="password"
+            maxlength="16"
+            class="form-control"
+            placeholder="密码"
+            appTextTrim
+            [formControl]="loginForm.controls['password']">
   </div>
   <div class="checkbox">
     <label>
       <input type="checkbox">记住我
     </label>
   </div>
-  <div class="checkbox">
-    <label>
-      <input type="checkbox">游客登录
-    </label>
-  </div>
   <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
 </form>
 <div class="login-extra">
-  <p>还没有账号？<a routerLink="../register">立即注册</a></p>
+  <p><span>还没有账号？</span>
+    <a routerLink="../register">立即注册</a>
+    <i class="s-line"></i>
+    <a routerLink="../register">游客登录</a>
+  </p>
 </div>

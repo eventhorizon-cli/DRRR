@@ -1,12 +1,17 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule , ReactiveFormsModule } from '@angular/forms';
+import { TextTrimDirective } from './text-trim.directive';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule
+  declarations: [
+    TextTrimDirective
   ],
-  declarations: []
+  exports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    TextTrimDirective
+  ]
 })
 export class SharedModule { }

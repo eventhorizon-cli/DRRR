@@ -3,22 +3,23 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { CoreModule } from './core/core.module';
-import { SharedModule } from './shared/shared.module';
 import { UserModule } from './user/user.module';
 
 import { appRoutes } from './app.routes';
 import { AppComponent } from './app.component';
-
 
 @NgModule({
   declarations: [
     AppComponent
   ],
   imports: [
+    // 在其它任何模块中都不要导入BrowserModule。
+    // 特性模块和惰性加载模块应该改成导入CommonModule。
+    // 它们不需要重新初始化全应用级的提供商。
     BrowserModule,
     CoreModule,
-    SharedModule,
     UserModule,
+    // 永远不要在特性路由模块中调用RouterModule.forRoot！
     RouterModule.forRoot(appRoutes)
   ],
   providers: [],

@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
+import { SharedModule } from '../shared/shared.module';
+
 import { UserLoginComponent } from './user-login/user-login.component';
 import { UserRegisterComponent } from './user-register/user-register.component';
 import { userRoutes } from './user.routes';
@@ -11,12 +13,9 @@ import { userRoutes } from './user.routes';
     UserRegisterComponent
   ],
   imports: [
-    // 根模块导入user模块后就可以直接使用user模块内定义好的路由
-    RouterModule.forRoot(userRoutes)
-  ],
-  exports: [
-    UserLoginComponent,
-    UserRegisterComponent
+    // 总是在特性路由模块中调用RouterModule.forChild
+    RouterModule.forChild(userRoutes),
+    SharedModule
   ]
 })
 export class UserModule { }

@@ -1,6 +1,3 @@
-/**
- * Created by HKH on 2017/7/7.
- */
 import { Routes } from '@angular/router';
 
 import { UserLoginComponent } from './user-login/user-login.component';

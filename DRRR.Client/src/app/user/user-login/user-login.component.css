@@ -5,5 +5,17 @@
 
 p, .checkbox label {
   color: #808080;
-  font-size: 14px;
+  font-size: 15px;
 }
+
+.login-extra *{
+  vertical-align: middle;
+}
+
+.s-line{
+  display: inline-block;
+  border-left: 1px solid #808080;
+  margin: 0px 2px 0 2px;
+  height: 15px;
+}
+
