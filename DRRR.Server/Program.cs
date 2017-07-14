@@ -12,6 +12,9 @@ namespace DRRR.Server
     {
         public static void Main(string[] args)
         {
+            // 解决Windows下控制台输出中文乱码的问题
+            Console.OutputEncoding = System.Text.Encoding.Unicode;
+
             var host = new WebHostBuilder()
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())

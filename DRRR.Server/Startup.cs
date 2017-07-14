@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 namespace DRRR.Server
 {
@@ -29,6 +30,15 @@ namespace DRRR.Server
         {
             // Add framework services.
             services.AddMvc();
+
+            // 添加自定义的服务
+            Type[] types = Assembly.GetEntryAssembly().GetTypes()
+                .Where(service => service.Name.EndsWith("Service")).ToArray();
+            foreach (Type type in types)
+            {
+                // 提供单例服务
+                services.AddSingleton(type);
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -38,6 +48,8 @@ namespace DRRR.Server
             loggerFactory.AddDebug();
 
             app.UseMvc();
+
+            app.UseStaticFiles();
         }
     }
 }
