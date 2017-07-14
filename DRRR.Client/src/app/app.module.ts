@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 
 import { CoreModule } from './core/core.module';
@@ -17,6 +18,7 @@ import { AppComponent } from './app.component';
     // 特性模块和惰性加载模块应该改成导入CommonModule。
     // 它们不需要重新初始化全应用级的提供商。
     BrowserModule,
+    HttpModule,
     CoreModule,
     UserModule,
     // 永远不要在特性路由模块中调用RouterModule.forRoot！

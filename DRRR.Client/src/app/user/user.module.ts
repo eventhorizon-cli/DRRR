@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { SharedModule } from '../shared/shared.module';
 
 import { UserLoginComponent } from './user-login/user-login.component';
+import { UserLoginService } from './user-login/user-login.service';
 import { UserRegisterComponent } from './user-register/user-register.component';
 import { userRoutes } from './user.routes';
 
@@ -16,6 +17,9 @@ import { userRoutes } from './user.routes';
     // 总是在特性路由模块中调用RouterModule.forChild
     RouterModule.forChild(userRoutes),
     SharedModule
+  ],
+  providers: [
+    UserLoginService
   ]
 })
 export class UserModule { }

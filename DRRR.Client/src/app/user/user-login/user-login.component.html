@@ -2,28 +2,36 @@
       (submit)="onSubmit(loginForm.value)"
       class="form-user">
   <h2 class="form-user-heading">账号登录</h2>
-  <div class="form-group">
+  <div class="form-group"
+       [ngClass]="{ 'has-error': formErrorMessages['userName'] }">
     <input type="text"
            class="form-control"
            placeholder="用户名"
            autofocus
            appTextTrim
-           [formControl]="loginForm.controls['username']">
+           [formControl]="loginForm.controls['userName']">
+    <div *ngIf="formErrorMessages['userName']" class="text-danger">
+      {{ formErrorMessages['userName'] }}
+    </div>
   </div>
-  <div class="form-group">
+  <div class="form-group"
+       [ngClass]="{ 'has-error': formErrorMessages['password'] }">
      <input type="password"
             maxlength="16"
             class="form-control"
             placeholder="密码"
             appTextTrim
             [formControl]="loginForm.controls['password']">
+    <div *ngIf="formErrorMessages['password']" class="text-danger">
+      {{ formErrorMessages['password'] }}
+    </div>
   </div>
   <div class="checkbox">
     <label>
       <input type="checkbox">记住我
     </label>
   </div>
-  <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
+  <input type="submit" class="btn btn-lg btn-primary btn-block" value="登录">
 </form>
 <div class="login-extra">
   <p><span>还没有账号？</span>
