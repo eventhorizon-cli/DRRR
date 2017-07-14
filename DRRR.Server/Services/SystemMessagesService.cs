@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace DRRR.Server.Services
 {
@@ -19,14 +18,14 @@ namespace DRRR.Server.Services
         private FileSystemWatcher _watcher;
 
         /// <summary>
-        /// 客户端消息通知配置信息
-        /// </summary>
-        public FileContentResult ClientSystemMessageSettings { get; private set; }
-
-        /// <summary>
         /// 服务器端返回用消息通知配置信息
         /// </summary>
-        public Dictionary<string, string> ServerSystemMessageSettings { get; private set; }
+        public JObject _serverSystemMessageSettings;
+
+        /// <summary>
+        /// 客户端消息通知配置信息
+        /// </summary>
+        public JsonResult ClientSystemMessageSettings { get; private set; }
 
         public SystemMessagesService()
         {
@@ -35,6 +34,12 @@ namespace DRRR.Server.Services
             _watcher.Changed += ReloadFiles;
             _watcher.NotifyFilter = NotifyFilters.LastWrite;
             ReloadFiles(null, null);
+        }
+
+        public string GetServerSystemMessage(string msgId, params string[] args)
+        {
+            string value = _serverSystemMessageSettings[msgId].Value<string>();
+            return Regex.Replace(value, @"{(\d)}", match => args[int.Parse(match.Groups[1].Value)]);
         }
 
         /// <summary>
@@ -46,23 +51,17 @@ namespace DRRR.Server.Services
             _watcher.EnableRaisingEvents = false;
 
             // 加载客户端配置
-            byte[] bytes = File.ReadAllBytes(
+            string jsonClient = File.ReadAllText(
                 Path.Combine(AppContext.BaseDirectory,
                 "Resources", "system-messages.client.json"));
-            ClientSystemMessageSettings = new FileContentResult(bytes, "applictaion/json");
+            ClientSystemMessageSettings = new JsonResult(JObject.Parse(jsonClient));
 
             // 加载服务器端配置
-            ServerSystemMessageSettings = new Dictionary<string, string>();
-            var mactheCollection = Regex.Matches(
-                File.ReadAllText(
-                    Path.Combine(
-                        AppContext.BaseDirectory,
-                        "Resources", "system-messages.server.json")),
-                "\"([A-Z\\d]+)\"\\s*:\\s*\"(.+)\"");
-            foreach (Match macth in mactheCollection)
-            {
-                ServerSystemMessageSettings.Add(macth.Groups[1].Value, macth.Groups[2].Value);
-            }
+            string jsonServer = File.ReadAllText(
+                Path.Combine(
+                    AppContext.BaseDirectory,
+                    "Resources", "system-messages.server.json"));
+            _serverSystemMessageSettings = JObject.Parse(jsonServer);
 
             // 必须将此属性设置为true才能启动监控
             _watcher.EnableRaisingEvents = true;

@@ -21,7 +21,7 @@ namespace DRRR.Server.Services
         public LoginResultDto Validate(UserDto userDto)
         {
             LoginResultDto result = new LoginResultDto();
-            result.Error = "测试错误信息";
+            result.Error = _systemMessagesService.GetServerSystemMessage("E001");
             return result;
         }
     }

@@ -24,7 +24,7 @@ namespace DRRR.Server.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet, Route("system-messages")]
-        public FileResult GetSystemMessageSettings()
+        public JsonResult GetSystemMessageSettings()
         {
             return _systemMessagesService.ClientSystemMessageSettings;
         }
