@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DRRR.Server.Services;
-using DRRR.Server.Dtos;
+using DRRR.Server.DTOs;
 
 namespace DRRR.Server.Controllers
 {
@@ -20,9 +20,9 @@ namespace DRRR.Server.Controllers
 
         [HttpPost, Route("login")]
 
-        public LoginResultDto Login([FromBody]UserDto userDto)
+        public LoginResultDTO Login([FromBody]UserDTO userDTO)
         {
-            return _loginService.Validate(userDto);
+            return _loginService.Validate(userDTO);
         }
     }
 }

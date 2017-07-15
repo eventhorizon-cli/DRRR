@@ -18,9 +18,9 @@ namespace DRRR.Server.Services
         /// <summary>
         /// 验证登录信息
         /// </summary>
-        public LoginResultDto Validate(UserDto userDto)
+        public LoginResultDTO Validate(UserDto userDto)
         {
-            LoginResultDto result = new LoginResultDto();
+            LoginResultDTO result = new LoginResultDTO();
             result.Error = _systemMessagesService.GetServerSystemMessage("E001");
             return result;
         }
