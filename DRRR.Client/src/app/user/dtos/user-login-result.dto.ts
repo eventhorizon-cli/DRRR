@@ -1,3 +1,3 @@
-export interface UserLoginResultDto {
-  error?: string;
+export interface UserLoginResultDTO {
+  error: string;
 }

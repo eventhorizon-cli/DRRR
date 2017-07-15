@@ -36,7 +36,7 @@ export class UserLoginComponent {
     this.loginForm.valueChanges.subscribe(this.valueChanges.bind(this));
   }
 
-  onSubmit(data: object) {
+  onLogin(data: object) {
     if (!this.loginForm.valid) {
       for (const controlName in this.loginForm.controls) {
         if (!this.loginForm.controls[controlName].valid) {
@@ -58,7 +58,8 @@ export class UserLoginComponent {
   private valueChanges(data: object) {
     for (const key in data) {
       if (this.formErrorMessages[key] && data[key]) {
-        // 如果用户修改了之前报错的输入框，则将对应输入框错误去除
+        // 如果之前报错的框被填入有效数据，则将对应输入框报错信息去除
+        // 如果是用户名及密码失败的错误，修改用户名或密码均会将报错信息去除
         this.formErrorMessages[key] = '';
       }
     }
