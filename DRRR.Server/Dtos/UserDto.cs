@@ -1,6 +1,6 @@
-﻿namespace DRRR.Server.DTOs
+﻿namespace DRRR.Server.Dtos
 {
-    public class UserDTO
+    public class UserDto
     {
         /// <summary>
         /// 用户名
