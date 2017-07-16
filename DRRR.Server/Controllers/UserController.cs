@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DRRR.Server.Services;
-using DRRR.Server.DTOs;
+using DRRR.Server.Dtos;
 
 namespace DRRR.Server.Controllers
 {
@@ -20,9 +20,23 @@ namespace DRRR.Server.Controllers
 
         [HttpPost, Route("login")]
 
-        public LoginResultDTO Login([FromBody]UserDTO userDTO)
+        public async Task<LoginResultDto> Login([FromBody]UserDto userDto)
         {
-            return _loginService.Validate(userDTO);
+            return await _loginService.Validate(userDto);
         }
+
+        [HttpPost, Route("register")]
+
+        public async Task<LoginResultDto> Register([FromBody]UserDto userDto)
+        {
+            return await _loginService.Validate(userDto);
+        }
+
+        //[HttpGet, Route("validation/username/{username}")]
+
+        //public async Task<LoginResultDto> ValidateUsername(string username)
+        //{
+        //    return await _loginService.ValidateUsername(username);
+        //}
     }
 }
