@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Security.Cryptography;
@@ -8,16 +9,23 @@ namespace DRRR.Server.Auth
     public class RSAKeyHelper
     {
         /// <summary>
-        /// 生成用于作为Jwt秘钥的随机码
+        /// 用于验证的公钥
         /// </summary>
-        /// <returns></returns>
-        public static RSAParameters GenerateKey()
+        public static RsaSecurityKey RSAPublicKey { get; private set; }
+
+        /// <summary>
+        /// 用于签名的私钥
+        /// </summary>
+        public static RsaSecurityKey RSAPrivateKey { get; private set; }
+
+        static RSAKeyHelper()
         {
+            // 每次启动程序都会重新生成
             using (RSA rsa = RSA.Create())
             {
-                // 长度最低是默认的2048
-                return rsa.ExportParameters(true);
+                RSAPublicKey = new RsaSecurityKey(rsa.ExportParameters(false));
+                RSAPrivateKey = new RsaSecurityKey(rsa.ExportParameters(true));
             }
-        }    
+        }
     }
 }

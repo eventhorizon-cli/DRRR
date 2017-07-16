@@ -18,9 +18,11 @@ namespace DRRR.Server.Auth
         public JwtAuthorizeAttribute(params Roles[] roles) : base("Jwt")
         {
             // 默认对所有通过JWT认证的用户开放
-            roles = roles ?? new[] { Auth.Roles.Guest, Auth.Roles.User, Auth.Roles.Admin };
+            // 如果没有传参数过来的话，默认是个空数组
+            roles = roles.Count() > 0 ? roles
+                : new[] { Auth.Roles.Guest, Auth.Roles.User, Auth.Roles.Admin };
             // 通过逗号分隔
-            base.Roles = string.Join(",", Roles);
+            base.Roles = string.Join(",", roles);
         }
     }
 }

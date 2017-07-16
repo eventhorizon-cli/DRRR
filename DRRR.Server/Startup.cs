@@ -102,9 +102,11 @@ namespace DRRR.Server
             {
                 TokenValidationParameters = new TokenValidationParameters
                 {
-                    IssuerSigningKey = TokenAuthOption.Key,
-                    ValidAudience = TokenAuthOption.Audience,
-                    ValidIssuer = TokenAuthOption.Issuer,
+                    // 签收者可以用公钥认证也可以用私钥认证，分布式系统应该用公钥
+                    // 参考资料https://stackoverflow.com/questions/39239051/rs256-vs-hs256-whats-the-difference
+                    IssuerSigningKey = RSAKeyHelper.RSAPublicKey,
+                    ValidAudience = TokenAuthOptions.Audience,
+                    ValidIssuer = TokenAuthOptions.Issuer,
 
                     // When receiving a token, check that we've signed it.
                     ValidateIssuerSigningKey = true,

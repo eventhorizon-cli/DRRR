@@ -40,9 +40,9 @@ namespace DRRR.Server.Services
 
             var securityToken = handler.CreateToken(new SecurityTokenDescriptor
             {
-                Issuer = TokenAuthOption.Issuer,
-                Audience = TokenAuthOption.Audience,
-                SigningCredentials = TokenAuthOption.SigningCredentials,
+                Issuer = TokenAuthOptions.Issuer,
+                Audience = TokenAuthOptions.Audience,
+                SigningCredentials = TokenAuthOptions.SigningCredentials,
                 Subject = identity,
                 Expires = expires
             });
