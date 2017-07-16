@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace DRRR.Server.Auth
 {
@@ -22,7 +19,7 @@ namespace DRRR.Server.Auth
             roles = roles.Count() > 0 ? roles
                 : new[] { Auth.Roles.Guest, Auth.Roles.User, Auth.Roles.Admin };
             // 通过逗号分隔
-            base.Roles = string.Join(",", roles);
+            Roles = string.Join(",", roles);
         }
     }
 }
