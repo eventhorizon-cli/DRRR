@@ -16,10 +16,8 @@ namespace DRRR.Server.Auth
         {
             // 默认对所有通过JWT认证的用户开放
             // 如果没有传参数过来的话，默认是个空数组
-            roles = roles.Count() > 0 ? roles
-                : new[] { Auth.Roles.Guest, Auth.Roles.User, Auth.Roles.Admin };
             // 通过逗号分隔
-            Roles = string.Join(",", roles);
+            if (roles.Count() > 0) Roles = string.Join(",", roles);
         }
     }
 }
