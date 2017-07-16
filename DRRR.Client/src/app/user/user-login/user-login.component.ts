@@ -24,13 +24,13 @@ export class UserLoginComponent {
     private loginService: UserLoginService
   ) {
     this.loginForm = this.fb.group({
-      userName: ['', Validators.required],
+      username: ['', Validators.required],
       password: ['', Validators.required]
     });
     this.formErrorMessages = {};
     // 为避免获取消息时配置文件尚未加载，在外面多包一层函数
     this.validationMessages = {
-      userName: () => this.msgService.getMessage('E001', '用户名'),
+      username: () => this.msgService.getMessage('E001', '用户名'),
       password: () => this.msgService.getMessage('E001', '密码')
     };
     this.loginForm.valueChanges.subscribe(this.valueChanges.bind(this));
@@ -43,12 +43,13 @@ export class UserLoginComponent {
           this.formErrorMessages[controlName] = this.validationMessages[controlName]();
         }
       }
-    } else {
+    } else if (!this.formErrorMessages['username']) {
       this.loginService
         .login(data)
         .subscribe(res => {
           if (res.error) {
-            this.formErrorMessages['userName'] = res.error;
+            // 在用户名输入框下方显示错误信息
+            this.formErrorMessages['username'] = res.error;
           }else {
           }
       });
