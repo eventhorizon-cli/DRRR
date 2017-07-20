@@ -11,14 +11,19 @@ namespace DRRR.Server.Controllers
     [Route("api/[controller]")]
     public class UserController
     {
-        private LoginService _loginService;
+        private UserLoginService _loginService;
 
-        public UserController(LoginService loginService)
+        private UserRegisterService _registerService;
+
+        public UserController(
+            UserLoginService loginService,
+            UserRegisterService registerService)
         {
             _loginService = loginService;
+            _registerService = registerService;
         }
 
-        [HttpPost, Route("login")]
+        [HttpPost("login")]
 
         public async Task<LoginResultDto> Login([FromBody]UserDto userDto)
         {
@@ -32,11 +37,10 @@ namespace DRRR.Server.Controllers
             return await _loginService.Validate(userDto);
         }
 
-        //[HttpGet, Route("validation/username/{username}")]
-
-        //public async Task<LoginResultDto> ValidateUsername(string username)
-        //{
-        //    return await _loginService.ValidateUsername(username);
-        //}
+        [HttpGet, Route("username-validation/{username}")]
+        public JsonResult ValidateUsername(string username)
+        {
+            return new JsonResult(new { Error = _registerService.ValidateUsername(username) });
+        }
     }
 }

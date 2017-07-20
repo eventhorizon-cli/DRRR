@@ -18,11 +18,20 @@ namespace DRRR.Server.Controllers
             return new string[] { "value1", "value2" };
         }
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [JwtAuthorize(Roles.Admin)]
+        // GET api/values/admin/5
+        [HttpGet, Route("admin/{id}")]
+        public string GetAdmin(int id)
         {
-            return "value";
+            return "admin" + id;
+        }
+
+        [JwtAuthorize(Roles.User)]
+        // GET api/values/user/5
+        [HttpGet("user/{id}")]
+        public string GetUser(int id)
+        {
+            return "user" + id;
         }
 
         // POST api/values

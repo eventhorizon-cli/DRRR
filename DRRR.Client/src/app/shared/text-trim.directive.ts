@@ -1,14 +1,16 @@
-import { Directive, HostBinding, HostListener, ElementRef } from '@angular/core';
+import { Directive, HostListener } from '@angular/core';
+import { NgControl } from '@angular/forms';
 
 @Directive({
   selector: '[appTextTrim]'
 })
 export class TextTrimDirective {
 
-  constructor(private el: ElementRef) {}
+  // 通过NgControl访问FormControl对象
+  // 不能用ElementRef ，否则无法把值更新到FormControl
+  constructor(private control: NgControl) {}
 
   @HostListener('change') onChange() {
-    const elem = this.el.nativeElement as HTMLInputElement;
-    elem.value = elem.value.trim();
+    this.control.control.setValue(this.control.value.trim());
   }
 }

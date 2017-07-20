@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { SystemMessagesService } from '../../core/system-messages.service'
+import { FormErrorsAutoClearerService } from '../../core/form-errors-auto-clearer.service'
 import { UserLoginService } from './user-login.service';
 
 @Component({
@@ -21,7 +22,8 @@ export class UserLoginComponent {
     private fb: FormBuilder,
     private router: Router,
     private msgService: SystemMessagesService,
-    private loginService: UserLoginService
+    private loginService: UserLoginService,
+    private autoClearer: FormErrorsAutoClearerService
   ) {
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
@@ -33,7 +35,7 @@ export class UserLoginComponent {
       username: () => this.msgService.getMessage('E001', '用户名'),
       password: () => this.msgService.getMessage('E001', '密码')
     };
-    this.loginForm.valueChanges.subscribe(this.valueChanges.bind(this));
+    autoClearer.register(this.loginForm, this.formErrorMessages);
   }
 
   onLogin(data: object) {
@@ -53,16 +55,6 @@ export class UserLoginComponent {
           }else {
           }
       });
-    }
-  }
-
-  private valueChanges(data: object) {
-    for (const key in data) {
-      if (this.formErrorMessages[key] && data[key]) {
-        // 如果之前报错的框被填入有效数据，则将对应输入框报错信息去除
-        // 如果是用户名及密码失败的错误，修改用户名或密码均会将报错信息去除
-        this.formErrorMessages[key] = '';
-      }
     }
   }
 }

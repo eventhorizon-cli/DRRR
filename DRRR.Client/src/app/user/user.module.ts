@@ -5,6 +5,7 @@ import { SharedModule } from '../shared/shared.module';
 
 import { UserLoginComponent } from './user-login/user-login.component';
 import { UserLoginService } from './user-login/user-login.service';
+import { UserRegisterService } from './user-register/user-register.service';
 import { UserRegisterComponent } from './user-register/user-register.component';
 import { userRoutes } from './user.routes';
 
@@ -19,7 +20,8 @@ import { userRoutes } from './user.routes';
     SharedModule
   ],
   providers: [
-    UserLoginService
+    UserLoginService,
+    UserRegisterService
   ]
 })
 export class UserModule { }

@@ -1,25 +1,44 @@
-<form class="form-user">
+<form [formGroup]="registerForm"
+      class="form-user"
+      (submit)="onRegister(registerForm.value)">
   <h2 class="form-user-heading">用户注册</h2>
-  <div class="form-group">
+  <div class="form-group"
+       [ngClass]="{ 'has-error': formErrorMessages['username'] }">
     <input type="text"
            class="form-control"
-           placeholder="用户名"
+           placeholder="请输入用户名"
            autofocus
-           appTextTrim>
+           autocomplete="off"
+           appTextTrim
+           [formControl]="registerForm.controls['username']"
+           (change)="validateUsername(registerForm.controls['username'])"
+           (blur)="validateRequired('username')">
+    <span class="help-block">{{ formErrorMessages['username'] || "中英文均可，最长14个英文或7个汉字" }}</span>
   </div>
-  <div class="form-group">
+  <div class="form-group"
+       [ngClass]="{ 'has-error': formErrorMessages['password'] }">
     <input type="password"
            class="form-control"
-           placeholder="密码"
-           required
-           appTextTrim>
+           placeholder="请输入密码"
+           autocomplete="off"
+           appTextTrim
+           [formControl]="registerForm.controls['password']"
+           (change)="validatePassword(registerForm.controls['password'])"
+           (blur)="validateRequired('password')">
+    <span class="help-block">{{ formErrorMessages['password'] || "不少于6位" }}</span>
   </div>
-  <div class="form-group">
+  <div class="form-group"
+       [ngClass]="{ 'has-error': formErrorMessages['confirmPassword'] }">
     <input type="password"
            class="form-control"
-           placeholder="重复密码"
-           required
-           appTextTrim>
+           placeholder="请确认密码"
+           autocomplete="off"
+           appTextTrim
+           [formControl]="registerForm.controls['confirmPassword']"
+           (blur)="validateRequired('confirmPassword')">
+    <span *ngIf="formErrorMessages['confirmPassword']" class="help-block">
+      {{ formErrorMessages['confirmPassword'] }}
+    </span>
   </div>
   <button class="btn btn-lg btn-primary btn-block" type="submit">注册</button>
 </form>

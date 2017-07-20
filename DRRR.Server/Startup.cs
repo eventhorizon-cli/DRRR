@@ -102,7 +102,7 @@ namespace DRRR.Server
             {
                 TokenValidationParameters = new TokenValidationParameters
                 {
-                    // 签收者可以用公钥认证也可以用私钥认证，分布式系统应该用公钥
+                    // 签收者用公钥对JWT进行认证，如果直接给一个私钥，则框架会生成相应的公钥去认证
                     // 参考资料https://stackoverflow.com/questions/39239051/rs256-vs-hs256-whats-the-difference
                     IssuerSigningKey = RSAKeyHelper.RSAPublicKey,
                     ValidAudience = TokenAuthOptions.Audience,

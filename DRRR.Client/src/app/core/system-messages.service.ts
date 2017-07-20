@@ -17,8 +17,8 @@ export class SystemMessagesService {
 
   /**
    * 获取特定的系统消息
-   * @param msgId 信息代号
-   * @param args 替换占位符用的参数
+   * @param {string} msgId 信息代号
+   * @param {string[]} args 替换占位符用的参数
    * @returns {string} 特定的系统消息
    */
   getMessage(msgId: string, ...args: string[]): string {
