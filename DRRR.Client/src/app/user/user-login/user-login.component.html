@@ -1,5 +1,4 @@
 <form [formGroup]="loginForm"
-      (submit)="onLogin(loginForm.value)"
       class="form-user">
   <h2 class="form-user-heading">账号登录</h2>
   <div class="form-group"
@@ -30,7 +29,10 @@
       <input type="checkbox">记住我
     </label>
   </div>
-  <input type="submit" class="btn btn-lg btn-primary btn-block" value="登录">
+  <input type="button"
+         class="btn btn-lg btn-primary btn-block"
+         value="登录"
+         (click)="onLogin(loginForm.value)">
 </form>
 <div class="login-extra">
   <p><span>还没有账号？</span>

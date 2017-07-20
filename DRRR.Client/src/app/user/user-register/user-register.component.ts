@@ -62,8 +62,10 @@ export class UserRegisterComponent {
    * @param {FormControl} password 密码
    */
   validatePassword(password: FormControl) {
-    this.formErrorMessages['password'] = password.valid ? '' :
-      this.msgService.getMessage('E002', '6', '128', '密码');
+    if (password.value.trim()) {
+      this.formErrorMessages['password'] = password.valid ? '' :
+        this.msgService.getMessage('E002', '6', '128', '密码');
+    }
   }
 
   /**
@@ -74,8 +76,8 @@ export class UserRegisterComponent {
     for (const controlName of Object.keys(this.registerForm.controls)) {
       this.validateRequired(controlName);
     }
-    // 密码被输入时才验证确认密码
-    if (data['password'] && data['password'] !== data['confirmPassword']) {
+    // 确认密码被输入时才验证确认密码
+    if (data['confirmPassword'] && data['password'] !== data['confirmPassword']) {
       this.formErrorMessages['confirmPassword'] = this.msgService.getMessage('E003', '密码');
       return;
     }

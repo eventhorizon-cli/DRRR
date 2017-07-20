@@ -1,6 +1,5 @@
 <form [formGroup]="registerForm"
-      class="form-user"
-      (submit)="onRegister(registerForm.value)">
+      class="form-user">
   <h2 class="form-user-heading">用户注册</h2>
   <div class="form-group"
        [ngClass]="{ 'has-error': formErrorMessages['username'] }">
@@ -11,7 +10,7 @@
            autocomplete="off"
            appTextTrim
            [formControl]="registerForm.controls['username']"
-           (change)="validateUsername(registerForm.controls['username'])"
+           (blur)="validateUsername(registerForm.controls['username'])"
            (blur)="validateRequired('username')">
     <span class="help-block">{{ formErrorMessages['username'] || "中英文均可，最长14个英文或7个汉字" }}</span>
   </div>
@@ -23,7 +22,7 @@
            autocomplete="off"
            appTextTrim
            [formControl]="registerForm.controls['password']"
-           (change)="validatePassword(registerForm.controls['password'])"
+           (blur)="validatePassword(registerForm.controls['password'])"
            (blur)="validateRequired('password')">
     <span class="help-block">{{ formErrorMessages['password'] || "不少于6位" }}</span>
   </div>
@@ -40,5 +39,8 @@
       {{ formErrorMessages['confirmPassword'] }}
     </span>
   </div>
-  <button class="btn btn-lg btn-primary btn-block" type="submit">注册</button>
+  <input type="button"
+         class="btn btn-lg btn-primary btn-block"
+         value="注册"
+         (click)="onRegister(registerForm.value)">
 </form>
