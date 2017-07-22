@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 
@@ -11,7 +11,7 @@ import {FormErrorsAutoClearerService} from '../../core/form-errors-auto-clearer.
   templateUrl: './user-register.component.html',
   styleUrls: ['./user-register.component.css']
 })
-export class UserRegisterComponent {
+export class UserRegisterComponent implements OnInit {
 
   registerForm: FormGroup;
 
@@ -19,14 +19,23 @@ export class UserRegisterComponent {
 
   requiredValidationMessages: object;
 
-  constructor(private fb: FormBuilder,
-              private router: Router,
-              private msgService: SystemMessagesService,
-              private registerService: UserRegisterService,
-              private autoClearer: FormErrorsAutoClearerService) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private msgService: SystemMessagesService,
+    private registerService: UserRegisterService,
+    private autoClearer: FormErrorsAutoClearerService) { }
+
+  ngOnInit() {
     this.registerForm = this.fb.group({
-      username: ['', [Validators.required, Validators.maxLength(14)]],
-      password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(128)]],
+      username: ['', [
+        Validators.required,
+        Validators.minLength(2),
+        Validators.maxLength(10)]],
+      password: ['', [
+        Validators.required,
+        Validators.minLength(6),
+        Validators.maxLength(128)]],
       confirmPassword: ['', Validators.required]
     });
 
@@ -37,7 +46,7 @@ export class UserRegisterComponent {
       password: () => this.msgService.getMessage ('E001', '密码'),
       confirmPassword: () => this.msgService.getMessage('E001', '确认密码')
     };
-    autoClearer.register(this.registerForm, this.formErrorMessages);
+    this.autoClearer.register(this.registerForm, this.formErrorMessages);
   }
 
   /**
@@ -46,12 +55,17 @@ export class UserRegisterComponent {
    */
   validateUsername(username: FormControl) {
     // 以防先走这个方法，所以加上trim
-    if (username.value.trim()) {
+    if (username.value.trim() && !this.formErrorMessages['username']) {
+      if (username.hasError('minlength')
+        || username.hasError('maxlength')) {
+        this.formErrorMessages['username'] = this.msgService.getMessage('E002', '2', '10', '用户名');
+        return;
+      }
       this.registerService
         .validateUsername(username.value)
         .subscribe(res => {
           if (this.formErrorMessages['username'] = res['error']) {
-            username.setErrors({illegal: true});
+            username.setErrors({illegal: !!res['error']});
           }
         });
     }

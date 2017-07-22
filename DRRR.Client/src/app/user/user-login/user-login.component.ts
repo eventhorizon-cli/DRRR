@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -11,7 +11,7 @@ import { UserLoginService } from './user-login.service';
   templateUrl: './user-login.component.html',
   styleUrls: ['./user-login.component.css']
 })
-export class UserLoginComponent {
+export class UserLoginComponent implements OnInit {
   loginForm: FormGroup;
 
   formErrorMessages: object;
@@ -24,7 +24,9 @@ export class UserLoginComponent {
     private msgService: SystemMessagesService,
     private loginService: UserLoginService,
     private autoClearer: FormErrorsAutoClearerService
-  ) {
+  ) { }
+
+  ngOnInit () {
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required]
@@ -35,7 +37,7 @@ export class UserLoginComponent {
       username: () => this.msgService.getMessage('E001', '用户名'),
       password: () => this.msgService.getMessage('E001', '密码')
     };
-    autoClearer.register(this.loginForm, this.formErrorMessages);
+    this.autoClearer.register(this.loginForm, this.formErrorMessages);
   }
 
   onLogin(data: object) {
