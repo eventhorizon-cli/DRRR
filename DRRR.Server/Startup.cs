@@ -12,6 +12,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore;
+
+using DRRR.Server.Models;
 
 using DRRR.Server.Auth;
 
@@ -36,6 +39,11 @@ namespace DRRR.Server
         {
             // Add framework services.
             services.AddMvc();
+
+            // 添加MySqle配置，由于官方进展缓慢且找不到具体的文档说明，
+            // 目前使用的是的第三方的Pomelo.EntityFrameworkCore
+            services.AddDbContext<DrrrDbContext>(options =>
+                options.UseMySql(Configuration.GetConnectionString("DrrrDatabase")));
 
             // 添加Jwt认证配置
             // 参考资料https://github.com/mrsheepuk/ASPNETSelfCreatedTokenAuthExample

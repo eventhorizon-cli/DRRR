@@ -30,8 +30,8 @@ namespace DRRR.Server.Services
                 LoginResultDto result = new LoginResultDto();
                 if (userDto.Username == "1" && userDto.Password == "2")
                 {
-                    result.Token = _tokenAuthService
-                        .GenerateToken(new Models.User() { ID = "123", Role = 1 , Username = "普通用户" },TimeSpan.FromMinutes(20));
+                    //result.Token = _tokenAuthService
+                    //    .GenerateToken(new Models.User() { ID = "123", Role = 1 , Username = "普通用户" },TimeSpan.FromMinutes(20));
                 }
                 else
                 {

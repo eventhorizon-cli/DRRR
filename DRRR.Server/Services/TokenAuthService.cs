@@ -1,5 +1,5 @@
 ﻿using DRRR.Server.Auth;
-using DRRR.Server.Models;
+// using DRRR.Server.Models;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -21,32 +21,32 @@ namespace DRRR.Server.Services
         /// <param name="user">用户信息</param>
         /// <param name="expiresSpan">Token的有效期</param>
         /// <returns></returns>        
-        public string GenerateToken(User user, TimeSpan expiresSpan)
-        {
-            // 这边的处理是位于多线程中的
-            var handler = new JwtSecurityTokenHandler();
+        //    public string GenerateToken(User user, TimeSpan expiresSpan)
+        //    {
+        //        // 这边的处理是位于多线程中的
+        //        var handler = new JwtSecurityTokenHandler();
 
-            var identity = new ClaimsIdentity(
-                new GenericIdentity(user.Username, "TokenAuth"),
-                new[] {
-                    new Claim("ID", user.ID.ToString())
-                }
-            );
+        //        var identity = new ClaimsIdentity(
+        //            new GenericIdentity(user.Username, "TokenAuth"),
+        //            new[] {
+        //                new Claim("ID", user.ID.ToString())
+        //            }
+        //        );
 
-            // 权限等级设置
-            identity.AddClaim(new Claim(ClaimTypes.Role, ((Roles)user.Role).ToString()));
+        //        // 权限等级设置
+        //        identity.AddClaim(new Claim(ClaimTypes.Role, ((Roles)user.Role).ToString()));
 
-            var expires = DateTime.Now + expiresSpan;
+        //        var expires = DateTime.Now + expiresSpan;
 
-            var securityToken = handler.CreateToken(new SecurityTokenDescriptor
-            {
-                Issuer = TokenAuthOptions.Issuer,
-                Audience = TokenAuthOptions.Audience,
-                SigningCredentials = TokenAuthOptions.SigningCredentials,
-                Subject = identity,
-                Expires = expires
-            });
-            return handler.WriteToken(securityToken);
-        }
+        //        var securityToken = handler.CreateToken(new SecurityTokenDescriptor
+        //        {
+        //            Issuer = TokenAuthOptions.Issuer,
+        //            Audience = TokenAuthOptions.Audience,
+        //            SigningCredentials = TokenAuthOptions.SigningCredentials,
+        //            Subject = identity,
+        //            Expires = expires
+        //        });
+        //        return handler.WriteToken(securityToken);
+        //    }
     }
 }

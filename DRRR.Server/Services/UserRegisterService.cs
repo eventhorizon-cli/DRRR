@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using DRRR.Server.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DRRR.Server.Services
 {
@@ -12,12 +14,16 @@ namespace DRRR.Server.Services
 
         private TokenAuthService _tokenAuthService;
 
+        private DrrrDbContext _dbContext;
+
         public UserRegisterService(
             SystemMessagesService systemMessagesService,
-            TokenAuthService tokenAuthService)
+            TokenAuthService tokenAuthService,
+            DrrrDbContext dbContext)
         {
             _systemMessagesService = systemMessagesService;
             _tokenAuthService = tokenAuthService;
+            _dbContext = dbContext;
         }
 
         public string ValidateUsername(string username = "")
@@ -28,7 +34,12 @@ namespace DRRR.Server.Services
             {
                 return _systemMessagesService.GetServerSystemMessage("E002");
             }
-            else if (username == "测试")
+
+            // 检测用户名是否存在
+
+            int count = _dbContext.User.Count(user => user.Username == username);
+
+            if (count > 0)
             {
                 return _systemMessagesService.GetServerSystemMessage("E003");
             }
