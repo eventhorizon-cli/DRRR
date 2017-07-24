@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using DRRR.Server.Dtos;
 using DRRR.Server.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,7 +27,7 @@ namespace DRRR.Server.Services
             _dbContext = dbContext;
         }
 
-        public string ValidateUsername(string username = "")
+        public async Task<string> ValidateUsernameAsync(string username = "")
         {
             // 用户名仅支持中日英文、数字和下划线,且不能为纯数字
             if (!Regex.IsMatch(username, @"^[\u4e00-\u9fa5\u3040-\u309F\u30A0-\u30FFa-zA-Z_\d]+$")
@@ -36,14 +37,23 @@ namespace DRRR.Server.Services
             }
 
             // 检测用户名是否存在
-
-            int count = _dbContext.User.Count(user => user.Username == username);
+            int count = await _dbContext.User.CountAsync(user => user.Username == username);
 
             if (count > 0)
             {
                 return _systemMessagesService.GetServerSystemMessage("E003");
             }
             return null;
+        }
+
+        public async Task<AccessTokenDto> RegisterAsync(UserDto userDto)
+        {
+            var tokenDto = new AccessTokenDto();
+            var user = new User { Username = userDto.Username, Password = userDto.Password };
+            _dbContext.User.Add(user);
+            int count = await _dbContext.SaveChangesAsync();
+            tokenDto.Token = _tokenAuthService.GenerateToken(user, TimeSpan.FromMinutes(30));
+            return tokenDto;
         }
     }
 }

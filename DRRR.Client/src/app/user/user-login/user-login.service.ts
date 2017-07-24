@@ -5,7 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 
 import { SystemMessagesService } from '../../core/system-messages.service';
-import { UserLoginResultDto } from '../dtos/user-login-result.dto';
+import { AccessTokenDtoDto } from '../dtos/access-token.dto';
 
 @Injectable()
 export class UserLoginService {
@@ -15,10 +15,10 @@ export class UserLoginService {
     private msgService: SystemMessagesService
   ) { }
 
-  login(data: object): Observable <UserLoginResultDto> {
+  login(loginInfo: object): Observable <AccessTokenDtoDto> {
      // 不要手动序列化json数据，否则会导致413错误
      return this.http
-       .post('/api/user/login', data)
+       .post('/api/user/login', loginInfo)
        .map(res => res.json());
   }
 }

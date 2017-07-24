@@ -25,22 +25,22 @@ namespace DRRR.Server.Controllers
 
         [HttpPost("login")]
 
-        public async Task<LoginResultDto> Login([FromBody]UserDto userDto)
+        public async Task<AccessTokenDto> LoginAsync([FromBody]UserDto userDto)
         {
-            return await _loginService.Validate(userDto);
+            return await _loginService.ValidateAsync(userDto);
         }
 
         [HttpPost, Route("register")]
 
-        public async Task<LoginResultDto> Register([FromBody]UserDto userDto)
+        public async Task<AccessTokenDto> RegisterAsync([FromBody]UserDto userDto)
         {
-            return await _loginService.Validate(userDto);
+            return await _registerService.RegisterAsync(userDto);
         }
 
         [HttpGet, Route("username-validation/{username}")]
-        public JsonResult ValidateUsername(string username)
+        public async Task<JsonResult> ValidateUsernameAsync(string username)
         {
-            return new JsonResult(new { Error = _registerService.ValidateUsername(username) });
+            return new JsonResult(new { Error = await _registerService.ValidateUsernameAsync(username) });
         }
     }
 }

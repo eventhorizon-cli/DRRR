@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace DRRR.Server.Dtos
 {
-    public class LoginResultDto
+    public class AccessTokenDto
     {
         /// <summary>
         /// 错误信息

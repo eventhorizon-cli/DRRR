@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SystemMessagesService } from '../../core/system-messages.service'
 import { FormErrorsAutoClearerService } from '../../core/form-errors-auto-clearer.service'
 import { UserLoginService } from './user-login.service';
+import { AuthTokenService } from '../../core/auth-token.service';
 
 @Component({
   selector: 'app-user-login',
@@ -23,8 +24,8 @@ export class UserLoginComponent implements OnInit {
     private router: Router,
     private msgService: SystemMessagesService,
     private loginService: UserLoginService,
-    private autoClearer: FormErrorsAutoClearerService
-  ) { }
+    private autoClearer: FormErrorsAutoClearerService,
+    private tokenService: AuthTokenService) { }
 
   ngOnInit () {
     this.loginForm = this.fb.group({
@@ -55,6 +56,7 @@ export class UserLoginComponent implements OnInit {
             // 在用户名输入框下方显示错误信息
             this.formErrorMessages['username'] = res.error;
           }else {
+            this.tokenService.saveToken(res.token);
           }
       });
     }

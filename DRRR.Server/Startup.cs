@@ -42,6 +42,7 @@ namespace DRRR.Server
 
             // 添加MySqle配置，由于官方进展缓慢且找不到具体的文档说明，
             // 目前使用的是的第三方的Pomelo.EntityFrameworkCore
+            // 类型为Scoped以避免线程安全问题
             services.AddDbContext<DrrrDbContext>(options =>
                 options.UseMySql(Configuration.GetConnectionString("DrrrDatabase")));
 
@@ -61,8 +62,16 @@ namespace DRRR.Server
                 .Where(service => service.Name.EndsWith("Service")).ToArray();
             foreach (Type type in types)
             {
-                // 提供单例服务
-                services.AddSingleton(type);
+                if (type.Name == nameof(Services.SystemMessagesService))
+                {
+                    // 提供单例服务
+                    services.AddSingleton(type);
+                }
+                else
+                {
+                    // 每次请求都会创建新的实例
+                    services.AddScoped(type);
+                }
             }
         }
 

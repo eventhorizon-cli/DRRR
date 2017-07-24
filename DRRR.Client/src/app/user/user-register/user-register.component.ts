@@ -1,10 +1,11 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {AbstractControl, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 
 import { SystemMessagesService } from '../../core/system-messages.service';
 import { UserRegisterService } from './user-register.service';
-import {FormErrorsAutoClearerService} from '../../core/form-errors-auto-clearer.service';
+import { FormErrorsAutoClearerService } from '../../core/form-errors-auto-clearer.service';
+import { AuthTokenService } from '../../core/auth-token.service';
 
 @Component({
   selector: 'app-user-register',
@@ -24,7 +25,8 @@ export class UserRegisterComponent implements OnInit {
     private router: Router,
     private msgService: SystemMessagesService,
     private registerService: UserRegisterService,
-    private autoClearer: FormErrorsAutoClearerService) { }
+    private autoClearer: FormErrorsAutoClearerService,
+    private tokenService: AuthTokenService) { }
 
   ngOnInit() {
     this.registerForm = this.fb.group({
@@ -51,9 +53,9 @@ export class UserRegisterComponent implements OnInit {
 
   /**
    * 验证用户名是否合法
-   * @param {FormControl} username 用户名
+   * @param {AbstractControl} username 用户名
    */
-  validateUsername(username: FormControl) {
+  validateUsername(username: AbstractControl) {
     // 以防先走这个方法，所以加上trim
     if (username.value.trim() && !this.formErrorMessages['username']) {
       if (username.hasError('minlength')
@@ -73,9 +75,9 @@ export class UserRegisterComponent implements OnInit {
 
   /**
    * 验证密码输入是否合法
-   * @param {FormControl} password 密码
+   * @param {AbstractControl} password 密码
    */
-  validatePassword(password: FormControl) {
+  validatePassword(password: AbstractControl) {
     if (password.value.trim()) {
       this.formErrorMessages['password'] = password.valid ? '' :
         this.msgService.getMessage('E002', '6', '128', '密码');
@@ -86,14 +88,22 @@ export class UserRegisterComponent implements OnInit {
    * 点击注册
    * @param {Object} data
    */
-  onRegister(data: object) {
+  onRegister(registerInfo: object) {
     for (const controlName of Object.keys(this.registerForm.controls)) {
       this.validateRequired(controlName);
     }
     // 确认密码被输入时才验证确认密码
-    if (data['confirmPassword'] && data['password'] !== data['confirmPassword']) {
+    if (registerInfo['confirmPassword'] && registerInfo['password'] !== registerInfo['confirmPassword']) {
       this.formErrorMessages['confirmPassword'] = this.msgService.getMessage('E003', '密码');
       return;
+    }
+    if (this.registerForm.valid) {
+      this.registerService.register(registerInfo)
+        .subscribe(res => {
+          if (!res.error) {
+            this.tokenService.saveToken(res.token);
+          }
+        });
     }
   }
 
