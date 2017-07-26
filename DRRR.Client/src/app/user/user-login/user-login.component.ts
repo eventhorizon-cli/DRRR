@@ -2,13 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import { SystemMessagesService } from '../../core/system-messages.service'
-import { FormErrorsAutoClearerService } from '../../core/form-errors-auto-clearer.service'
+import { SystemMessagesService } from '../../core/services/system-messages.service'
+import { FormErrorsAutoClearerService } from '../../core/services/form-errors-auto-clearer.service'
 import { UserLoginService } from './user-login.service';
-import { AuthTokenService } from '../../core/auth-token.service';
+import { AuthTokenService } from '../../core/services/auth-token.service';
 
 @Component({
-  selector: 'app-user-login',
   templateUrl: './user-login.component.html',
   styleUrls: ['./user-login.component.css']
 })
@@ -39,6 +38,11 @@ export class UserLoginComponent implements OnInit {
       password: () => this.msgService.getMessage('E001', '密码')
     };
     this.autoClearer.register(this.loginForm, this.formErrorMessages);
+    this.loginForm.valueChanges.subscribe(_ => {
+      if (this.loginForm.valid) {
+        this.formErrorMessages['username'] = '';
+      }
+    });
   }
 
   onLogin(data: object) {
@@ -57,6 +61,7 @@ export class UserLoginComponent implements OnInit {
             this.formErrorMessages['username'] = res.error;
           }else {
             this.tokenService.saveToken(res.token);
+            this.router.navigate(['/chart-rooms']);
           }
       });
     }

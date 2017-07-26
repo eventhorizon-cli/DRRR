@@ -2,13 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import {AbstractControl, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 
-import { SystemMessagesService } from '../../core/system-messages.service';
+import { SystemMessagesService } from '../../core/services/system-messages.service';
 import { UserRegisterService } from './user-register.service';
-import { FormErrorsAutoClearerService } from '../../core/form-errors-auto-clearer.service';
-import { AuthTokenService } from '../../core/auth-token.service';
+import { FormErrorsAutoClearerService } from '../../core/services/form-errors-auto-clearer.service';
+import { AuthTokenService } from '../../core/services/auth-token.service';
 
 @Component({
-  selector: 'app-user-register',
   templateUrl: './user-register.component.html',
   styleUrls: ['./user-register.component.css']
 })
