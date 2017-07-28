@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DRRR.Server.Dtos;
 using DRRR.Server.Models;
+using DRRR.Server.Auth;
 using Microsoft.EntityFrameworkCore;
 
 namespace DRRR.Server.Services
@@ -49,7 +50,13 @@ namespace DRRR.Server.Services
         public async Task<AccessTokenDto> RegisterAsync(UserDto userDto)
         {
             var tokenDto = new AccessTokenDto();
-            var user = new User { Username = userDto.Username, Password = userDto.Password };
+            var user = new User
+            {
+                Username = userDto.Username,
+                Password = userDto.Password,
+                // 默认为普通用户
+                RoleId = (int)Roles.User
+            };
             _dbContext.User.Add(user);
             int count = await _dbContext.SaveChangesAsync();
             tokenDto.Token = _tokenAuthService.GenerateToken(user, TimeSpan.FromMinutes(30));

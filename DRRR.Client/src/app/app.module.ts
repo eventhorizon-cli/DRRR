@@ -18,9 +18,9 @@ import { AppRoutingModule } from './app-routing.module';
     // 它们不需要重新初始化全应用级的提供商。
     BrowserModule,
     HttpModule,
-    AppRoutingModule,
     CoreModule,
-    UserModule
+    UserModule,
+    AppRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -29,6 +29,8 @@ namespace DRRR.Server.Services
         /// <summary>
         /// 验证登录信息
         /// </summary>
+        /// <param name="userDto">用户信息</param>
+        /// <returns>验证结果</returns>
         public async Task<AccessTokenDto> ValidateAsync(UserDto userDto)
         {
             AccessTokenDto result = new AccessTokenDto();

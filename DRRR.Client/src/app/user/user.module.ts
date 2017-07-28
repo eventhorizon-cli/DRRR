@@ -14,8 +14,8 @@ import { UserRoutingModule } from './user-routing.module';
     UserRegisterComponent
   ],
   imports: [
-    UserRoutingModule,
-    SharedModule
+    SharedModule,
+    UserRoutingModule
   ],
   providers: [
     UserLoginService,

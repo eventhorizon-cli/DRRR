@@ -28,9 +28,7 @@ namespace DRRR.Server.Services
 
             var identity = new ClaimsIdentity(
                 new GenericIdentity(user.Username, "TokenAuth"),
-                new[] {
-                        new Claim("ID", user.Id.ToString())
-                }
+                new[] { new Claim("ID", user.Id.ToString()) }
             );
 
             // 权限等级设置

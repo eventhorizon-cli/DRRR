@@ -61,7 +61,7 @@ export class UserLoginComponent implements OnInit {
             this.formErrorMessages['username'] = res.error;
           }else {
             this.tokenService.saveToken(res.token);
-            this.router.navigate(['/chart-rooms']);
+            this.router.navigate(['/chat-rooms']);
           }
       });
     }
