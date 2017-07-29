@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using DRRR.Server.Dtos;
 using DRRR.Server.Models;
 using DRRR.Server.Auth;
-using Microsoft.EntityFrameworkCore;
+using static DRRR.Server.Auth.PasswordHelper;
 
 namespace DRRR.Server.Services
 {
@@ -50,10 +51,12 @@ namespace DRRR.Server.Services
         public async Task<AccessTokenDto> RegisterAsync(UserDto userDto)
         {
             var tokenDto = new AccessTokenDto();
+            string salt = Guid.NewGuid().ToString();
             var user = new User
             {
                 Username = userDto.Username,
-                Password = userDto.Password,
+                PasswordHash = GeneratePasswordHash(userDto.Password, salt),
+                Salt = salt,
                 // 默认为普通用户
                 RoleId = (int)Roles.User
             };

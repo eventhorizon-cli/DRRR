@@ -58,21 +58,22 @@ namespace DRRR.Server
             });
 
             // 添加自定义的服务
-            Type[] types = Assembly.GetEntryAssembly().GetTypes()
-                .Where(service => service.Name.EndsWith("Service")).ToArray();
-            foreach (Type type in types)
-            {
-                if (type.Name == nameof(Services.SystemMessagesService))
+            Assembly.GetEntryAssembly().GetTypes()
+                .Where(service => service.Name.EndsWith("Service"))
+                .ToList()
+                .ForEach(type =>
                 {
-                    // 提供单例服务
-                    services.AddSingleton(type);
-                }
-                else
-                {
-                    // 每次请求都会创建新的实例
-                    services.AddScoped(type);
-                }
-            }
+                    if (type.Name == nameof(Services.SystemMessagesService))
+                    {
+                        // 提供单例服务
+                        services.AddSingleton(type);
+                    }
+                    else
+                    {
+                        // 每次请求都会创建新的实例
+                        services.AddScoped(type);
+                    }
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

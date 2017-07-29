@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using DRRR.Server.Dtos;
 using DRRR.Server.Models;
 using Microsoft.EntityFrameworkCore;
+using DRRR.Server.Auth;
+using static DRRR.Server.Auth.PasswordHelper;
 
 namespace DRRR.Server.Services
 {
@@ -35,10 +37,11 @@ namespace DRRR.Server.Services
         {
             AccessTokenDto result = new AccessTokenDto();
             User user = await _dbcontext.User
-                .Where(u => u.Username == userDto.Username
-                            && u.Password == userDto.Password)
-                            .FirstOrDefaultAsync();
-            if (user != null)
+                .Where(u => u.Username == userDto.Username)
+                .FirstOrDefaultAsync();
+
+            if (user != null
+                && ValidatePassword(userDto.Password, user.Salt, user.PasswordHash))
             {
                 result.Token = _tokenAuthService
                     .GenerateToken(user, TimeSpan.FromMinutes(30));

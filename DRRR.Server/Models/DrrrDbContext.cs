@@ -49,15 +49,20 @@ namespace DRRR.Server.Models
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                entity.Property(e => e.Password)
+                entity.Property(e => e.PasswordHash)
                     .IsRequired()
-                    .HasColumnName("password")
-                    .HasColumnType("varchar(32)");
+                    .HasColumnName("password_hash")
+                    .HasColumnType("varchar(44)");
 
                 entity.Property(e => e.RoleId)
                     .HasColumnName("role_id")
                     .HasColumnType("int(1) unsigned")
                     .HasDefaultValueSql("1");
+
+                entity.Property(e => e.Salt)
+                    .IsRequired()
+                    .HasColumnName("salt")
+                    .HasColumnType("varchar(36)");
 
                 entity.Property(e => e.StatusCode)
                     .HasColumnName("status_code")
