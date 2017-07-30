@@ -1,46 +1,32 @@
 <!-- 顶部导航 -->
-<!--<nav class="main-nav navbar-fixed-top">-->
-  <!--<div class="container">-->
-    <!--<div class="navbar-header">-->
-      <!--<a class="navbar-brand" href="#"><span>聊天室</span></a>-->
-    <!--</div>-->
-    <!--<div class="collapse navbar-collapse navbar-responsive-collapse" aria-expanded="false">-->
-      <!--<ul *ngIf="!currentUser?.userName" class="nav navbar-nav navbar-right">-->
-        <!--<li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">-->
-          <!--<a routerLink="./login"><span>登录</span></a>-->
-        <!--</li>-->
-        <!--<li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">-->
-          <!--<a routerLink="./register"><span>注册</span></a>-->
-        <!--</li>-->
-      <!--</ul>-->
-    <!--</div>-->
-  <!--</div>-->
-<!--</nav>-->
-<nav class="navbar navbar-default main-nav navbar-fixed-top">
-  <div class="container container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
+<nav class="navbar navbar-fixed-top main-nav">
+  <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
+      <button class="navbar-toggle collapsed"
+              type="button"
+              data-toggle="collapse"
+              data-target=".navbar-collapse"
+              #btnToggle>
+        <span>菜单</span>
+        <span class="caret"></span>
       </button>
-      <a class="navbar-brand" href="#"><span>聊天室</span></a>
+      <a class="navbar-brand" href="javascript:void(0)">聊天室</a>
     </div>
-
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    <div class="navbar-collapse collapse"
+         role="navigation"
+         #navigation
+         aria-expanded="false"
+         (click)="slideUp(navigation.getAttribute('aria-expanded'), btnToggle)">
       <ul class="nav navbar-nav navbar-right">
         <li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-        <a routerLink="./login"><span>登录</span></a>
+          <a routerLink="./login"><span>登录</span></a>
         </li>
         <li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-        <a routerLink="./register"><span>注册</span></a>
+          <a routerLink="./register"><span>注册</span></a>
         </li>
       </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
+    </div>
+  </div>
 </nav>
 <!-- 主体内容区域 -->
 <div class="container main-container">

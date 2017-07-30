@@ -26,37 +26,44 @@
 
 .main-nav {
   background: #1976D2;
-  height: 56px;
-  min-height: 56px;
   padding: 0;
   box-shadow: 0 2px 5px 0 rgba(0,0,0,0.24);
 }
 
-.main-nav a {
-  f: #fff;
+.main-nav a{
+  color: #fff;
   height: inherit;
 }
 
-.main-nav a,
-.navbar-nav > li > a{
+.navbar-toggle{
+  height: 50px;
+  color: #fff;
   font-size: 16px;
-  line-height: 56px;
+  margin: 0;
+  border-radius: 0;
+}
+
+.main-nav a,
+.navbar-nav>li> a{
+  font-size: 16px;
+  line-height: 50px;
   padding-top: 0;
   padding-bottom: 0;
 }
 
-li.active,
+.navbar-nav>.active>a,
 .nav>li>a:focus,
-.nav>li>a:hover{
+.nav>li>a:hover,
+.navbar-toggle:hover{
   background-color: #1E88E5;
-}
-
-.main-container {
-  padding-top: 80px;
 }
 
 .navbar-header a{
   font-size: 25px;
+}
+
+.main-container{
+  padding-top: 70px;
 }
 
 .footer {
