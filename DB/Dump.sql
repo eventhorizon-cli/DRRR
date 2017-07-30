@@ -32,16 +32,6 @@ CREATE TABLE `role` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `role`
---
-
-LOCK TABLES `role` WRITE;
-/*!40000 ALTER TABLE `role` DISABLE KEYS */;
-INSERT INTO `role` VALUES (1,'注册用户注'),(2,'管理员');
-/*!40000 ALTER TABLE `role` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `user`
 --
 
@@ -51,25 +41,16 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT '用户ID',
   `username` varchar(10) NOT NULL COMMENT '用户名',
-  `password` varchar(32) NOT NULL COMMENT '密码',
+  `password_hash` varchar(44) NOT NULL COMMENT '哈希密码',
+  `salt` varchar(36) NOT NULL COMMENT '盐',
   `role_id` int(1) unsigned NOT NULL DEFAULT '1' COMMENT '角色ID',
   `status_code` int(1) NOT NULL DEFAULT '0' COMMENT '用户状态',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='用户表';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='用户表';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `user`
---
-
-LOCK TABLES `user` WRITE;
-/*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (0000000001,'测试','123',2,0,'2017-07-22 18:08:44','2017-07-22 18:08:46');
-/*!40000 ALTER TABLE `user` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `user_status`
@@ -84,15 +65,6 @@ CREATE TABLE `user_status` (
   PRIMARY KEY (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户状态表';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `user_status`
---
-
-LOCK TABLES `user_status` WRITE;
-/*!40000 ALTER TABLE `user_status` DISABLE KEYS */;
-/*!40000 ALTER TABLE `user_status` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -103,4 +75,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-07-23 14:14:33
+-- Dump completed on 2017-07-29 17:41:54

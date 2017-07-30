@@ -6,7 +6,8 @@ import { ChatRoomListComponent  } from './chat-room-list/chat-room-list.componen
 const ChatRoomsRouts: Routes = [
   {
     path: '',
-    component : ChatRoomListComponent
+    component : ChatRoomListComponent,
+    pathMatch: 'full'
   }];
 
 @NgModule({

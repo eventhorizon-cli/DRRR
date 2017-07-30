@@ -4,7 +4,8 @@ import { SharedModule } from '../shared/shared.module';
 import { ChatRoomsRoutingModule } from './chat-rooms-routing.module';
 
 import { ChatRoomListComponent } from './chat-room-list/chat-room-list.component';
-import { ChatRoomComponent } from './chat-room/chat-room.component';
+import { ChatRoomListItemComponent } from './chat-room-list-item/chat-room-list-item.component';
+import { ChatRoomMainComponent } from './chat-room-main/chat-room-main.component';
 
 @NgModule({
   imports: [
@@ -13,6 +14,7 @@ import { ChatRoomComponent } from './chat-room/chat-room.component';
   ],
   declarations: [
     ChatRoomListComponent,
-    ChatRoomComponent]
+    ChatRoomListItemComponent,
+    ChatRoomMainComponent]
 })
 export class ChatRoomsModule { }
