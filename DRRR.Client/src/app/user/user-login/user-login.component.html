@@ -6,7 +6,6 @@
     <input type="text"
            class="form-control"
            placeholder="用户名"
-           autofocus
            appTextTrim
            [formControl]="loginForm.controls['username']">
     <span *ngIf="formErrorMessages['username']" class="help-block">

@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute, Params } from '@angular/router';
+
+import 'rxjs/add/operator/switchMap';
 
 @Component({
   selector: 'app-chat-room-list',
@@ -7,11 +10,17 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ChatRoomListComponent implements OnInit {
 
-  constructor() {
-    console.log('被加载了');
-  }
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
   ngOnInit() {
+    // const page: number = this.route.params
+    //   .switchMap((params: Params) => {
+    //     return params['page'];
+    //   });
+    // console.log(page);
   }
 
 }

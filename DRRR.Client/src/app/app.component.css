@@ -1,0 +1,51 @@
+.main-nav {
+  background: #1976D2;
+}
+
+.main-nav a{
+  color: #ffffff;
+  height: inherit;
+}
+
+.icon-bar{
+  background-color: #ffffff;
+}
+
+.navbar-toggle{
+
+}
+
+.main-nav a,
+.navbar-nav>li> a{
+  font-size: 16px;
+  line-height: 50px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.navbar-nav>.active>a,
+.nav>li>a:focus,
+.nav>li>a:hover,
+.navbar-toggle{
+  background-color: #1E88E5;
+}
+
+.navbar-header a{
+  font-size: 25px;
+}
+
+.main-container{
+  padding-top: 70px;
+}
+
+.footer {
+  text-align: left;
+  font-size: 15px;
+  padding: 10px 20px;
+  background: #263238;
+  color: #ffffff;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}

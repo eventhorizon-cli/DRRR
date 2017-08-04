@@ -5,15 +5,6 @@
   margin: 0 auto;
 }
 
-.form-user .form-user-heading,
-.form-user .checkbox {
-  margin-bottom: 10px;
-}
-
-.form-user .checkbox {
-  font-weight: normal;
-}
-
 .form-user .form-control {
   position: relative;
   height: auto;
@@ -22,60 +13,6 @@
   box-sizing: border-box;
   padding: 10px;
   font-size: 16px;
-}
-
-.main-nav {
-  background: #1976D2;
-  padding: 0;
-  box-shadow: 0 2px 5px 0 rgba(0,0,0,0.24);
-}
-
-.main-nav a{
-  color: #fff;
-  height: inherit;
-}
-
-.navbar-toggle{
-  height: 50px;
-  color: #fff;
-  font-size: 16px;
-  margin: 0;
-  border-radius: 0;
-}
-
-.main-nav a,
-.navbar-nav>li> a{
-  font-size: 16px;
-  line-height: 50px;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-
-.navbar-nav>.active>a,
-.nav>li>a:focus,
-.nav>li>a:hover,
-.navbar-toggle:hover{
-  background-color: #1E88E5;
-}
-
-.navbar-header a{
-  font-size: 25px;
-}
-
-.main-container{
-  padding-top: 70px;
-}
-
-.footer {
-  text-align: left;
-  font-size: 15px;
-  padding: 10px 20px;
-  background: #263238;
-  color: #fff;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
 }
 
 html {
