@@ -15,9 +15,9 @@ namespace DRRR.Server.Auth
         /// <param name="pwd">加密前的密码</param>
         /// <param name="salt">盐</param>
         /// <returns></returns>
-        public static string GeneratePasswordHash(string pwd, string salt)
+        public static string GeneratePasswordHash(string pwd, Guid salt)
         {
-            byte[] passwordAndSaltBytes = Encoding.UTF8.GetBytes(pwd + salt);
+            byte[] passwordAndSaltBytes = Encoding.UTF8.GetBytes(pwd + salt.ToString());
             byte[] hashBytes = SHA256.Create().ComputeHash(passwordAndSaltBytes);
             string hashString = Convert.ToBase64String(hashBytes);
             return hashString;
@@ -30,7 +30,7 @@ namespace DRRR.Server.Auth
         /// <param name="salt">盐</param>
         /// <param name="pwdHash">哈希密码</param>
         /// <returns></returns>
-        public static bool ValidatePassword(string pwd, string salt, string pwdHash)
+        public static bool ValidatePassword(string pwd, Guid salt, string pwdHash)
         {
             return GeneratePasswordHash(pwd, salt) == pwdHash;
         }

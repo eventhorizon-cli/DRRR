@@ -7,16 +7,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
-
 using DRRR.Server.Models;
-
 using DRRR.Server.Auth;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DRRR.Server
 {
@@ -55,8 +53,30 @@ namespace DRRR.Server
                     .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
                     .RequireAuthenticatedUser()
                     .Build());
-            });
+            }).AddJwtBearerAuthentication(jwtBearerOptions =>
+            {
+                jwtBearerOptions.TokenValidationParameters = new TokenValidationParameters
+                {
+                    // 签收者用公钥对JWT进行认证，如果直接给一个私钥，则框架会生成相应的公钥去认证
+                    // 参考资料https://stackoverflow.com/questions/39239051/rs256-vs-hs256-whats-the-difference
+                    IssuerSigningKey = RSAKeyHelper.RSAPublicKey,
+                    ValidAudience = TokenAuthOptions.Audience,
+                    ValidIssuer = TokenAuthOptions.Issuer,
 
+                    // When receiving a token, check that we've signed it.
+                    ValidateIssuerSigningKey = true,
+
+                    // When receiving a token, check that it is still valid.
+                    ValidateLifetime = true,
+
+                    // This defines the maximum allowable clock skew - i.e. provides a tolerance on the token expiry time 
+                    // when validating the lifetime. As we're creating the tokens locally and validating them on the same 
+                    // machines which should have synchronised time, this can be set to zero. Where external tokens are
+                    // used, some leeway here could be useful.
+                    ClockSkew = TimeSpan.FromMinutes(0)
+                };
+            });
+           
             // 添加自定义的服务
             Assembly.GetEntryAssembly().GetTypes()
                 .Where(service => service.Name.EndsWith("Service"))
@@ -113,33 +133,8 @@ namespace DRRR.Server
                 });
             });
             #endregion
-
-            #region UseJwtBearerAuthentication
-
-            app.UseJwtBearerAuthentication(new JwtBearerOptions
-            {
-                TokenValidationParameters = new TokenValidationParameters
-                {
-                    // 签收者用公钥对JWT进行认证，如果直接给一个私钥，则框架会生成相应的公钥去认证
-                    // 参考资料https://stackoverflow.com/questions/39239051/rs256-vs-hs256-whats-the-difference
-                    IssuerSigningKey = RSAKeyHelper.RSAPublicKey,
-                    ValidAudience = TokenAuthOptions.Audience,
-                    ValidIssuer = TokenAuthOptions.Issuer,
-
-                    // When receiving a token, check that we've signed it.
-                    ValidateIssuerSigningKey = true,
-
-                    // When receiving a token, check that it is still valid.
-                    ValidateLifetime = true,
-
-                    // This defines the maximum allowable clock skew - i.e. provides a tolerance on the token expiry time 
-                    // when validating the lifetime. As we're creating the tokens locally and validating them on the same 
-                    // machines which should have synchronised time, this can be set to zero. Where external tokens are
-                    // used, some leeway here could be useful.
-                    ClockSkew = TimeSpan.FromMinutes(0)
-                }
-            });
-            #endregion
+           
+            app.UseAuthentication();
 
             app.UseMvc();
 

@@ -51,7 +51,7 @@ namespace DRRR.Server.Services
         public async Task<AccessTokenDto> RegisterAsync(UserDto userDto)
         {
             var tokenDto = new AccessTokenDto();
-            string salt = Guid.NewGuid().ToString();
+            Guid salt = Guid.NewGuid();
             var user = new User
             {
                 Username = userDto.Username,

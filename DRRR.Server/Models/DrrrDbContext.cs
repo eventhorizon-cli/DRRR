@@ -24,17 +24,24 @@ namespace DRRR.Server.Models
 
                 entity.Property(e => e.Id)
                     .HasColumnName("id")
-                    .HasColumnType("int(1)");
+                    .HasColumnType("int(1) unsigned")
+                    .ValueGeneratedNever();
 
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasColumnName("name")
-                    .HasColumnType("varchar(5)");
+                    .HasMaxLength(5);
             });
 
             modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("user");
+
+                entity.HasIndex(e => e.RoleId)
+                    .HasName("role_id_idx");
+
+                entity.HasIndex(e => e.StatusCode)
+                    .HasName("status_code_idx");
 
                 entity.HasIndex(e => e.Username)
                     .HasName("username")
@@ -42,7 +49,8 @@ namespace DRRR.Server.Models
 
                 entity.Property(e => e.Id)
                     .HasColumnName("id")
-                    .HasColumnType("int(10) unsigned zerofill");
+                    .HasColumnType("int(10) unsigned zerofill")
+                    .ValueGeneratedNever();
 
                 entity.Property(e => e.CreateTime)
                     .HasColumnName("create_time")
@@ -52,21 +60,18 @@ namespace DRRR.Server.Models
                 entity.Property(e => e.PasswordHash)
                     .IsRequired()
                     .HasColumnName("password_hash")
-                    .HasColumnType("varchar(44)");
+                    .HasColumnType("char(44)");
 
                 entity.Property(e => e.RoleId)
                     .HasColumnName("role_id")
                     .HasColumnType("int(1) unsigned")
                     .HasDefaultValueSql("1");
 
-                entity.Property(e => e.Salt)
-                    .IsRequired()
-                    .HasColumnName("salt")
-                    .HasColumnType("varchar(36)");
+                entity.Property(e => e.Salt).HasColumnName("salt");
 
                 entity.Property(e => e.StatusCode)
                     .HasColumnName("status_code")
-                    .HasColumnType("int(1)")
+                    .HasColumnType("int(1) unsigned")
                     .HasDefaultValueSql("0");
 
                 entity.Property(e => e.UpdateTime)
@@ -77,24 +82,36 @@ namespace DRRR.Server.Models
                 entity.Property(e => e.Username)
                     .IsRequired()
                     .HasColumnName("username")
-                    .HasColumnType("varchar(10)");
+                    .HasMaxLength(10);
+
+                entity.HasOne(d => d.Role)
+                    .WithMany(p => p.User)
+                    .HasForeignKey(d => d.RoleId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("role_id");
+
+                entity.HasOne(d => d.StatusCodeNavigation)
+                    .WithMany(p => p.User)
+                    .HasForeignKey(d => d.StatusCode)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("status_code");
             });
 
             modelBuilder.Entity<UserStatus>(entity =>
             {
-                entity.HasKey(e => e.Code)
-                    .HasName("PK_user_status");
+                entity.HasKey(e => e.Code);
 
                 entity.ToTable("user_status");
 
                 entity.Property(e => e.Code)
                     .HasColumnName("code")
-                    .HasColumnType("int(1)");
+                    .HasColumnType("int(1) unsigned")
+                    .ValueGeneratedNever();
 
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasColumnName("name")
-                    .HasColumnType("varchar(10)");
+                    .HasMaxLength(10);
             });
         }
     }

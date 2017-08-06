@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace DRRR.Server
 {
@@ -12,17 +14,12 @@ namespace DRRR.Server
     {
         public static void Main(string[] args)
         {
-            // 解决Windows下控制台输出中文乱码的问题
-            Console.OutputEncoding = System.Text.Encoding.Unicode;
+            BuildWebHost(args).Run();
+        }
 
-            var host = new WebHostBuilder()
-                .UseKestrel()
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseIISIntegration()
+        public static IWebHost BuildWebHost(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
                 .Build();
-
-            host.Run();
-        }
     }
 }
