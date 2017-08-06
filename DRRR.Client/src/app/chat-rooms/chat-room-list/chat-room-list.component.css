@@ -1,0 +1,10 @@
+@media (min-width: 768px) {
+  .btn-create {
+    margin-top: 0px!important;
+  }
+}
+
+.btn-create,
+.room-list{
+  margin-top: 15px;
+}

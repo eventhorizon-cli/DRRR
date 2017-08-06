@@ -1,28 +1,42 @@
-<div class="row">
-  <form class="form-vertical" role="form">
-      <div class="col-md-10">
-        <div class="input-group">
-          <input class="form-control" type="text" placeholder="请输入关键词" />
-          <span class="input-group-btn">
+<form>
+  <div class="row">
+    <div class="col-md-10 col-sm-9">
+      <div class="input-group">
+        <input class="form-control" type="text" placeholder="请输入关键词" />
+        <span class="input-group-btn">
           <button class="btn btn-default" type="button">
-            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-            检索
-          </button>
-        </span>
-        </div>
+            <i class="fa fa-search" aria-hidden="true"></i>
+              检索
+            </button>
+          </span>
       </div>
-      <div class="col-md-2">
-        <div class="input-group">
-          <button class="btn btn-success" type="button">
-            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-            创建房间
-          </button>
-        </div>
-      </div>
-  </form>
-</div>
-<div class="row">
-  <div class="col-md-12">
-    <app-chat-room-list-item></app-chat-room-list-item>
+    </div>
+    <div class="col-md-2 col-sm-3">
+      <button class="btn btn-success btn-create pull-right" type="button">
+        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+        创建房间
+      </button>
+    </div>
+  </div>
+</form>
+<div class="row room-list">
+  <div class="col-sm-12">
+    <ul class="list-group">
+      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
+      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
+      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
+      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
+      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
+      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
+      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
+      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
+      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
+      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
+      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
+      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
+      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
+      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
+      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
+    </ul>
   </div>
 </div>

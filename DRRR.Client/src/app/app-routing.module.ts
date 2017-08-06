@@ -10,7 +10,7 @@ const appRoutes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: 'chat-rooms',
+    path: 'rooms',
     loadChildren: 'app/chat-rooms/chat-rooms.module#ChatRoomsModule',
     data: { preload: true }
   }

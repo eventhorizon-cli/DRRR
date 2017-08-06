@@ -1,5 +1,27 @@
-.list-item {
-  padding-bottom: 20px;
-  margin-bottom: 30px;
-  border-bottom: 1px solid #d9d9d9;
+p{
+  color: #666;
+}
+
+i{
+  margin-right: 5px;
+}
+
+li{
+  list-style-type: none;
+}
+
+.progress{
+  height: 6px;
+}
+
+.status p{
+  font-size: 16px;
+  line-height: 19.8px;
+  margin-top: 10px;
+}
+
+.status>div{
+  height: 20px;
+  padding-top: 7px;
+  margin-bottom: 10px;
 }
