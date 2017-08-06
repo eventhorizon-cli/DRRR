@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `role`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `role` (
-  `id` int(1) NOT NULL COMMENT '角色ID',
+  `id` int(1) unsigned NOT NULL COMMENT '角色ID',
   `name` varchar(5) NOT NULL COMMENT '角色名',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
@@ -41,15 +41,19 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT '用户ID',
   `username` varchar(10) NOT NULL COMMENT '用户名',
-  `password_hash` varchar(44) NOT NULL COMMENT '哈希密码',
-  `salt` varchar(36) NOT NULL COMMENT '盐',
+  `password_hash` char(44) NOT NULL COMMENT '哈希密码',
+  `salt` char(36) NOT NULL COMMENT '盐',
   `role_id` int(1) unsigned NOT NULL DEFAULT '1' COMMENT '角色ID',
-  `status_code` int(1) NOT NULL DEFAULT '0' COMMENT '用户状态',
+  `status_code` int(1) unsigned NOT NULL DEFAULT '0' COMMENT '用户状态',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='用户表';
+  UNIQUE KEY `username` (`username`),
+  KEY `role_id_idx` (`role_id`),
+  KEY `status_code_idx` (`status_code`),
+  CONSTRAINT `role_id` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `status_code` FOREIGN KEY (`status_code`) REFERENCES `user_status` (`code`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COMMENT='用户表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -60,7 +64,7 @@ DROP TABLE IF EXISTS `user_status`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `user_status` (
-  `code` int(1) NOT NULL COMMENT '状态代码',
+  `code` int(1) unsigned NOT NULL COMMENT '状态代码',
   `name` varchar(10) NOT NULL COMMENT '状态名',
   PRIMARY KEY (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户状态表';
@@ -75,4 +79,4 @@ CREATE TABLE `user_status` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-07-29 17:41:54
+-- Dump completed on 2017-08-06 14:42:30
