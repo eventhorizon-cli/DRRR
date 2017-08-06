@@ -11,10 +11,10 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
-using DRRR.Server.Models;
-using DRRR.Server.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using DRRR.Server.Models;
+using DRRR.Server.Auth;
 
 namespace DRRR.Server
 {
