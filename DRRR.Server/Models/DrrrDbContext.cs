@@ -50,7 +50,7 @@ namespace DRRR.Server.Models
                 entity.Property(e => e.Id)
                     .HasColumnName("id")
                     .HasColumnType("int(10) unsigned zerofill")
-                    .ValueGeneratedNever();
+                    .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.CreateTime)
                     .HasColumnName("create_time")
