@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.7.17, for Win64 (x86_64)
 --
--- Host: localhost    Database: drrr
+-- Host: 127.0.0.1    Database: drrr
 -- ------------------------------------------------------
 -- Server version	5.7.18-log
 
@@ -14,6 +14,32 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `chat_room`
+--
+
+DROP TABLE IF EXISTS `chat_room`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `chat_room` (
+  `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT '房间ID',
+  `name` varchar(20) NOT NULL COMMENT '房间名',
+  `owner_id` int(10) unsigned zerofill NOT NULL COMMENT '房主ID',
+  `max_users` int(11) NOT NULL COMMENT '最大用户数',
+  `current_users` int(11) NOT NULL COMMENT '当前用户数',
+  `is _encrypted` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否被加密',
+  `salt` varchar(36) NOT NULL COMMENT '盐',
+  `password_hash` varchar(44) DEFAULT NULL COMMENT '哈希密码',
+  `is_permanent` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否为永久房',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_UNIQUE` (`name`),
+  KEY `user_id_idx` (`owner_id`),
+  CONSTRAINT `user_id` FOREIGN KEY (`owner_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='聊天室';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `role`
@@ -53,7 +79,7 @@ CREATE TABLE `user` (
   KEY `status_code_idx` (`status_code`),
   CONSTRAINT `role_id` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `status_code` FOREIGN KEY (`status_code`) REFERENCES `user_status` (`code`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COMMENT='用户表';
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COMMENT='用户表';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -79,4 +105,4 @@ CREATE TABLE `user_status` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-08-06 14:42:30
+-- Dump completed on 2017-08-11 23:26:03
