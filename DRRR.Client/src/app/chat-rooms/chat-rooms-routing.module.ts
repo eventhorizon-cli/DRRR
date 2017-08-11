@@ -3,15 +3,14 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { ChatRoomsComponent } from './chat-rooms.component';
 import { ChatRoomListComponent } from './chat-room-list/chat-room-list.component';
-import { ChatRoomMainComponent } from './chat-room-main/chat-room-main.component';
+import { ChatRoomComponent } from './chat-room/chat-room.component';
 
 const ChatRoomsRouts: Routes = [
   {
     path: '',
     component: ChatRoomsComponent,
     children: [
-      { path: '', redirectTo: 'page/1' },
-      { path: 'page/:page', component: ChatRoomListComponent },
+      { path: '', component: ChatRoomListComponent },
     ]
   }
 ];

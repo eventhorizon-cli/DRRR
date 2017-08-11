@@ -6,14 +6,81 @@ namespace DRRR.Server.Models
 {
     public partial class DrrrDbContext : DbContext
     {
+        public virtual DbSet<ChatRoom> ChatRoom { get; set; }
         public virtual DbSet<Role> Role { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<UserStatus> UserStatus { get; set; }
-
         public DrrrDbContext(DbContextOptions options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<ChatRoom>(entity =>
+            {
+                entity.ToTable("chat_room");
+
+                entity.HasIndex(e => e.Name)
+                    .HasName("name_UNIQUE")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.OwnerId)
+                    .HasName("user_id_idx");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .HasColumnType("int(10) unsigned zerofill")
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.CreateTime)
+                    .HasColumnName("create_time")
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.Property(e => e.CurrentUsers)
+                    .HasColumnName("current_users")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.IsEncrypted)
+                    .HasColumnName("is _encrypted")
+                    .HasColumnType("tinyint(1) unsigned")
+                    .HasDefaultValueSql("0");
+
+                entity.Property(e => e.IsPermanent)
+                    .HasColumnName("is_permanent")
+                    .HasColumnType("tinyint(1) unsigned")
+                    .HasDefaultValueSql("0");
+
+                entity.Property(e => e.MaxUsers)
+                    .HasColumnName("max_users")
+                    .HasColumnType("int(11)");
+
+                entity.Property(e => e.Name)
+                    .HasColumnName("name")
+                    .HasMaxLength(20);
+
+                entity.Property(e => e.OwnerId)
+                    .HasColumnName("owner_id")
+                    .HasColumnType("int(10) unsigned zerofill");
+
+                entity.Property(e => e.PasswordHash)
+                    .HasColumnName("password_hash")
+                    .HasMaxLength(44);
+
+                entity.Property(e => e.Salt)
+                    .HasColumnName("salt")
+                    .HasMaxLength(36);
+
+                entity.Property(e => e.UpdateTime)
+                    .HasColumnName("update_time")
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.HasOne(d => d.Owner)
+                    .WithMany(p => p.ChatRoom)
+                    .HasForeignKey(d => d.OwnerId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("user_id");
+            });
+
             modelBuilder.Entity<Role>(entity =>
             {
                 entity.ToTable("role");
@@ -83,18 +150,6 @@ namespace DRRR.Server.Models
                     .IsRequired()
                     .HasColumnName("username")
                     .HasMaxLength(10);
-
-                entity.HasOne(d => d.Role)
-                    .WithMany(p => p.User)
-                    .HasForeignKey(d => d.RoleId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("role_id");
-
-                entity.HasOne(d => d.StatusCodeNavigation)
-                    .WithMany(p => p.User)
-                    .HasForeignKey(d => d.StatusCode)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("status_code");
             });
 
             modelBuilder.Entity<UserStatus>(entity =>

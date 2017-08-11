@@ -5,7 +5,7 @@ import {AbstractControl, FormBuilder, FormControl, FormGroup, Validators} from '
 import { SystemMessagesService } from '../../core/services/system-messages.service';
 import { UserRegisterService } from './user-register.service';
 import { FormErrorsAutoClearerService } from '../../core/services/form-errors-auto-clearer.service';
-import { AuthTokenService } from '../../core/services/auth-token.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   templateUrl: './user-register.component.html',
@@ -25,7 +25,7 @@ export class UserRegisterComponent implements OnInit {
     private msgService: SystemMessagesService,
     private registerService: UserRegisterService,
     private autoClearer: FormErrorsAutoClearerService,
-    private tokenService: AuthTokenService) { }
+    private auth: AuthService) { }
 
   ngOnInit() {
     this.registerForm = this.fb.group({
@@ -100,7 +100,7 @@ export class UserRegisterComponent implements OnInit {
       this.registerService.register(registerInfo)
         .subscribe(res => {
           if (!res.error) {
-            this.tokenService.saveToken(res.token);
+            this.auth.saveToken(res.token);
           }
         });
     }

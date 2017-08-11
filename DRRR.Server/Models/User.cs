@@ -5,6 +5,11 @@ namespace DRRR.Server.Models
 {
     public partial class User
     {
+        public User()
+        {
+            ChatRoom = new HashSet<ChatRoom>();
+        }
+
         public int Id { get; set; }
         public DateTime CreateTime { get; set; }
         public string PasswordHash { get; set; }
@@ -14,7 +19,6 @@ namespace DRRR.Server.Models
         public DateTime UpdateTime { get; set; }
         public string Username { get; set; }
 
-        public Role Role { get; set; }
-        public UserStatus StatusCodeNavigation { get; set; }
+        public ICollection<ChatRoom> ChatRoom { get; set; }
     }
 }

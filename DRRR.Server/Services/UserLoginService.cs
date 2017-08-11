@@ -16,7 +16,7 @@ namespace DRRR.Server.Services
 
         private TokenAuthService _tokenAuthService;
 
-        private DrrrDbContext _dbcontext;
+        private DrrrDbContext _dbContext;
 
         public UserLoginService(
             SystemMessagesService systemMessagesService,
@@ -25,7 +25,7 @@ namespace DRRR.Server.Services
         {
             _systemMessagesService = systemMessagesService;
             _tokenAuthService = tokenAuthService;
-            _dbcontext = dbcontext;
+            _dbContext = dbcontext;
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace DRRR.Server.Services
         public async Task<AccessTokenDto> ValidateAsync(UserDto userDto)
         {
             AccessTokenDto result = new AccessTokenDto();
-            User user = await _dbcontext.User
+            User user = await _dbContext.User
                 .Where(u => u.Username == userDto.Username)
                 .FirstOrDefaultAsync();
 

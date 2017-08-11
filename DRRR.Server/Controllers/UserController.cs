@@ -51,7 +51,7 @@ namespace DRRR.Server.Controllers
         /// </summary>
         /// <param name="username"></param>
         /// <returns>验证结果</returns>
-        [HttpGet, Route("username-validation/{username}")]
+        [HttpGet, Route("username-validation")]
         public async Task<JsonResult> ValidateUsernameAsync(string username)
         {
             return new JsonResult(new { Error = await _registerService.ValidateUsernameAsync(username) });

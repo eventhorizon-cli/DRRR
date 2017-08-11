@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 
 /**
  * 提供系统消息资源
@@ -8,10 +8,10 @@ import { Http } from '@angular/http';
 export class SystemMessagesService {
   private messages: object;
 
-  constructor(private http: Http) {
+  constructor(private http: HttpClient) {
     this.http.get('/api/resources/system-messages')
       .subscribe(data => {
-        this.messages = data.json();
+        this.messages = data;
       });
   }
 
