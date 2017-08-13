@@ -54,6 +54,7 @@ namespace DRRR.Server.Models
                     .HasColumnType("int(11)");
 
                 entity.Property(e => e.Name)
+                    .IsRequired()
                     .HasColumnName("name")
                     .HasMaxLength(20);
 
@@ -150,6 +151,18 @@ namespace DRRR.Server.Models
                     .IsRequired()
                     .HasColumnName("username")
                     .HasMaxLength(10);
+
+                entity.HasOne(d => d.Role)
+                    .WithMany(p => p.User)
+                    .HasForeignKey(d => d.RoleId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("role_id");
+
+                entity.HasOne(d => d.StatusCodeNavigation)
+                    .WithMany(p => p.User)
+                    .HasForeignKey(d => d.StatusCode)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("status_code");
             });
 
             modelBuilder.Entity<UserStatus>(entity =>

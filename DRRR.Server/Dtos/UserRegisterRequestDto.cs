@@ -1,6 +1,11 @@
-﻿namespace DRRR.Server.Dtos
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace DRRR.Server.Dtos
 {
-    public class UserDto
+    public class UserRegisterRequestDto
     {
         /// <summary>
         /// 用户名

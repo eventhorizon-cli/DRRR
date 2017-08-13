@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DRRR.Server.Services;
 using DRRR.Server.Dtos;
+using DRRR.Server.Security;
 
 namespace DRRR.Server.Controllers
 {
@@ -18,7 +19,8 @@ namespace DRRR.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ChatRoomListDto> GetRoomList(string keyword, int page)
+        [JwtAuthorize]
+        public async Task<ChatRoomSearchResponseDto> GetRoomList(string keyword, int page)
         {
             return await _chatRoomService.GetRoomList(keyword, page);
         }

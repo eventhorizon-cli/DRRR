@@ -19,6 +19,8 @@ namespace DRRR.Server.Models
         public DateTime UpdateTime { get; set; }
         public string Username { get; set; }
 
+        public Role Role { get; set; }
+        public UserStatus Status { get; set; }
         public ICollection<ChatRoom> ChatRoom { get; set; }
     }
 }

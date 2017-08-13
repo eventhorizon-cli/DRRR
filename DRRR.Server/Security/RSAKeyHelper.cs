@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 
-namespace DRRR.Server.Auth
+namespace DRRR.Server.Security
 {
     public class RSAKeyHelper
     {

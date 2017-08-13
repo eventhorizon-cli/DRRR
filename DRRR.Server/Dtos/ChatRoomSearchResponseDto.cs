@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace DRRR.Server.Dtos
 {
-    public class ChatRoomListDto
+    public class ChatRoomSearchResponseDto
     {
         public List<ChatRoomDto> ChatRoomList { get; set; }
 

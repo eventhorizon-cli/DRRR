@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HashidsNet;
+using DRRR.Server.Security;
 
 namespace DRRR.Server.Services
 {
@@ -18,9 +19,9 @@ namespace DRRR.Server.Services
             _dbContext = dbContext;
         }
 
-        public async Task<ChatRoomListDto> GetRoomList(string keyword, int page)
+        public async Task<ChatRoomSearchResponseDto> GetRoomList(string keyword, int page)
         {
-            ChatRoomListDto chatRoomListDto = new ChatRoomListDto();
+            ChatRoomSearchResponseDto chatRoomListDto = new ChatRoomSearchResponseDto();
             int count = await _dbContext.ChatRoom
                 .CountAsync(room => string.IsNullOrEmpty(keyword) 
                             || room.Name.Contains(keyword));
@@ -44,11 +45,10 @@ namespace DRRR.Server.Services
             foreach (var record in data)
             {
                 ChatRoom room = record.Room;
-                var hashids = new Hashids(room.Salt);
-                var id = hashids.Encode(room.Id);
+                var hashid = HashidHelper.Encode(room.Id);
                 list.Add(new ChatRoomDto
                 {
-                    Id = id,
+                    Id = hashid,
                     Name = room.Name,
                     OwnerName = record.OwnerName,
                     MaxUsers = room.MaxUsers,

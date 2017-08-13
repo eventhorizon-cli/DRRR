@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DRRR.Server.Auth
+namespace DRRR.Server.Security
 {
     /// <summary>
     /// 用户角色

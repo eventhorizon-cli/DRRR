@@ -2,20 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <UserSecretsId>aspnet-DRRR.Server-3981E2F4-C938-4FC5-8ED6-3742626EA26D</UserSecretsId>
+    <UserSecretsId>aspnet-DRRR.Server-83E52360-D403-4E37-8EEA-98A87CDB7AB0</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Hashids.net" Version="1.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0-preview2-final" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.0-preview3-10055" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.0-preview2-*" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.0-preview2-*" />
-    <PackageReference Include="Hashids.net" Version="1.2.2" />  </ItemGroup>
-
-  <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0-preview2-*" />
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0-preview2-final" />
   </ItemGroup>
 
   <ItemGroup>

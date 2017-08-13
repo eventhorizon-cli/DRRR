@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using DRRR.Server.Dtos;
 using DRRR.Server.Models;
-using DRRR.Server.Auth;
-using static DRRR.Server.Auth.PasswordHelper;
+using DRRR.Server.Security;
+using static DRRR.Server.Security.PasswordHelper;
 
 namespace DRRR.Server.Services
 {
@@ -48,9 +48,9 @@ namespace DRRR.Server.Services
             return null;
         }
 
-        public async Task<AccessTokenDto> RegisterAsync(UserDto userDto)
+        public async Task<AccessTokenResponseDto> RegisterAsync(UserRegisterRequestDto userDto)
         {
-            var tokenDto = new AccessTokenDto();
+            var tokenDto = new AccessTokenResponseDto();
             Guid salt = Guid.NewGuid();
             var user = new User
             {
@@ -62,7 +62,7 @@ namespace DRRR.Server.Services
             };
             _dbContext.User.Add(user);
             int count = await _dbContext.SaveChangesAsync();
-            tokenDto.Token = _tokenAuthService.GenerateToken(user, TimeSpan.FromMinutes(30));
+            tokenDto.Token = _tokenAuthService.GenerateToken(user);
             return tokenDto;
         }
     }

@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DRRR.Server.Auth
+namespace DRRR.Server.Security
 {
     public class PasswordHelper
     {

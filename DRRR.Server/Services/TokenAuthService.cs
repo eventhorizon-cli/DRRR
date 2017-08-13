@@ -1,13 +1,11 @@
-﻿using DRRR.Server.Auth;
+﻿using DRRR.Server.Security;
 using DRRR.Server.Models;
 using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
-using System.Threading.Tasks;
+using System.Web;
 
 namespace DRRR.Server.Services
 {
@@ -19,30 +17,35 @@ namespace DRRR.Server.Services
         /// 生成一个新的 Token
         /// </summary>
         /// <param name="user">用户信息</param>
-        /// <param name="expiresSpan">Token的有效期</param>
-        /// <returns></returns>        
-        public string GenerateToken(User user, TimeSpan expiresSpan)
+        /// <returns>新的 Token</returns>        
+        public string GenerateToken(User user)
         {
             // 这边的处理是位于多线程中的
             var handler = new JwtSecurityTokenHandler();
 
-            var identity = new ClaimsIdentity(
-                new GenericIdentity(user.Username, "TokenAuth"),
-                new[] { new Claim("ID", user.Id.ToString()) }
-            );
+            // 如果不进行URL编码，当用户名中含非ASCII字符时，前台用atob解码base64将导致异常
+            var urlEncodedUserName = HttpUtility.UrlEncode(user.Username);
 
-            // 权限等级设置
-            identity.AddClaim(new Claim(ClaimTypes.Role, ((Roles)user.RoleId).ToString()));
+            var identity = new ClaimsIdentity(new GenericIdentity(urlEncodedUserName, "TokenAuth"));
 
-            var expires = DateTime.Now + expiresSpan;
+            // 设定用户ID
+            identity.AddClaim(new Claim("user_id", HashidHelper.Encode(user.Id)));
+
+            // 设定权限信息
+            identity.AddClaim(new Claim(ClaimTypes.Role, user.RoleId.ToString()));
+
+            // 签发时间
+            DateTime issuedAt = DateTime.Now;
 
             var securityToken = handler.CreateToken(new SecurityTokenDescriptor
             {
+                IssuedAt = issuedAt,
                 Issuer = TokenAuthOptions.Issuer,
                 Audience = TokenAuthOptions.Audience,
                 SigningCredentials = TokenAuthOptions.SigningCredentials,
                 Subject = identity,
-                Expires = expires
+                // 到期时间
+                Expires = issuedAt + TokenAuthOptions.ExpiresIn
             });
             return handler.WriteToken(securityToken);
         }

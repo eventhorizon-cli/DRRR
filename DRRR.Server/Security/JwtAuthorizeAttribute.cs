@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using System.Linq;
 
-namespace DRRR.Server.Auth
+namespace DRRR.Server.Security
 {
     /// <summary>
     /// JWT验证
@@ -17,7 +17,7 @@ namespace DRRR.Server.Auth
             // 默认对所有通过JWT认证的用户开放
             // 如果没有传参数过来的话，默认是个空数组
             // 通过逗号分隔
-            if (roles.Count() > 0) Roles = string.Join(",", roles);
+            if (roles.Count() > 0) Roles = string.Join(",", roles.Select(role => (int)role));
         }
     }
 }

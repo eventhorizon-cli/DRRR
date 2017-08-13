@@ -29,7 +29,7 @@ namespace DRRR.Server.Controllers
         /// <param name="userDto">用户信息</param>
         /// <returns>Token或者错误信息</returns>
         [HttpPost("login")]
-        public async Task<AccessTokenDto> LoginAsync([FromBody]UserDto userDto)
+        public async Task<AccessTokenResponseDto> LoginAsync([FromBody]UserLoginRequestDto userDto)
         {
             return await _loginService.ValidateAsync(userDto);
         }
@@ -41,7 +41,7 @@ namespace DRRR.Server.Controllers
         /// <returns>验证结果</returns>
         [HttpPost, Route("register")]
 
-        public async Task<AccessTokenDto> RegisterAsync([FromBody]UserDto userDto)
+        public async Task<AccessTokenResponseDto> RegisterAsync([FromBody]UserRegisterRequestDto userDto)
         {
             return await _registerService.RegisterAsync(userDto);
         }
@@ -55,6 +55,12 @@ namespace DRRR.Server.Controllers
         public async Task<JsonResult> ValidateUsernameAsync(string username)
         {
             return new JsonResult(new { Error = await _registerService.ValidateUsernameAsync(username) });
+        }
+
+        [HttpGet,Route("refresh-token")]
+        public async Task<string> RefreshToken()
+        {
+
         }
     }
 }

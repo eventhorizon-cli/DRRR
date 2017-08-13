@@ -1,20 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
 using DRRR.Server.Models;
-using DRRR.Server.Auth;
+using Microsoft.AspNetCore.Diagnostics;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using DRRR.Server.Security;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 
 namespace DRRR.Server
 {
@@ -46,6 +49,9 @@ namespace DRRR.Server
 
             // 添加Jwt认证配置
             // 参考资料https://github.com/mrsheepuk/ASPNETSelfCreatedTokenAuthExample
+            TokenAuthOptions.Audience = Configuration["Token:Audience"];
+            TokenAuthOptions.Issuer = Configuration["Token:Issuer"];
+            TokenAuthOptions.ExpiresIn = TimeSpan.FromMinutes(double.Parse(Configuration["Token:ExpiresIn"]));
             // 可以通过在方法或者类上添加[Authorize("Jwt")] 来进行保护
             services.AddAuthorization(auth =>
             {
@@ -76,7 +82,7 @@ namespace DRRR.Server
                     ClockSkew = TimeSpan.FromMinutes(0)
                 };
             });
-           
+
             // 添加自定义的服务
             Assembly.GetEntryAssembly().GetTypes()
                 .Where(service => service.Name.EndsWith("Service"))
@@ -133,7 +139,7 @@ namespace DRRR.Server
                 });
             });
             #endregion
-           
+
             app.UseAuthentication();
 
             app.UseMvc();
