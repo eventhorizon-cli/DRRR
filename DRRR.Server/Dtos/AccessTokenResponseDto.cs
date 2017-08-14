@@ -13,8 +13,13 @@ namespace DRRR.Server.Dtos
         public string Error { get; set; }
 
         /// <summary>
-        /// 令牌
+        /// 访问令牌
         /// </summary>
-        public string Token { get; set; }
+        public string AccessToken { get; set; }
+
+        /// <summary>
+        /// 更新令牌
+        /// </summary>
+        public string RefreshToken { get; set; }
     }
 }

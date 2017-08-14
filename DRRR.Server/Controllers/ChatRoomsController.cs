@@ -13,13 +13,10 @@ namespace DRRR.Server.Controllers
     public class ChatRoomsController : Controller
     {
         private ChatRoomService _chatRoomService;
-        public ChatRoomsController(ChatRoomService chatRoomService)
-        {
-            _chatRoomService = chatRoomService;
-        }
+        public ChatRoomsController(ChatRoomService chatRoomService) => _chatRoomService = chatRoomService;
 
         [HttpGet]
-        [JwtAuthorize]
+        [JwtAuthorize(Roles.Guest, Roles.User, Roles.Admin)]
         public async Task<ChatRoomSearchResponseDto> GetRoomList(string keyword, int page)
         {
             return await _chatRoomService.GetRoomList(keyword, page);

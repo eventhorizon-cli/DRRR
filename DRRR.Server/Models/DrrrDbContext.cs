@@ -10,7 +10,8 @@ namespace DRRR.Server.Models
         public virtual DbSet<Role> Role { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<UserStatus> UserStatus { get; set; }
-        public DrrrDbContext(DbContextOptions options) : base(options) { }
+
+        public DrrrDbContext(DbContextOptions<DrrrDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,11 +29,11 @@ namespace DRRR.Server.Models
                 entity.Property(e => e.Id)
                     .HasColumnName("id")
                     .HasColumnType("int(10) unsigned zerofill")
-                    .ValueGeneratedNever();
+                    .ValueGeneratedOnAdd();
 
                 entity.Property(e => e.CreateTime)
                     .HasColumnName("create_time")
-                    .HasColumnType("datetime")
+                    .HasColumnType("timestamp")
                     .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 entity.Property(e => e.CurrentUsers)
@@ -72,7 +73,7 @@ namespace DRRR.Server.Models
 
                 entity.Property(e => e.UpdateTime)
                     .HasColumnName("update_time")
-                    .HasColumnType("datetime")
+                    .HasColumnType("timestamp")
                     .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 entity.HasOne(d => d.Owner)
@@ -122,7 +123,7 @@ namespace DRRR.Server.Models
 
                 entity.Property(e => e.CreateTime)
                     .HasColumnName("create_time")
-                    .HasColumnType("datetime")
+                    .HasColumnType("timestamp")
                     .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 entity.Property(e => e.PasswordHash)
@@ -144,7 +145,7 @@ namespace DRRR.Server.Models
 
                 entity.Property(e => e.UpdateTime)
                     .HasColumnName("update_time")
-                    .HasColumnType("datetime")
+                    .HasColumnType("timestamp")
                     .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 entity.Property(e => e.Username)
@@ -158,7 +159,7 @@ namespace DRRR.Server.Models
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("role_id");
 
-                entity.HasOne(d => d.StatusCodeNavigation)
+                entity.HasOne(d => d.Status)
                     .WithMany(p => p.User)
                     .HasForeignKey(d => d.StatusCode)
                     .OnDelete(DeleteBehavior.ClientSetNull)

@@ -35,7 +35,7 @@ namespace DRRR.Server.Services
         /// <returns>验证结果</returns>
         public async Task<AccessTokenResponseDto> ValidateAsync(UserLoginRequestDto userDto)
         {
-            AccessTokenResponseDto result = new AccessTokenResponseDto();
+            AccessTokenResponseDto tokenDto = new AccessTokenResponseDto();
             User user = await _dbContext.User
                 .Where(u => u.Username == userDto.Username)
                 .FirstOrDefaultAsync();
@@ -43,14 +43,15 @@ namespace DRRR.Server.Services
             if (user != null
                 && ValidatePassword(userDto.Password, user.Salt, user.PasswordHash))
             {
-                result.Token = _tokenAuthService.GenerateToken(user);
+                tokenDto.AccessToken = _tokenAuthService.GenerateAccessToken(user);
+                tokenDto.RefreshToken = _tokenAuthService.GenerateRefreshToken(user);
             }
             else
             {
                 // 用户名或密码错误
-                result.Error = _systemMessagesService.GetServerSystemMessage("E001");
+                tokenDto.Error = _systemMessagesService.GetServerSystemMessage("E001");
             }
-            return result;
+            return tokenDto;
         }
     }
 }

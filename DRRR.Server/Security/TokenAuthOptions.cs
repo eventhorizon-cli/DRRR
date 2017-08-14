@@ -27,5 +27,10 @@ namespace DRRR.Server.Security
         /// Token 有效期
         /// </summary>
         public static TimeSpan ExpiresIn { get; set; }
+
+        /// <summary>
+        /// 更新Token 有效期
+        /// </summary>
+        public static TimeSpan RefreshTokenExpiresIn { get; set; }
     }
 }

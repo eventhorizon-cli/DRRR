@@ -5,22 +5,27 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DRRR.Server.Services;
 using DRRR.Server.Dtos;
+using DRRR.Server.Security;
 
 namespace DRRR.Server.Controllers
 {
     [Route("api/[controller]")]
-    public class UserController
+    public class UserController : Controller
     {
         private UserLoginService _loginService;
 
         private UserRegisterService _registerService;
 
+        private TokenAuthService _tokenAuthService;
+
         public UserController(
             UserLoginService loginService,
-            UserRegisterService registerService)
+            UserRegisterService registerService,
+            TokenAuthService tokenAuthService)
         {
             _loginService = loginService;
             _registerService = registerService;
+            _tokenAuthService = tokenAuthService;
         }
 
         /// <summary>
@@ -57,10 +62,12 @@ namespace DRRR.Server.Controllers
             return new JsonResult(new { Error = await _registerService.ValidateUsernameAsync(username) });
         }
 
-        [HttpGet,Route("refresh-token")]
-        public async Task<string> RefreshToken()
+        [HttpPost, Route("refresh-token")]
+        [JwtAuthorize]
+        public async Task<string> RefreshTokenAsync()
         {
-
+            string hashid = HttpContext.User.FindFirst("uid").Value;
+            return await _tokenAuthService.RefreshTokenAsync(HashidHelper.Decode(hashid));
         }
     }
 }

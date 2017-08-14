@@ -52,6 +52,7 @@ namespace DRRR.Server
             TokenAuthOptions.Audience = Configuration["Token:Audience"];
             TokenAuthOptions.Issuer = Configuration["Token:Issuer"];
             TokenAuthOptions.ExpiresIn = TimeSpan.FromMinutes(double.Parse(Configuration["Token:ExpiresIn"]));
+            TokenAuthOptions.RefreshTokenExpiresIn = TimeSpan.FromMinutes(double.Parse(Configuration["Token:RefreshTokenExpiresIn"]));
             // 可以通过在方法或者类上添加[Authorize("Jwt")] 来进行保护
             services.AddAuthorization(auth =>
             {
@@ -84,10 +85,9 @@ namespace DRRR.Server
             });
 
             // 添加自定义的服务
-            Assembly.GetEntryAssembly().GetTypes()
-                .Where(service => service.Name.EndsWith("Service"))
-                .ToList()
-                .ForEach(type =>
+            foreach (var type in Assembly.GetEntryAssembly().GetTypes())
+            {
+                if (type.Name.EndsWith("Service"))
                 {
                     if (type.Name == nameof(Services.SystemMessagesService))
                     {
@@ -99,7 +99,8 @@ namespace DRRR.Server
                         // 每次请求都会创建新的实例
                         services.AddScoped(type);
                     }
-                });
+                }
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

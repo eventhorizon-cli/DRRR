@@ -62,7 +62,8 @@ namespace DRRR.Server.Services
             };
             _dbContext.User.Add(user);
             int count = await _dbContext.SaveChangesAsync();
-            tokenDto.Token = _tokenAuthService.GenerateToken(user);
+            tokenDto.AccessToken = _tokenAuthService.GenerateAccessToken(user);
+            tokenDto.RefreshToken = _tokenAuthService.GenerateRefreshToken(user);
             return tokenDto;
         }
     }
