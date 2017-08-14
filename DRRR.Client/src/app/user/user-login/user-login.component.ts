@@ -24,7 +24,7 @@ export class UserLoginComponent implements OnInit {
     private msgService: SystemMessagesService,
     private loginService: UserLoginService,
     private autoClearer: FormErrorsAutoClearerService,
-    private authService: AuthService) { }
+    private auth: AuthService) { }
 
   ngOnInit () {
     this.loginForm = this.fb.group({
@@ -60,7 +60,8 @@ export class UserLoginComponent implements OnInit {
             // 在用户名输入框下方显示错误信息
             this.formErrorMessages['username'] = res.error;
           }else {
-            this.authService.saveToken(res.token);
+            this.auth.saveAccessToken(res.accessToken);
+            this.auth.saveRefreshToken(res.refreshToken);
             this.router.navigate(['/rooms', {page: 1}]);
           }
       });

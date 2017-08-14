@@ -7,7 +7,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SiteStateComponent implements OnInit {
 
-  currentTime: Date;
+  currentTime: Date = new Date();
 
   constructor() { }
 

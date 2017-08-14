@@ -100,7 +100,8 @@ export class UserRegisterComponent implements OnInit {
       this.registerService.register(registerInfo)
         .subscribe(res => {
           if (!res.error) {
-            this.auth.saveToken(res.token);
+            this.auth.saveAccessToken(res.accessToken);
+            this.auth.saveRefreshToken(res.refreshToken);
           }
         });
     }
