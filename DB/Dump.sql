@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.7.17, for Win64 (x86_64)
 --
--- Host: 127.0.0.1    Database: drrr
+-- Host: localhost    Database: drrr
 -- ------------------------------------------------------
 -- Server version	5.7.18-log
 
@@ -29,17 +29,27 @@ CREATE TABLE `chat_room` (
   `max_users` int(11) NOT NULL COMMENT '最大用户数',
   `current_users` int(11) NOT NULL COMMENT '当前用户数',
   `is _encrypted` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否被加密',
-  `salt` varchar(36) NOT NULL COMMENT '盐',
+  `salt` varchar(36) DEFAULT NULL COMMENT '盐',
   `password_hash` varchar(44) DEFAULT NULL COMMENT '哈希密码',
   `is_permanent` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否为永久房',
-  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name_UNIQUE` (`name`),
   KEY `user_id_idx` (`owner_id`),
   CONSTRAINT `user_id` FOREIGN KEY (`owner_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='聊天室';
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `chat_room`
+--
+
+LOCK TABLES `chat_room` WRITE;
+/*!40000 ALTER TABLE `chat_room` DISABLE KEYS */;
+INSERT INTO `chat_room` VALUES (0000000001,'测试房间',0000000015,10,6,0,NULL,NULL,0,'2017-08-12 14:59:33','2017-08-12 14:59:39');
+/*!40000 ALTER TABLE `chat_room` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `role`
@@ -58,6 +68,16 @@ CREATE TABLE `role` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `role`
+--
+
+LOCK TABLES `role` WRITE;
+/*!40000 ALTER TABLE `role` DISABLE KEYS */;
+INSERT INTO `role` VALUES (1,'普通用户');
+/*!40000 ALTER TABLE `role` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `user`
 --
 
@@ -71,16 +91,26 @@ CREATE TABLE `user` (
   `salt` char(36) NOT NULL COMMENT '盐',
   `role_id` int(1) unsigned NOT NULL DEFAULT '1' COMMENT '角色ID',
   `status_code` int(1) unsigned NOT NULL DEFAULT '0' COMMENT '用户状态',
-  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
   KEY `role_id_idx` (`role_id`),
   KEY `status_code_idx` (`status_code`),
   CONSTRAINT `role_id` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `status_code` FOREIGN KEY (`status_code`) REFERENCES `user_status` (`code`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COMMENT='用户表';
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8 COMMENT='用户表';
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user`
+--
+
+LOCK TABLES `user` WRITE;
+/*!40000 ALTER TABLE `user` DISABLE KEYS */;
+INSERT INTO `user` VALUES (0000000015,'测试','XYer5pNJzzBxlBtE1vF0NE44qautZXLZLlnpXWSni8w=','8fd372fb-609a-4b4a-bcbd-022cb38132b4',1,0,'2017-08-12 08:09:31','2017-08-12 13:57:26'),(0000000019,'测试2','Fd7X8Xu/bSNSw56iT/GwSSfq3j10h7wDcAgFXA13OY0=','4dc50f07-272d-4a84-acca-484aefa4fed1',1,0,'2017-08-13 00:40:57','2017-08-13 00:40:57');
+/*!40000 ALTER TABLE `user` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `user_status`
@@ -95,6 +125,16 @@ CREATE TABLE `user_status` (
   PRIMARY KEY (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户状态表';
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_status`
+--
+
+LOCK TABLES `user_status` WRITE;
+/*!40000 ALTER TABLE `user_status` DISABLE KEYS */;
+INSERT INTO `user_status` VALUES (0,'正常');
+/*!40000 ALTER TABLE `user_status` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -105,4 +145,4 @@ CREATE TABLE `user_status` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-08-11 23:26:03
+-- Dump completed on 2017-08-14 15:03:19
