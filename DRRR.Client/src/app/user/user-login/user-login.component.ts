@@ -6,6 +6,7 @@ import { SystemMessagesService } from '../../core/services/system-messages.servi
 import { FormErrorsAutoClearerService } from '../../core/services/form-errors-auto-clearer.service'
 import { UserLoginService } from './user-login.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   templateUrl: './user-login.component.html',
@@ -24,7 +25,8 @@ export class UserLoginComponent implements OnInit {
     private msgService: SystemMessagesService,
     private loginService: UserLoginService,
     private autoClearer: FormErrorsAutoClearerService,
-    private auth: AuthService) { }
+    private auth: AuthService,
+    private toastr: ToastrService) { }
 
   ngOnInit () {
     this.loginForm = this.fb.group({
@@ -63,6 +65,7 @@ export class UserLoginComponent implements OnInit {
             this.auth.saveAccessToken(res.accessToken);
             this.auth.saveRefreshToken(res.refreshToken);
             this.router.navigate(['/rooms', {page: 1}]);
+            this.toastr.success('成功登陆');
           }
       });
     }

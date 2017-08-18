@@ -1,5 +1,8 @@
 import { NgModule, Optional, SkipSelf } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+import { ToastrModule } from 'ngx-toastr';
 
 import { throwIfAlreadyLoaded } from './module-import-guard';
 import { SelectivePreloadingStrategy } from './services/selective-preloading-strategy.service';
@@ -8,7 +11,14 @@ import { FormErrorsAutoClearerService } from './services/form-errors-auto-cleare
 import { AuthService } from './services/auth.service';
 
 @NgModule({
-  imports: [HttpClientModule],
+  imports: [
+    HttpClientModule,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot(
+      {
+        closeButton: true,
+        progressBar: true
+      })],
   declarations: [],
   providers: [
     SelectivePreloadingStrategy,

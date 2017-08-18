@@ -17,4 +17,9 @@ export class ChatRoomCreateComponent implements OnInit {
   ngOnInit() {
   }
 
+  /**
+   * 创建房间
+   */
+  create() {
+  }
 }

@@ -4,7 +4,6 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import 'rxjs/add/operator/switchMap';
 
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/modal-options.class';
 
 import { ChatRoomListService } from './chat-room-list.service';
 import { ChatRoomDto } from '../dtos/chat-room.dto';
@@ -20,8 +19,6 @@ export class ChatRoomListComponent implements OnInit {
   keyword: string;
 
   roomList: ChatRoomDto[];
-
-  bsModalRef: BsModalRef;
 
   constructor(
     private route: ActivatedRoute,
@@ -52,12 +49,6 @@ export class ChatRoomListComponent implements OnInit {
    * 创建房间
    */
   create() {
-    const list = ['Open a modal with component', 'Pass your data', 'Do something else', '...'];
-    this.bsModalRef = this.modalService.show(ChatRoomCreateComponent);
-    this.bsModalRef.content.title = 'Modal with component';
-    this.bsModalRef.content.list = list;
-    setTimeout(() => {
-      list.push('PROFIT!!!');
-    }, 2000);
+    this.modalService.show(ChatRoomCreateComponent, {backdrop: 'static'});
   }
 }

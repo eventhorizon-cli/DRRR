@@ -1,16 +1,31 @@
-selector: 'modal-content',
-template: `
 <div class="modal-header">
-  <h4 class="modal-title pull-left">{{title}}</h4>
-  <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+  <button type="button" class="close" (click)="bsModalRef.hide()" aria-label="Close">
     <span aria-hidden="true">&times;</span>
   </button>
+  <h4 class="modal-title">创建房间</h4>
 </div>
 <div class="modal-body">
-  <ul *ngIf="list.length">
-    <li *ngFor="let item of list">{{item}}</li>
-  </ul>
+  <form>
+    <div class="form-group">
+      <label for="name" class="control-label">房间名称</label>
+      <input type="text" class="form-control" id="name">
+    </div>
+    <div class="form-group">
+      <label for="maxUsers" class="control-label">成员人数</label>
+      <input type="text" class="form-control" id="maxUsers">
+    </div>
+    <div class="form-group">
+      <label for="password" class="control-label">密码</label>
+      <input type="password" class="form-control" id="password">
+    </div>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox">加密
+      </label>
+    </div>
+  </form>
 </div>
 <div class="modal-footer">
-  <button type="button" class="btn btn-default" (click)="bsModalRef.hide()">Close</button>
+  <button type="button" class="btn btn-default" (click)="bsModalRef.hide()">取消</button>
+  <button class="btn btn-success" type="button"><i class="fa fa-check"></i>&nbsp;创建房间</button>
 </div>
