@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.7.17, for Win64 (x86_64)
 --
--- Host: localhost    Database: drrr
+-- Host: 127.0.0.1    Database: drrr
 -- ------------------------------------------------------
 -- Server version	5.7.18-log
 
@@ -31,6 +31,7 @@ CREATE TABLE `chat_room` (
   `is _encrypted` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否被加密',
   `salt` varchar(36) DEFAULT NULL COMMENT '盐',
   `password_hash` varchar(44) DEFAULT NULL COMMENT '哈希密码',
+  `is_hidden` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `is_permanent` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否为永久房',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -47,7 +48,7 @@ CREATE TABLE `chat_room` (
 
 LOCK TABLES `chat_room` WRITE;
 /*!40000 ALTER TABLE `chat_room` DISABLE KEYS */;
-INSERT INTO `chat_room` VALUES (0000000001,'测试房间',0000000015,10,6,0,NULL,NULL,0,'2017-08-12 14:59:33','2017-08-12 14:59:39');
+INSERT INTO `chat_room` VALUES (0000000001,'测试房间',0000000015,10,6,0,NULL,NULL,0,0,'2017-08-12 14:59:33','2017-08-12 14:59:39');
 /*!40000 ALTER TABLE `chat_room` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -145,4 +146,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-08-14 15:03:19
+-- Dump completed on 2017-08-18 23:01:10
