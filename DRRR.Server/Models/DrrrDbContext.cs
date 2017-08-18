@@ -45,6 +45,11 @@ namespace DRRR.Server.Models
                     .HasColumnType("tinyint(1) unsigned")
                     .HasDefaultValueSql("0");
 
+                entity.Property(e => e.IsHidden)
+                    .HasColumnName("is_hidden")
+                    .HasColumnType("tinyint(1) unsigned")
+                    .HasDefaultValueSql("0");
+
                 entity.Property(e => e.IsPermanent)
                     .HasColumnName("is_permanent")
                     .HasColumnType("tinyint(1) unsigned")
