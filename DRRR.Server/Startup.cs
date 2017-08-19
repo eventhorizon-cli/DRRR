@@ -18,6 +18,7 @@ using DRRR.Server.Security;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.IO;
 
 namespace DRRR.Server
 {
@@ -143,11 +144,28 @@ namespace DRRR.Server
             });
             #endregion
 
-            app.UseAuthentication();
+            // pushstate路由问题解决方案
+            // 参考资料 https://stackoverflow.com/questions/38531904/angular-2-routing-with-asp-net-core-non-mvc
+            DefaultFilesOptions options = new DefaultFilesOptions();
+            options.DefaultFileNames.Clear();
+            options.DefaultFileNames.Add("index.html");
 
-            app.UseMvc();
+            app.Use(async (context, next) =>
+            {
+                await next();
 
-            app.UseStaticFiles();
+                if (context.Response.StatusCode == 404
+                    && !Path.HasExtension(context.Request.Path.Value)
+                    && !context.Request.Path.Value.StartsWith("/api"))
+                {
+                    context.Request.Path = "/index.html";
+                    await next();
+                }
+            })
+            .UseDefaultFiles(options)
+            .UseAuthentication()
+            .UseMvc()
+            .UseStaticFiles();
         }
     }
 }
