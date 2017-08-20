@@ -35,7 +35,7 @@ namespace DRRR.Server.Services
             if (!Regex.IsMatch(username, @"^[\u4e00-\u9fa5\u3040-\u309F\u30A0-\u30FFa-zA-Z_\d]+$")
             || Regex.IsMatch(username, @"^\d+$"))
             {
-                return _systemMessagesService.GetServerSystemMessage("E002");
+                return _systemMessagesService.GetServerSystemMessage("E002", "用户名");
             }
 
             // 检测用户名是否存在
@@ -43,7 +43,7 @@ namespace DRRR.Server.Services
 
             if (count > 0)
             {
-                return _systemMessagesService.GetServerSystemMessage("E003");
+                return _systemMessagesService.GetServerSystemMessage("E003", "用户名");
             }
             return null;
         }

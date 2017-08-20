@@ -60,25 +60,31 @@ namespace DRRR.Server.Services
             // 设置为false避免重复触发事件
             _watcher.EnableRaisingEvents = false;
 
-            // 加载客户端配置
-            if (e == null || e.Name == _clientConfigFileName)
+            try
             {
-                string jsonClient = File.ReadAllText(
-                    Path.Combine(AppContext.BaseDirectory,
-                    "Resources", _clientConfigFileName));
-                ClientSystemMessageSettings = new JsonResult(JObject.Parse(jsonClient));
-            }
+                // 加载客户端配置
+                if (e == null || e.Name == _clientConfigFileName)
+                {
+                    string jsonClient = File.ReadAllText(
+                        Path.Combine(AppContext.BaseDirectory,
+                        "Resources", _clientConfigFileName));
+                    ClientSystemMessageSettings = new JsonResult(JObject.Parse(jsonClient));
+                }
 
-            // 加载服务器端配置
-            if (e == null || e.Name == _serverConfigFileName)
+                // 加载服务器端配置
+                if (e == null || e.Name == _serverConfigFileName)
+                {
+                    string jsonServer = File.ReadAllText(
+                    Path.Combine(
+                        AppContext.BaseDirectory,
+                        "Resources", _serverConfigFileName));
+                    _serverSystemMessageSettings = JObject.Parse(jsonServer);
+                }
+            }
+            catch (Exception ex)
             {
-                string jsonServer = File.ReadAllText(
-                Path.Combine(
-                    AppContext.BaseDirectory,
-                    "Resources", _serverConfigFileName));
-                _serverSystemMessageSettings = JObject.Parse(jsonServer);
+                Console.WriteLine(ex.Message);
             }
-
             // 必须将此属性设置为true才能启动监控
             _watcher.EnableRaisingEvents = true;
         }

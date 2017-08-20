@@ -16,5 +16,11 @@ namespace DRRR.Server.Dtos
         public int MaxUsers { get; set; }
 
         public int CurrentUsers { get; set; }
+
+        public bool IsEncrypted { get; set; }
+
+        public bool IsPermanent { get; set; }
+
+        public bool IsHidden { get; set; }
     }
 }

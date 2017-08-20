@@ -62,12 +62,19 @@ namespace DRRR.Server.Controllers
             return new JsonResult(new { Error = await _registerService.ValidateUsernameAsync(username) });
         }
 
+        /// <summary>
+        /// 刷新访问令牌
+        /// </summary>
+        /// <returns>新的访问令牌</returns>
         [HttpPost, Route("refresh-token")]
         [JwtAuthorize]
-        public async Task<string> RefreshTokenAsync()
+        public async Task<JsonResult> RefreshTokenAsync()
         {
             string hashid = HttpContext.User.FindFirst("uid").Value;
-            return await _tokenAuthService.RefreshTokenAsync(HashidHelper.Decode(hashid));
+            return new JsonResult(new
+            {
+                AccessToken = await _tokenAuthService.RefreshTokenAsync(HashidHelper.Decode(hashid))
+            });
         }
     }
 }

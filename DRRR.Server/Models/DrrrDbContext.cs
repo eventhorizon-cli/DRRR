@@ -38,7 +38,8 @@ namespace DRRR.Server.Models
 
                 entity.Property(e => e.CurrentUsers)
                     .HasColumnName("current_users")
-                    .HasColumnType("int(11)");
+                    .HasColumnType("int(11) unsigned")
+                    .HasDefaultValueSql("1");
 
                 entity.Property(e => e.IsEncrypted)
                     .HasColumnName("is _encrypted")
@@ -57,7 +58,7 @@ namespace DRRR.Server.Models
 
                 entity.Property(e => e.MaxUsers)
                     .HasColumnName("max_users")
-                    .HasColumnType("int(11)");
+                    .HasColumnType("int(11) unsigned");
 
                 entity.Property(e => e.Name)
                     .IsRequired()

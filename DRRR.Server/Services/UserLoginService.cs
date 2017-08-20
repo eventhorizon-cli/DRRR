@@ -49,7 +49,7 @@ namespace DRRR.Server.Services
             else
             {
                 // 用户名或密码错误
-                tokenDto.Error = _systemMessagesService.GetServerSystemMessage("E001");
+                tokenDto.Error = _systemMessagesService.GetServerSystemMessage("E001", "用户名或密码");
             }
             return tokenDto;
         }
