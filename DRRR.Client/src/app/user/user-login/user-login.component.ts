@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import { SystemMessagesService } from '../../core/services/system-messages.service'
-import { FormErrorsAutoClearerService } from '../../core/services/form-errors-auto-clearer.service'
+import { SystemMessagesService } from '../../core/services/system-messages.service';
+import { FormErrorsAutoClearerService } from '../../core/services/form-errors-auto-clearer.service';
 import { UserLoginService } from './user-login.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastrService } from 'ngx-toastr';
@@ -13,16 +13,17 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./user-login.component.css']
 })
 export class UserLoginComponent implements OnInit {
+
   loginForm: FormGroup;
 
   formErrorMessages: object;
 
-  private validationMessages: object;
+  private validationMessages: { [key: string]: Function };
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private msgService: SystemMessagesService,
+    private msg: SystemMessagesService,
     private loginService: UserLoginService,
     private autoClearer: FormErrorsAutoClearerService,
     private auth: AuthService,
@@ -36,8 +37,8 @@ export class UserLoginComponent implements OnInit {
     this.formErrorMessages = {};
     // 为避免获取消息时配置文件尚未加载，在外面多包一层函数
     this.validationMessages = {
-      username: () => this.msgService.getMessage('E001', '用户名'),
-      password: () => this.msgService.getMessage('E001', '密码')
+      username: () => this.msg.getMessage('E001', '用户名'),
+      password: () => this.msg.getMessage('E001', '密码')
     };
     this.autoClearer.register(this.loginForm, this.formErrorMessages);
     this.loginForm.valueChanges.subscribe(_ => {
@@ -47,7 +48,7 @@ export class UserLoginComponent implements OnInit {
     });
   }
 
-  onLogin(data: object) {
+  login(data: object) {
     if (!this.loginForm.valid) {
       for (const controlName in this.loginForm.controls) {
         if (!this.loginForm.controls[controlName].valid) {
@@ -65,7 +66,7 @@ export class UserLoginComponent implements OnInit {
             this.auth.saveAccessToken(res.accessToken);
             this.auth.saveRefreshToken(res.refreshToken);
             this.router.navigate(['/rooms', {page: 1}]);
-            this.toastr.success('成功登陆');
+            this.toastr.success(this.msg.getMessage('I001', '登录'));
           }
       });
     }

@@ -24,14 +24,13 @@
     </span>
   </div>
   <div class="checkbox">
-    <label>
-      <input type="checkbox">记住我
-    </label>
+    <input type="checkbox" id="remember">
+    <label for="remember">记住我</label>
   </div>
   <input type="button"
          class="btn btn-lg btn-primary btn-block"
          value="登录"
-         (click)="onLogin(loginForm.value)">
+         (click)="login(loginForm.value)">
 </form>
 <div class="login-extra">
   <p><span>还没有账号？</span>

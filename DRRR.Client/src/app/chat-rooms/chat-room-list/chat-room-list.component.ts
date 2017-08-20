@@ -49,6 +49,10 @@ export class ChatRoomListComponent implements OnInit {
    * 创建房间
    */
   create() {
-    this.modalService.show(ChatRoomCreateComponent, {backdrop: 'static'});
+    this.modalService.show(ChatRoomCreateComponent,
+      {
+        backdrop: 'static',
+        animated: 'inmodal'
+      });
   }
 }

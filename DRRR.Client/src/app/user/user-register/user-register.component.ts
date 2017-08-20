@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import {AbstractControl, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+
+import { ToastrService } from 'ngx-toastr';
 
 import { SystemMessagesService } from '../../core/services/system-messages.service';
 import { UserRegisterService } from './user-register.service';
@@ -17,15 +19,20 @@ export class UserRegisterComponent implements OnInit {
 
   formErrorMessages: object;
 
-  requiredValidationMessages: object;
+  requiredValidationMessages: { [key: string]: Function };
+
+  private isValidatingAsync: boolean;
+
+  private isWaitingToRegister: boolean;
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private msgService: SystemMessagesService,
+    private msg: SystemMessagesService,
     private registerService: UserRegisterService,
     private autoClearer: FormErrorsAutoClearerService,
-    private auth: AuthService) { }
+    private auth: AuthService,
+    private toastr: ToastrService) { }
 
   ngOnInit() {
     this.registerForm = this.fb.group({
@@ -43,9 +50,9 @@ export class UserRegisterComponent implements OnInit {
     this.formErrorMessages = {};
 
     this.requiredValidationMessages = {
-      username: () => this.msgService.getMessage('E001', '用户名'),
-      password: () => this.msgService.getMessage ('E001', '密码'),
-      confirmPassword: () => this.msgService.getMessage('E001', '确认密码')
+      username: () => this.msg.getMessage('E001', '用户名'),
+      password: () => this.msg.getMessage ('E001', '密码'),
+      confirmPassword: () => this.msg.getMessage('E001', '确认密码')
     };
     this.autoClearer.register(this.registerForm, this.formErrorMessages);
   }
@@ -59,14 +66,24 @@ export class UserRegisterComponent implements OnInit {
     if (username.value.trim() && !this.formErrorMessages['username']) {
       if (username.hasError('minlength')
         || username.hasError('maxlength')) {
-        this.formErrorMessages['username'] = this.msgService.getMessage('E002', '2', '10', '用户名');
+        this.formErrorMessages['username'] = this.msg.getMessage('E002', '2', '10', '用户名');
         return;
       }
+
+      this.isValidatingAsync = true;
       this.registerService
         .validateUsername(username.value)
         .subscribe(res => {
-          if (this.formErrorMessages['username'] = res['error']) {
-            username.setErrors({illegal: !!res['error']});
+          this.isValidatingAsync = false;
+
+          if (this.formErrorMessages['username'] = res.error) {
+            username.setErrors({illegal: !!res.error});
+          }
+
+          if (this.isWaitingToRegister) {
+            // 如果在后台验证结果尚未回来之前，用户点击了注册
+            // 则在这里继续被中断的注册处理
+            this.register(this.registerForm.value);
           }
         });
     }
@@ -79,7 +96,7 @@ export class UserRegisterComponent implements OnInit {
   validatePassword(password: AbstractControl) {
     if (password.value.trim()) {
       this.formErrorMessages['password'] = password.valid ? '' :
-        this.msgService.getMessage('E002', '6', '128', '密码');
+        this.msg.getMessage('E002', '6', '128', '密码');
     }
   }
 
@@ -87,13 +104,22 @@ export class UserRegisterComponent implements OnInit {
    * 点击注册
    * @param {Object} data
    */
-  onRegister(registerInfo: object) {
+  register(registerInfo: object) {
+    // 如果存在异步验证，则稍后进行注册
+    if (this.isValidatingAsync) {
+      this.isWaitingToRegister = true;
+      return;
+    }else {
+      this.isWaitingToRegister = false;
+    }
+
+    // 用户有可能直接就按注册键，这边的处理并非是多余的
     for (const controlName of Object.keys(this.registerForm.controls)) {
       this.validateRequired(controlName);
     }
     // 确认密码被输入时才验证确认密码
     if (registerInfo['confirmPassword'] && registerInfo['password'] !== registerInfo['confirmPassword']) {
-      this.formErrorMessages['confirmPassword'] = this.msgService.getMessage('E003', '密码');
+      this.formErrorMessages['confirmPassword'] = this.msg.getMessage('E003', '密码');
       return;
     }
     if (this.registerForm.valid) {
@@ -102,6 +128,8 @@ export class UserRegisterComponent implements OnInit {
           if (!res.error) {
             this.auth.saveAccessToken(res.accessToken);
             this.auth.saveRefreshToken(res.refreshToken);
+            this.router.navigate(['/rooms', {page: 1}]);
+            this.toastr.success(this.msg.getMessage('I001', '注册'));
           }
         });
     }

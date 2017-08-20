@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 
 import { Observer } from 'rxjs/Observer';
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/retry';
+
+import swal from 'sweetalert2';
 
 import { Payload } from '../models/payload.model';
 
@@ -23,6 +24,7 @@ export class AuthService {
           // 对传入的参数进行编辑
           const getArgs = (): any[] => {
             const headers = this.getAuthorizationHeader('access_token');
+
             // 如果最后一个参数即options被传入，则进行合并
             if (prop.length === args.length) {
               args[args.length - 1] = {headers, ...args[args.length - 1]}
@@ -36,17 +38,28 @@ export class AuthService {
 
           // 如果过期，则刷新访问令牌
           if ((payload.exp - Math.floor(Date.now() / 1000)) < 600) {
-            return Observable.create((observer: Observer<any>) => {
+            return Observable.create((observer: Observer<object>) => {
               target.post('api/user/refresh-token',
                 null,
-                {
-                  headers: this.getAuthorizationHeader('refresh_token'),
-                  responseType: 'text'
-                })
-                .subscribe(accessToken => {
-                  this.saveAccessToken(accessToken);
+                {headers: this.getAuthorizationHeader('refresh_token')})
+                .subscribe(res => {
+                  this.saveAccessToken(res['accessToken']);
+
                   prop.apply(target, getArgs())
                     .subscribe(data => observer.next(data));
+                },  (err: HttpErrorResponse) => {
+                  if (err.error instanceof Error) {
+                    // 如果是客户端异常
+                    console.log('An error occurred:', err.error.message);
+                  } else {
+                    // 如果请求发生异常
+                    console.log(`Backend returned code ${err.status}, body was: ${err.error}`);
+
+                    if (err.status === 401) {
+                      // 如果token失效，则回到登录界面
+                      swal('登录信息已过期', '回到登录页面', 'error');
+                    }
+                  }
                 });
             })
           }
