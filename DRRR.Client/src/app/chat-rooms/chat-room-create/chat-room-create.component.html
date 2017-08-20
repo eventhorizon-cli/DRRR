@@ -43,15 +43,15 @@
              (blur)="validateRequired('password')">
       <span class="help-block">{{ formErrorMessages['password'] || "不少于 6 位" }}</span>
     </div>
-    <div class="checkbox checkbox-primary" >
+    <div class="checkbox" >
       <input type="checkbox" [formControl]="form.controls['isEncrypted']" id="isEncrypted">
       <label for="isEncrypted">加密房</label>
     </div>
-    <div class="checkbox checkbox-primary">
+    <div class="checkbox">
       <input type="checkbox" [formControl]="form.controls['isPermanent']" id="isPermanent">
       <label for="isPermanent">永久房</label>
     </div>
-    <div class="checkbox checkbox-primary">
+    <div class="checkbox">
         <input type="checkbox" [formControl]="form.controls['isHidden']" id="isHidden">
         <label for="isHidden">隐藏房</label>
     </div>
