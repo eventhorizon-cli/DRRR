@@ -86,13 +86,11 @@ p, .checkbox label {
   font-size: 15px;
 }
 
-/*使checkbox垂直居中*/
-.checkbox label::before{
-  margin-top: 2.5px;
-}
-
-.checkbox label::after{
-  margin-top: 2.5px;
+/*垂直居中*/
+.checkbox label::before,
+.checkbox label:not([for=rememberMe])::after{
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 html {

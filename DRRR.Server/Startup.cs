@@ -53,7 +53,7 @@ namespace DRRR.Server
             TokenAuthOptions.Audience = Configuration["Token:Audience"];
             TokenAuthOptions.Issuer = Configuration["Token:Issuer"];
             TokenAuthOptions.ExpiresIn = TimeSpan.FromMinutes(double.Parse(Configuration["Token:ExpiresIn"]));
-            TokenAuthOptions.RefreshTokenExpiresIn = TimeSpan.FromMinutes(double.Parse(Configuration["Token:RefreshTokenExpiresIn"]));
+            TokenAuthOptions.RefreshTokenExpiresIn = TimeSpan.FromDays(double.Parse(Configuration["Token:RefreshTokenExpiresIn"]));
             // 可以通过在方法或者类上添加[Authorize("Jwt")] 来进行保护
             services.AddAuthorization(auth =>
             {

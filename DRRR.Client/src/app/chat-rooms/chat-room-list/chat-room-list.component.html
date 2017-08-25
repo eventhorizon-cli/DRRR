@@ -28,21 +28,9 @@
 <div class="row room-list">
   <div class="col-sm-12">
     <ul class="list-group">
-      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
-      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
-      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
-      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
-      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
-      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
-      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
-      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
-      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
-      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
-      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
-      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
-      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
-      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
-      <app-chat-room-list-item class="list-group-item"></app-chat-room-list-item>
+      <li class="list-group-item" *ngFor="let room of roomList">
+        <app-chat-room-list-item [room]="room"></app-chat-room-list-item>
+      </li>
     </ul>
   </div>
 </div>

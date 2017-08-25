@@ -3,10 +3,11 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { SystemMessagesService } from '../../core/services/system-messages.service';
-import { FormErrorsAutoClearerService } from '../../core/services/form-errors-auto-clearer.service';
+import { FormErrorsAutoClearer } from '../../core/services/form-errors-auto-clearer.service';
 import { UserLoginService } from './user-login.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastrService } from 'ngx-toastr';
+import swal from 'sweetalert2';
 
 @Component({
   templateUrl: './user-login.component.html',
@@ -25,14 +26,15 @@ export class UserLoginComponent implements OnInit {
     private router: Router,
     private msg: SystemMessagesService,
     private loginService: UserLoginService,
-    private autoClearer: FormErrorsAutoClearerService,
+    private autoClearer: FormErrorsAutoClearer,
     private auth: AuthService,
     private toastr: ToastrService) { }
 
   ngOnInit () {
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
-      password: ['', Validators.required]
+      password: ['', Validators.required],
+      rememberMe: [false]
     });
     this.formErrorMessages = {};
     // 为避免获取消息时配置文件尚未加载，在外面多包一层函数
@@ -46,9 +48,29 @@ export class UserLoginComponent implements OnInit {
         this.formErrorMessages['username'] = '';
       }
     });
+
+    // 先从localStorage中尝试取，避免登出后又自动登录
+    this.auth.rememberLoginState(true);
+
+    // 判断是否存在登录信息
+    const payload = this.auth.getPayloadFromToken('refresh_token');
+
+    if (payload) {
+      // 如果存在登录信息，则判断登录信息是否已经过期
+      if (payload.exp > Math.floor(Date.now() / 1000)) {
+        // 登录信息未过期则直接跳转
+        this.router.navigate(['/rooms', { page: 1 }]);
+        this.toastr.success(this.msg.getMessage('I002', payload.unique_name));
+      } else {
+        // 如果已经过期则提示重新登录
+        swal(this.msg.getMessage('E006', '账号信息'),
+          this.msg.getMessage('E007', '登录'), 'error')
+          .then(() => localStorage.clear());
+      }
+    }
   }
 
-  login(data: object) {
+  login(loginInfo: object) {
     if (!this.loginForm.valid) {
       for (const controlName in this.loginForm.controls) {
         if (!this.loginForm.controls[controlName].valid) {
@@ -57,18 +79,20 @@ export class UserLoginComponent implements OnInit {
       }
     } else if (!this.formErrorMessages['username']) {
       this.loginService
-        .login(data)
+        .login(loginInfo)
         .subscribe(res => {
           if (res.error) {
             // 在用户名输入框下方显示错误信息
             this.formErrorMessages['username'] = res.error;
-          }else {
+          } else {
+            // 保存登录信息
+            this.auth.rememberLoginState((<boolean>loginInfo['rememberMe']));
             this.auth.saveAccessToken(res.accessToken);
             this.auth.saveRefreshToken(res.refreshToken);
-            this.router.navigate(['/rooms', {page: 1}]);
+            this.router.navigate(['/rooms', { page: 1 }]);
             this.toastr.success(this.msg.getMessage('I001', '登录'));
           }
-      });
+        });
     }
   }
 }

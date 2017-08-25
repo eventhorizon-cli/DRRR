@@ -5,7 +5,7 @@ import { AbstractControl, FormGroup } from '@angular/forms';
 /**
  * 自动消除表单错误
  */
-export class FormErrorsAutoClearerService {
+export class FormErrorsAutoClearer {
 
   /**
    * 向清理器注册

@@ -24,8 +24,10 @@
     </span>
   </div>
   <div class="checkbox">
-    <input type="checkbox" id="remember">
-    <label for="remember">记住我</label>
+    <input type="checkbox"
+           id="rememberMe"
+           [formControl]="loginForm.controls['rememberMe']">
+    <label for="rememberMe">记住我</label>
   </div>
   <input type="button"
          class="btn btn-lg btn-primary btn-block"

@@ -13,6 +13,7 @@ import { ChatRoomComponent } from './chat-room/chat-room.component';
 import { ChatRoomListService } from './chat-room-list/chat-room-list.service';
 import { ChatRoomCreateService } from './chat-room-create/chat-room-create.service';
 import { ChatRoomCreateComponent } from './chat-room-create/chat-room-create.component';
+import { ChatRoomAuthGuard } from './chat-room-auth.guard';
 
 @NgModule({
   imports: [
@@ -22,6 +23,7 @@ import { ChatRoomCreateComponent } from './chat-room-create/chat-room-create.com
     ChatRoomsRoutingModule
   ],
   providers: [
+    ChatRoomAuthGuard,
     ChatRoomListService,
     ChatRoomCreateService
   ],

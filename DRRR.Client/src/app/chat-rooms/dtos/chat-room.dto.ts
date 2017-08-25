@@ -5,6 +5,8 @@ export interface ChatRoomDto {
   maxUsers?: string;
   currentUsers?: string;
   isEncrypted?: boolean;
+  password?: string;
   isPermanent?: boolean;
   isHidden?: boolean;
+  createTime?: number;
 }

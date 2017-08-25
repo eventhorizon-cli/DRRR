@@ -19,8 +19,12 @@ namespace DRRR.Server.Dtos
 
         public bool IsEncrypted { get; set; }
 
+        public string Password { get; set; }
+
         public bool IsPermanent { get; set; }
 
         public bool IsHidden { get; set; }
+
+        public long CreateTime { get; set; }
     }
 }

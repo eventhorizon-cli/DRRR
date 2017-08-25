@@ -3,10 +3,11 @@ import { Router } from '@angular/router';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { ToastrService } from 'ngx-toastr';
+import swal from 'sweetalert2';
 
 import { SystemMessagesService } from '../../core/services/system-messages.service';
 import { UserRegisterService } from './user-register.service';
-import { FormErrorsAutoClearerService } from '../../core/services/form-errors-auto-clearer.service';
+import { FormErrorsAutoClearer } from '../../core/services/form-errors-auto-clearer.service';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -30,7 +31,7 @@ export class UserRegisterComponent implements OnInit {
     private router: Router,
     private msg: SystemMessagesService,
     private registerService: UserRegisterService,
-    private autoClearer: FormErrorsAutoClearerService,
+    private autoClearer: FormErrorsAutoClearer,
     private auth: AuthService,
     private toastr: ToastrService) { }
 
@@ -128,8 +129,11 @@ export class UserRegisterComponent implements OnInit {
           if (!res.error) {
             this.auth.saveAccessToken(res.accessToken);
             this.auth.saveRefreshToken(res.refreshToken);
-            this.router.navigate(['/rooms', {page: 1}]);
-            this.toastr.success(this.msg.getMessage('I001', '注册'));
+            swal(this.msg.getMessage('I001', '注册'), '', 'success')
+              .then(() => {
+                this.router.navigate(['/rooms', {page: 1}]);
+                this.toastr.success(this.msg.getMessage('I001', '登录'));
+              });
           }
         });
     }

@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, HostBinding } from '@angular/core';
+import { ChatRoomDto } from '../dtos/chat-room.dto';
 
 @Component({
   selector: 'app-chat-room-list-item',
@@ -7,9 +8,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ChatRoomListItemComponent implements OnInit {
 
+  @Input() room: ChatRoomDto;
+
   constructor() { }
 
   ngOnInit() {
+    console.log(this.room);
   }
 
 }

@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/fo
 import { BsModalRef } from 'ngx-bootstrap/modal/modal-options.class';
 
 import { SystemMessagesService } from '../../core/services/system-messages.service';
-import { FormErrorsAutoClearerService } from '../../core/services/form-errors-auto-clearer.service';
+import { FormErrorsAutoClearer } from '../../core/services/form-errors-auto-clearer.service';
 import { ChatRoomDto } from '../dtos/chat-room.dto'
 import { ChatRoomCreateService } from './chat-room-create.service';
 
@@ -29,7 +29,7 @@ export class ChatRoomCreateComponent implements OnInit {
     public bsModalRef: BsModalRef,
     private fb: FormBuilder,
     private msg: SystemMessagesService,
-    private autoClearer: FormErrorsAutoClearerService,
+    private autoClearer: FormErrorsAutoClearer,
     private createService: ChatRoomCreateService) { }
 
   ngOnInit() {
@@ -77,6 +77,9 @@ export class ChatRoomCreateComponent implements OnInit {
         this.formErrorMessages['name'] = this.msg.getMessage('E002', '2', '20', '房间名');
         return;
       }
+
+      this.isValidatingAsync = true;
+
       this.createService
         .validateRoomName(name.value)
         .subscribe(res => {

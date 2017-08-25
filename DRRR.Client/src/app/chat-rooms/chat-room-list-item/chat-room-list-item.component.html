@@ -1,16 +1,19 @@
-<li>
-  <div class="row">
-    <div class="col-md-8">
-      <h4>
-        <a>房间名房间名房间名房间名房间名房间名房间名房间名</a>
-      </h4>
-      <p>
-        <i class="fa fa-user" aria-hidden="true">&nbsp;房主房主房主房主房主</i>
-        <i class="fa fa-clock-o" aria-hidden="true" title="2017年07月26日 14:59创建">&nbsp;08-05 20:23</i>
-      </p>
-    </div>
-    <div class="col-md-4">
-      <app-progress-bar></app-progress-bar>
-    </div>
+<div class="row">
+  <div class="col-md-9">
+    <h4>
+      <a>{{ room.name }}</a>
+    </h4>
+    <p>
+      <i class="fa fa-user" aria-hidden="true" title="房主">&nbsp;{{ room.ownerName }}</i>
+      <i class="fa fa-clock-o"
+         aria-hidden="true"
+         title="{{ room.createTime | date:'yyyy年MM月dd日 HH:mm' }}创建">&nbsp;{{ room.createTime | date:'MM-dd HH:mm' }}</i>
+    </p>
   </div>
-</li>
+  <div class="col-md-3">
+    <app-progress-bar
+      [currentUsers]="room.currentUsers"
+      [maxUsers]="room.maxUsers">
+    </app-progress-bar>
+  </div>
+</div>

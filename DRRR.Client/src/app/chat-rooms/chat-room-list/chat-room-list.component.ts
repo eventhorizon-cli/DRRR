@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 
-import 'rxjs/add/operator/switchMap';
-
 import { BsModalService } from 'ngx-bootstrap/modal';
 
 import { ChatRoomListService } from './chat-room-list.service';

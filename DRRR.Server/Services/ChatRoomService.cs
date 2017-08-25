@@ -38,36 +38,32 @@ namespace DRRR.Server.Services
                 .CountAsync(room => string.IsNullOrEmpty(keyword)
                             || room.Name.Contains(keyword));
 
-
             int totalPages = (int)Math.Ceiling(((decimal)count / 10));
             page = Math.Min(page, totalPages);
 
-            var data = _dbContext.ChatRoom
+            // 小于0的判断是为了防止不正当数据
+            if (page <= 0)
+            {
+                return chatRoomListDto;
+            }
+
+            var query = _dbContext.ChatRoom
                 .Where(room => string.IsNullOrEmpty(keyword) || room.Name.Contains(keyword))
                 .OrderByDescending(room => room.CreateTime)
                 .Skip((page - 1) * 10)
                 .Take(10)
-                .Select(room => new
+                .Select(room => new ChatRoomDto
                 {
-                    Room = room,
-                    OwnerName = room.Owner.Username
+                    Id = HashidHelper.Encode(room.Id),
+                    Name = room.Name,
+                    MaxUsers = room.MaxUsers,
+                    CurrentUsers = room.CurrentUsers,
+                    OwnerName = room.Owner.Username,
+                    CreateTime = new DateTimeOffset(room.CreateTime).ToUnixTimeMilliseconds()
                 });
 
-            List<ChatRoomDto> list = new List<ChatRoomDto>();
-            foreach (var record in data)
-            {
-                ChatRoom room = record.Room;
-                var hashid = HashidHelper.Encode(room.Id);
-                list.Add(new ChatRoomDto
-                {
-                    Id = hashid,
-                    Name = room.Name,
-                    OwnerName = record.OwnerName,
-                    MaxUsers = room.MaxUsers,
-                    CurrentUsers = room.CurrentUsers
-                });
-            }
-            chatRoomListDto.ChatRoomList = list;
+            chatRoomListDto.ChatRoomList = query.ToList();
+
             chatRoomListDto.Pagination = new PaginationDto
             {
                 CurrentPage = page,
@@ -80,19 +76,35 @@ namespace DRRR.Server.Services
 
         public async Task<string> CreateRoomAsync(int userId, ChatRoomDto roomDto)
         {
-            var room = new ChatRoom
+            try
             {
-                OwnerId = userId,
-                Name = roomDto.Name,
-                MaxUsers = roomDto.MaxUsers,
-                IsEncrypted = roomDto.IsEncrypted,
-                IsPermanent = roomDto.IsPermanent,
-                IsHidden = roomDto.IsHidden
-            };
+                var room = new ChatRoom
+                {
+                    OwnerId = userId,
+                    Name = roomDto.Name,
+                    MaxUsers = roomDto.MaxUsers,
+                    IsEncrypted = roomDto.IsEncrypted,
+                    IsPermanent = roomDto.IsPermanent,
+                    IsHidden = roomDto.IsHidden
+                };
 
-            _dbContext.ChatRoom.Add(room);
-            await _dbContext.SaveChangesAsync();
-            return "";
+                // 如果房间被加密
+                Guid salt = Guid.NewGuid();
+                if (roomDto.IsEncrypted)
+                {
+                    // 因为这里的salt字段是可选的，所以不能定义为Guid类型，否则会出问题
+                    room.Salt = salt.ToString();
+                    room.PasswordHash = PasswordHelper.GeneratePasswordHash(roomDto.Password, salt);
+                }
+
+                _dbContext.ChatRoom.Add(room);
+                await _dbContext.SaveChangesAsync();
+                return null;
+            }
+            catch
+            {
+                return _systemMessagesService.GetServerSystemMessage("E004", "房间创建");
+            }
         }
 
         /// <summary>

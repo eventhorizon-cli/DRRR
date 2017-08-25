@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.7.17, for Win64 (x86_64)
 --
--- Host: localhost    Database: drrr
+-- Host: 127.0.0.1    Database: drrr
 -- ------------------------------------------------------
 -- Server version	5.7.18-log
 
@@ -31,7 +31,7 @@ CREATE TABLE `chat_room` (
   `is _encrypted` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否被加密',
   `salt` varchar(36) DEFAULT NULL COMMENT '盐',
   `password_hash` varchar(44) DEFAULT NULL COMMENT '哈希密码',
-  `is_hidden` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `is_hidden` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否为加密房',
   `is_permanent` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否为永久房',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -39,7 +39,7 @@ CREATE TABLE `chat_room` (
   UNIQUE KEY `name_UNIQUE` (`name`),
   KEY `user_id_idx` (`owner_id`),
   CONSTRAINT `user_id` FOREIGN KEY (`owner_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='聊天室';
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8 COMMENT='聊天室';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -48,7 +48,7 @@ CREATE TABLE `chat_room` (
 
 LOCK TABLES `chat_room` WRITE;
 /*!40000 ALTER TABLE `chat_room` DISABLE KEYS */;
-INSERT INTO `chat_room` VALUES (0000000001,'测试房间',0000000015,10,6,0,NULL,NULL,0,0,'2017-08-12 14:59:33','2017-08-12 14:59:39'),(0000000002,'测试房间1',0000000015,2,1,0,NULL,NULL,0,0,'2017-08-20 03:04:13','2017-08-20 03:04:13');
+INSERT INTO `chat_room` VALUES (0000000001,'测试房间',0000000015,20,20,0,NULL,NULL,0,0,'2017-08-12 14:59:33','2017-08-24 15:30:54'),(0000000002,'测试房间1',0000000015,5,4,0,NULL,NULL,0,0,'2017-08-20 03:04:13','2017-08-24 15:31:00'),(0000000003,'测试房间3',0000000015,10,6,0,'',NULL,0,0,'2017-08-21 14:24:23','2017-08-24 14:31:05'),(0000000007,'测试房间4',0000000015,10,5,0,'',NULL,0,0,'2017-08-21 14:39:25','2017-08-24 14:31:07'),(0000000008,'测试房间5',0000000015,10,3,0,'',NULL,0,0,'2017-08-21 14:40:39','2017-08-24 14:31:10'),(0000000009,'房间名称房间名称房间名称房间名称房间名称',0000000015,10,1,0,NULL,NULL,0,0,'2017-08-22 15:59:11','2017-08-24 14:30:54');
 /*!40000 ALTER TABLE `chat_room` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -146,4 +146,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-08-20 15:32:03
+-- Dump completed on 2017-08-26  0:26:43
