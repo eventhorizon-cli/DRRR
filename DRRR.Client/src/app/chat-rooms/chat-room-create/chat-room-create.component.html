@@ -13,6 +13,7 @@
              class="form-control"
              id="name"
              appTextTrim
+             maxlength="20"
              [formControl]="form.controls['name']"
              (blur)="validateRoomName(form.controls['name'])"
              (blur)="validateRequired('name')">
@@ -38,6 +39,7 @@
              class="form-control"
              id="password"
              appTextTrim
+             maxlength="128"
              [formControl]="form.controls['password']"
              (blur)="validatePassword(form.controls['password'])"
              (blur)="validateRequired('password')">

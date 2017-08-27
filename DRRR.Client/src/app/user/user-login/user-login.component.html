@@ -6,6 +6,7 @@
     <input type="text"
            class="form-control"
            placeholder="用户名"
+           maxlength="10"
            appTextTrim
            [formControl]="loginForm.controls['username']">
     <span *ngIf="formErrorMessages['username']" class="help-block">
@@ -17,6 +18,7 @@
      <input type="password"
             class="form-control"
             placeholder="密码"
+            maxlength="128"
             appTextTrim
             [formControl]="loginForm.controls['password']">
     <span *ngIf="formErrorMessages['password']" class="help-block">

@@ -8,6 +8,7 @@ import { Observable } from 'rxjs/Observable';
 import swal from 'sweetalert2';
 
 import { Payload } from '../models/payload.model';
+import { Role } from '../models/role.enum';
 import { SystemMessagesService } from './system-messages.service';
 
 @Injectable()
@@ -24,11 +25,11 @@ export class AuthService {
   private storage: Storage = localStorage;
 
   constructor(
-    http: HttpClient,
+    private httpWithoutAuth: HttpClient,
     private msg: SystemMessagesService,
     private router: Router
   ) {
-    this.http = new Proxy(http, {
+    this.http = new Proxy(httpWithoutAuth, {
       get: (target: HttpClient, propKey: string) => {
         const prop: Function = target[propKey];
         return (...args: any[]): Observable<any> => {
@@ -50,34 +51,10 @@ export class AuthService {
           // 如果过期，则刷新访问令牌
           if ((payload.exp - Math.floor(Date.now() / 1000)) < 600) {
             return Observable.create((observer: Observer<object>) => {
-              target.post('api/user/refresh-token',
-                null,
-                {headers: this.getAuthorizationHeader('refresh_token')})
-                .subscribe(res => {
-                  // 重新保存访问令牌
-                  this.saveAccessToken(res['accessToken']);
-
-                  prop.apply(target, getArgs())
-                    .subscribe(data => observer.next(data));
-                },  (err: HttpErrorResponse) => {
-                  if (err.error instanceof Error) {
-                    // 如果是客户端异常
-                    console.log('An error occurred:', err.error.message);
-                  } else {
-                    // 如果请求发生异常
-                    console.log(`Backend returned code ${err.status}, body was: ${err.error}`);
-
-                    if (err.status === 401) {
-                      // 如果token验证失效，则回到登录界面
-                      swal(this.msg.getMessage('E006', '账号信息'),
-                        this.msg.getMessage('E007', '登录'), 'error')
-                        .then(() => {
-                          // 返回登录界面
-                          this.router.navigateByUrl('/login');
-                        });
-                    }
-                  }
-                });
+              this.refreshToken(() => {
+                prop.apply(target, getArgs())
+                  .subscribe(data => observer.next(data));
+              })
             })
           }
 
@@ -85,6 +62,32 @@ export class AuthService {
         };
       }
     });
+  }
+
+  /**
+   * 表示是否已经登录
+   */
+  get isLoggedIn (): boolean{
+    const payload = this.getPayloadFromToken('access_token', true);
+    // 游客不算登录
+    return payload && payload.role >= Role.user;
+  }
+
+  /**
+   * 表示是否记住登录状态
+   */
+  get rememberLoginState(): boolean {
+    return this.storage === localStorage;
+  }
+
+  /**
+   * 表示是否记住登录状态
+   * @param {boolean} rememberMe 是否记住登录状态
+   */
+  set rememberLoginState(rememberMe: boolean) {
+    // 默认是保存到localStorage里，这样的话，
+    // 下次登录的时候就可以根据localStorage里的信息来判断是否进行自动登录
+    this.storage = rememberMe ? localStorage : sessionStorage;
   }
 
   /**
@@ -118,7 +121,7 @@ export class AuthService {
       // 也有可能是没选记住状态的用户在刷新页面后，
       // 没有从默认的localStorage获取到信息
       // 尝试从sessionStorage中获取
-      this.rememberLoginState(false);
+      this.rememberLoginState = false;
       token = this.storage.getItem(tokenName);
     }
 
@@ -131,13 +134,50 @@ export class AuthService {
   }
 
   /**
-   * 记住登录状态
-   * @param {boolean} rememberMe 是否记住登录状态
+   * 刷新令牌
+   * @param {Function} successCallback 刷新令牌成功时执行的回调函数
    */
-  rememberLoginState(rememberMe: boolean) {
-    // 默认是保存到localStorage里，这样的话，
-    // 下次登录的时候就可以根据localStorage里的信息来判断是否进行自动登录
-    this.storage = rememberMe ? localStorage : sessionStorage;
+  refreshToken(successCallback: Function) {
+    this.httpWithoutAuth.post('api/user/refresh-token',
+      null,
+      {headers: this.getAuthorizationHeader('refresh_token')})
+      .subscribe(res => {
+        // 重新保存访问令牌
+        this.saveAccessToken(res['accessToken']);
+
+        // 执行回调函数
+        successCallback();
+      },  (err: HttpErrorResponse) => {
+        if (err.error instanceof Error) {
+          // 如果是客户端异常
+          console.log('An error occurred:', err.error.message);
+        } else {
+          // 如果请求发生异常
+          console.log(`Backend returned code ${err.status}, body was: ${err.error}`);
+
+          if (err.status === 401) {
+            // 如果token验证失效，则回到登录界面
+            swal(this.msg.getMessage('E006', '账号信息'),
+              this.msg.getMessage('E007', '登录'), 'error')
+              .then(() => {
+                // 返回登录界面
+                // 清空localStorage以避免问题发生
+                this.clearTokens();
+                this.router.navigateByUrl('/login');
+              });
+          }
+        }
+      });
+  }
+
+  /**
+   * 清除Storage中存放的所有Token信息
+   */
+  clearTokens () {
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('access_token');
+    sessionStorage.removeItem('refresh_token');
+    sessionStorage.removeItem('access_token');
   }
 
   /**

@@ -19,12 +19,18 @@
          #navigation
          aria-expanded="false"
          (click)="slideUp(navigation.getAttribute('aria-expanded'), btnToggle)">
-      <ul class="nav navbar-nav navbar-right">
+      <ul class="nav navbar-nav navbar-right"
+          *ngIf="!isLoggedIn">
         <li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
           <a routerLink="./login"><span>登录</span></a>
         </li>
         <li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
           <a routerLink="./register"><span>注册</span></a>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right" *ngIf="isLoggedIn">
+        <li>
+          <a (click)="logout()"><span>退出</span></a>
         </li>
       </ul>
     </div>

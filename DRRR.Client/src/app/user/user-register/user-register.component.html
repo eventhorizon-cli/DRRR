@@ -6,6 +6,7 @@
     <input type="text"
            class="form-control"
            placeholder="请输入用户名"
+           maxlength="10"
            autocomplete="off"
            appTextTrim
            [formControl]="registerForm.controls['username']"
@@ -18,6 +19,7 @@
     <input type="password"
            class="form-control"
            placeholder="请输入密码"
+           maxlength="128"
            autocomplete="off"
            appTextTrim
            [formControl]="registerForm.controls['password']"
@@ -30,6 +32,7 @@
     <input type="password"
            class="form-control"
            placeholder="请确认密码"
+           maxlength="128"
            autocomplete="off"
            appTextTrim
            [formControl]="registerForm.controls['confirmPassword']"

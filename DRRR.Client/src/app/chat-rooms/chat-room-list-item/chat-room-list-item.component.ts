@@ -13,7 +13,6 @@ export class ChatRoomListItemComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    console.log(this.room);
   }
 
 }

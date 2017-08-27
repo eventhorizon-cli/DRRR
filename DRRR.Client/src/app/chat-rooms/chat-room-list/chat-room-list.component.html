@@ -34,3 +34,15 @@
     </ul>
   </div>
 </div>
+<div class="row">
+  <div class="col-md-12">
+    <pagination class="pagination-sm"
+                *ngIf="roomList && roomList.length"
+                [totalItems]="pagination.totalItems"
+                [ngModel]="pagination.currentPage"
+                [maxSize]="8"
+                [boundaryLinks]="true"
+                (pageChanged)="onPageChanged($event)">
+    </pagination>
+  </div>
+</div>

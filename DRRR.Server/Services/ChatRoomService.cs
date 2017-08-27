@@ -33,7 +33,6 @@ namespace DRRR.Server.Services
         /// <returns>房间列表</returns>
         public async Task<ChatRoomSearchResponseDto> GetRoomList(string keyword, int page)
         {
-            ChatRoomSearchResponseDto chatRoomListDto = new ChatRoomSearchResponseDto();
             int count = await _dbContext.ChatRoom
                 .CountAsync(room => string.IsNullOrEmpty(keyword)
                             || room.Name.Contains(keyword));
@@ -41,13 +40,15 @@ namespace DRRR.Server.Services
             int totalPages = (int)Math.Ceiling(((decimal)count / 10));
             page = Math.Min(page, totalPages);
 
+            ChatRoomSearchResponseDto chatRoomListDto = new ChatRoomSearchResponseDto();
+
             // 小于0的判断是为了防止不正当数据
             if (page <= 0)
             {
                 return chatRoomListDto;
             }
 
-            var query = _dbContext.ChatRoom
+            chatRoomListDto.ChatRoomList = _dbContext.ChatRoom
                 .Where(room => string.IsNullOrEmpty(keyword) || room.Name.Contains(keyword))
                 .OrderByDescending(room => room.CreateTime)
                 .Skip((page - 1) * 10)
@@ -60,14 +61,13 @@ namespace DRRR.Server.Services
                     CurrentUsers = room.CurrentUsers,
                     OwnerName = room.Owner.Username,
                     CreateTime = new DateTimeOffset(room.CreateTime).ToUnixTimeMilliseconds()
-                });
-
-            chatRoomListDto.ChatRoomList = query.ToList();
+                }).ToList();
 
             chatRoomListDto.Pagination = new PaginationDto
             {
                 CurrentPage = page,
-                TotalPages = totalPages
+                TotalPages = totalPages,
+                TotalItems = count
             };
 
             return chatRoomListDto;

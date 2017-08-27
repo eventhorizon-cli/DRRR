@@ -1,7 +1,9 @@
+import { Role } from './role.enum';
+
 export interface Payload {
   unique_name: string,
   uid: string,
-  role: number,
+  role: Role,
   nbf: number,
   exp: number,
   iat: number,

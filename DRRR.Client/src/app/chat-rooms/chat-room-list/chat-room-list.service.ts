@@ -9,8 +9,8 @@ export class ChatRoomListService {
 
   constructor(private auth: AuthService) { }
 
-  getList(keyword: string = '', page: number): Observable<ChatRoomSearchResponseDto>  {
+  getList(keyword: string = '', page: number): Observable<ChatRoomSearchResponseDto> {
     return this.auth.http
-      .get(`api/rooms?keyword=${keyword}&page=${page}`);
+      .get<ChatRoomSearchResponseDto>(`api/rooms?keyword=${keyword}&page=${page}`);
   }
 }
