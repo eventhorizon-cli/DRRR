@@ -1,5 +1,8 @@
 ﻿namespace DRRR.Server.Dtos
 {
+    /// <summary>
+    /// 用户登录请求DTO
+    /// </summary>
     public class UserLoginRequestDto
     {
         /// <summary>

@@ -6,6 +6,9 @@ using System.Security.Cryptography;
 
 namespace DRRR.Server.Security
 {
+    /// <summary>
+    /// RSA秘钥帮助类
+    /// </summary>
     public class RSAKeyHelper
     {
         /// <summary>

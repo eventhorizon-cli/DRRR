@@ -23,7 +23,7 @@ import { AuthService } from './services/auth.service';
     SelectivePreloadingStrategy,
     SystemMessagesService,
     FormErrorsAutoClearer,
-    AuthService
+    AuthService,
   ]
 })
 export class CoreModule {

@@ -66,8 +66,7 @@
 }
 
 .form-user {
-  max-width: 330px;
-  padding: 15px;
+  max-width: 300px;
   margin: 0 auto;
 }
 
@@ -93,8 +92,16 @@ p, .checkbox label {
   transform: translateY(-50%);
 }
 
+body.swal2-iosfix {
+  position: static;
+}
+
+a {
+  cursor:pointer;
+}
+
 html {
   min-height: 100%;
   position: relative;
-  padding-bottom: 162px;
+  padding-bottom: 80px;
 }

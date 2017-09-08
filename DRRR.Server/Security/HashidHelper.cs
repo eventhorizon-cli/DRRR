@@ -1,11 +1,11 @@
 ﻿using HashidsNet;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DRRR.Server.Security
 {
+    /// <summary>
+    /// 哈希ID帮助类
+    /// </summary>
     public static class HashidHelper
     {
         private static Hashids _hashids = new Hashids(salt: Guid.NewGuid().ToString(), minHashLength: 10);

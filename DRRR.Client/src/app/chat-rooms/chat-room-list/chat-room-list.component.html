@@ -36,13 +36,20 @@
 </div>
 <div class="row">
   <div class="col-md-12">
-    <pagination class="pagination-sm"
-                *ngIf="roomList && roomList.length"
-                [totalItems]="pagination.totalItems"
-                [ngModel]="pagination.currentPage"
-                [maxSize]="8"
-                [boundaryLinks]="true"
-                (pageChanged)="onPageChanged($event)">
-    </pagination>
+    <div class="text-center">
+        <pagination class="pagination-md"
+                    *ngIf="roomList && roomList.length"
+                    firstText="首页"
+                    lastText="末页"
+                    previousText="上一页"
+                    nextText="下一页"
+                    rotate="true"
+                    [totalItems]="pagination.totalItems"
+                    [ngModel]="pagination.currentPage"
+                    [maxSize]="8"
+                    [boundaryLinks]="true"
+                    (pageChanged)="onPageChanged($event)">
+        </pagination>
+    </div>
   </div>
 </div>

@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace DRRR.Server.Dtos
 {
+    /// <summary>
+    /// 用户注册请求DTO
+    /// </summary>
     public class UserRegisterRequestDto
     {
         /// <summary>

@@ -1,0 +1,35 @@
+.avatar {
+  width: 120px;
+  float: left;
+  position: relative;
+}
+.avatar > *{
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+}
+.avatar img {
+  margin-bottom: 20px;
+}
+.avatar a {
+  position: absolute;
+  text-decoration: none;
+  top: 0;
+  left: 0;
+  background: rgba(0,0,0,.6);
+  font-size: 15px;
+  color: #fff;
+  line-height: 90px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+.avatar a:hover{
+  opacity: 1;
+}
+
+.well{
+  min-height: 130px;
+  background: #ffffff;
+}

@@ -11,6 +11,9 @@ using static DRRR.Server.Security.PasswordHelper;
 
 namespace DRRR.Server.Services
 {
+    /// <summary>
+    /// 用户注册服务
+    /// </summary>
     public class UserRegisterService
     {
         private SystemMessagesService _systemMessagesService;
@@ -39,7 +42,9 @@ namespace DRRR.Server.Services
             }
 
             // 检测用户名是否存在
-            int count = await _dbContext.User.CountAsync(user => user.Username == username);
+            int count = await _dbContext
+                .User.CountAsync(user => user.Username == username)
+                .ConfigureAwait(false);
 
             if (count > 0)
             {
@@ -61,7 +66,7 @@ namespace DRRR.Server.Services
                 RoleId = (int)Roles.User
             };
             _dbContext.User.Add(user);
-            int count = await _dbContext.SaveChangesAsync();
+            int count = await _dbContext.SaveChangesAsync().ConfigureAwait(false);
             tokenDto.AccessToken = _tokenAuthService.GenerateAccessToken(user);
             tokenDto.RefreshToken = _tokenAuthService.GenerateRefreshToken(user);
             return tokenDto;

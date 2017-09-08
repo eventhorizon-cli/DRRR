@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace DRRR.Server.Services
 {
+    /// <summary>
+    /// 颁发TOKEN的服务
+    /// </summary>
     public class TokenAuthService
     {
         private DrrrDbContext _dbContext;
@@ -38,7 +41,8 @@ namespace DRRR.Server.Services
         /// <returns>一个新的 AccessToken</returns>
         public async Task<string> RefreshTokenAsync(int uid)
         {
-            User user = await _dbContext.User.FindAsync(uid);
+            User user = await _dbContext.User.FindAsync(uid)
+                .ConfigureAwait(false);
             return GenerateAccessToken(user);
         }
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace DRRR.Server.Security
 {
     /// <summary>
-    /// 令牌类型上
+    /// 令牌类型
     /// </summary>
     public enum TokenKind
     {

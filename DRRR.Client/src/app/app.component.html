@@ -12,7 +12,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="javascript:void(0)">聊天室</a>
+      <a class="navbar-brand">聊天室</a>
     </div>
     <div class="navbar-collapse collapse"
          role="navigation"
@@ -22,15 +22,21 @@
       <ul class="nav navbar-nav navbar-right"
           *ngIf="!isLoggedIn">
         <li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-          <a routerLink="./login"><span>登录</span></a>
+          <a routerLink="./login">登录</a>
         </li>
         <li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-          <a routerLink="./register"><span>注册</span></a>
+          <a routerLink="./register">注册</a>
         </li>
       </ul>
       <ul class="nav navbar-nav navbar-right" *ngIf="isLoggedIn">
+        <li *ngIf="currentPath !== 'profile'">
+          <a routerLink="./profile">账号设置</a>
+        </li>
+        <li *ngIf="currentPath === 'profile'">
+          <a routerLink="./rooms">返回大厅</a>
+        </li>
         <li>
-          <a (click)="logout()"><span>退出</span></a>
+          <a (click)="logout()">退出</a>
         </li>
       </ul>
     </div>

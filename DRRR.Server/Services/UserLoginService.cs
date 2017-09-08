@@ -10,6 +10,9 @@ using static DRRR.Server.Security.PasswordHelper;
 
 namespace DRRR.Server.Services
 {
+    /// <summary>
+    /// 用户登录服务
+    /// </summary>
     public class UserLoginService
     {
         private SystemMessagesService _systemMessagesService;
@@ -38,7 +41,8 @@ namespace DRRR.Server.Services
             AccessTokenResponseDto tokenDto = new AccessTokenResponseDto();
             User user = await _dbContext.User
                 .Where(u => u.Username == userDto.Username)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync()
+                .ConfigureAwait(false);
 
             if (user != null
                 && ValidatePassword(userDto.Password, user.Salt, user.PasswordHash))

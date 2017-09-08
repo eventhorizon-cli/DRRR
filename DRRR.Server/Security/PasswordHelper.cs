@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace DRRR.Server.Security
 {
+    /// <summary>
+    /// 哈希密码帮助类
+    /// </summary>
     public class PasswordHelper
     {
         /// <summary>

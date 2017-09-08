@@ -6,7 +6,10 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace DRRR.Server.Security
 {
-    public class TokenAuthOptions
+    /// <summary>
+    /// JWT配置选项
+    /// </summary>
+    public static class TokenAuthOptions
     {
         /// <summary>
         /// Token 签收者

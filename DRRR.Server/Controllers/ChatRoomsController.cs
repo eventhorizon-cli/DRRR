@@ -9,6 +9,9 @@ using DRRR.Server.Security;
 
 namespace DRRR.Server.Controllers
 {
+    /// <summary>
+    /// 聊天室控制器
+    /// </summary>
     [Route("api/rooms")]
     public class ChatRoomsController : Controller
     {

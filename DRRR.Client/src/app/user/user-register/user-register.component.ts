@@ -131,7 +131,7 @@ export class UserRegisterComponent implements OnInit {
             this.auth.saveRefreshToken(res.refreshToken);
             swal(this.msg.getMessage('I001', '注册'), '', 'success')
               .then(() => {
-                this.router.navigate(['/rooms', {page: 1}]);
+                this.router.navigate(['/rooms']);
                 this.toastr.success(this.msg.getMessage('I001', '登录'));
               });
           }

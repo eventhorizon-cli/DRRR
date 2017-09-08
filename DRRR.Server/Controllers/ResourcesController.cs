@@ -1,22 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 
 using DRRR.Server.Services;
+using DRRR.Server.Security;
 
 namespace DRRR.Server.Controllers
 {
+    /// <summary>
+    /// 资源控制器
+    /// </summary>
     [Route("api/[controller]")]
     public class ResourcesController : Controller
     {
         private SystemMessagesService _systemMessagesService;
 
-        public ResourcesController(SystemMessagesService systemMessagesService)
+        private UserProfileService _userProfileService;
+
+        public ResourcesController(
+            SystemMessagesService systemMessagesService,
+            UserProfileService userProfileService)
         {
             _systemMessagesService = systemMessagesService;
+            _userProfileService = userProfileService;
         }
 
         /// <summary>
@@ -27,6 +32,12 @@ namespace DRRR.Server.Controllers
         public JsonResult GetSystemMessageSettings()
         {
             return _systemMessagesService.ClientSystemMessageSettings;
+        }
+
+        [HttpGet, Route("Avatars/{hashid}")]
+        public async Task<FileResult> GetAvatarAsync(string hashid)
+        {
+            return await _userProfileService.GetAvatarAsync(HashidHelper.Decode(hashid));
         }
     }
 }

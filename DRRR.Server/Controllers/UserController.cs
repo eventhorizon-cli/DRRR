@@ -9,6 +9,9 @@ using DRRR.Server.Security;
 
 namespace DRRR.Server.Controllers
 {
+    /// <summary>
+    /// 用户控制器
+    /// </summary>
     [Route("api/[controller]")]
     public class UserController : Controller
     {
@@ -18,14 +21,18 @@ namespace DRRR.Server.Controllers
 
         private TokenAuthService _tokenAuthService;
 
+        private UserProfileService _userProfileService;
+
         public UserController(
             UserLoginService loginService,
             UserRegisterService registerService,
-            TokenAuthService tokenAuthService)
+            TokenAuthService tokenAuthService,
+            UserProfileService userProfileService)
         {
             _loginService = loginService;
             _registerService = registerService;
             _tokenAuthService = tokenAuthService;
+            _userProfileService = userProfileService;
         }
 
         /// <summary>
@@ -75,6 +82,14 @@ namespace DRRR.Server.Controllers
             {
                 AccessToken = await _tokenAuthService.RefreshTokenAsync(HashidHelper.Decode(hashid))
             });
+        }
+
+        [HttpGet, Route("registration-time")]
+        [JwtAuthorize(Roles.User,Roles.Admin)]
+        public async Task<string> GetRegistrationTimeAsync()
+        {
+            string hashid = HttpContext.User.FindFirst("uid").Value;
+            return await _userProfileService.GetRegistrationTimeAsync(HashidHelper.Decode(hashid));
         }
     }
 }

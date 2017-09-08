@@ -7,19 +7,23 @@ import { UserLoginService } from './user-login/user-login.service';
 import { UserRegisterService } from './user-register/user-register.service';
 import { UserRegisterComponent } from './user-register/user-register.component';
 import { UserRoutingModule } from './user-routing.module';
+import { UserProfileComponent } from './user-profile/user-profile.component';
+import { UserProfileService } from './user-profile/user-profile.service';
 
 @NgModule({
   declarations: [
     UserLoginComponent,
-    UserRegisterComponent
-  ],
+    UserRegisterComponent,
+    UserProfileComponent
+],
   imports: [
     SharedModule,
     UserRoutingModule
   ],
   providers: [
     UserLoginService,
-    UserRegisterService
+    UserRegisterService,
+    UserProfileService
   ]
 })
 export class UserModule { }

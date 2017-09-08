@@ -11,6 +11,9 @@ using System.Text.RegularExpressions;
 
 namespace DRRR.Server.Services
 {
+    /// <summary>
+    /// 聊天室服务
+    /// </summary>
     public class ChatRoomService
     {
         private DrrrDbContext _dbContext;
@@ -35,7 +38,7 @@ namespace DRRR.Server.Services
         {
             int count = await _dbContext.ChatRoom
                 .CountAsync(room => string.IsNullOrEmpty(keyword)
-                            || room.Name.Contains(keyword));
+                            || room.Name.Contains(keyword)).ConfigureAwait(false);
 
             int totalPages = (int)Math.Ceiling(((decimal)count / 10));
             page = Math.Min(page, totalPages);
@@ -122,7 +125,9 @@ namespace DRRR.Server.Services
             }
 
             // 检测用户名是否存在
-            int count = await _dbContext.ChatRoom.CountAsync(room => room.Name == name);
+            int count = await _dbContext
+                .ChatRoom.CountAsync(room => room.Name == name)
+                .ConfigureAwait(false);
 
             if (count > 0)
             {

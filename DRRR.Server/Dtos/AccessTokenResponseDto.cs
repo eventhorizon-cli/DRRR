@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace DRRR.Server.Dtos
 {
+    /// <summary>
+    /// Token响应DTO
+    /// </summary>
     public class AccessTokenResponseDto
     {
         /// <summary>

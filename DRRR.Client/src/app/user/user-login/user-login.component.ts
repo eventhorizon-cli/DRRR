@@ -83,7 +83,7 @@ export class UserLoginComponent implements OnInit {
             this.auth.rememberLoginState = loginInfo['rememberMe'];
             this.auth.saveAccessToken(res.accessToken);
             this.auth.saveRefreshToken(res.refreshToken);
-            this.router.navigate(['/rooms', { page: 1 }]);
+            this.router.navigate(['/rooms']);
             this.toastr.success(this.msg.getMessage('I001', '登录'));
           }
         });
