@@ -57,6 +57,7 @@ export class ChatRoomListComponent implements OnInit {
 
   /**
    * 翻页
+   * @param {any} page 页码
    */
   onPageChanged({ page }) {
     this.currentPage = page;

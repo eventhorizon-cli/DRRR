@@ -39,7 +39,7 @@ namespace DRRR.Server.Controllers
         /// 验证登录
         /// </summary>
         /// <param name="userDto">用户信息</param>
-        /// <returns>Token或者错误信息</returns>
+        /// <returns>异步获取Token的任务</returns>
         [HttpPost("login")]
         public async Task<AccessTokenResponseDto> LoginAsync([FromBody]UserLoginRequestDto userDto)
         {
@@ -50,7 +50,7 @@ namespace DRRR.Server.Controllers
         /// 用户注册
         /// </summary>
         /// <param name="userDto">用户信息</param>
-        /// <returns>验证结果</returns>
+        /// <returns>异步获取Token的任务</returns>
         [HttpPost, Route("register")]
 
         public async Task<AccessTokenResponseDto> RegisterAsync([FromBody]UserRegisterRequestDto userDto)
@@ -72,7 +72,7 @@ namespace DRRR.Server.Controllers
         /// <summary>
         /// 刷新访问令牌
         /// </summary>
-        /// <returns>新的访问令牌</returns>
+        /// <returns>获取新的访问令牌的任务</returns>
         [HttpPost, Route("refresh-token")]
         [JwtAuthorize]
         public async Task<JsonResult> RefreshTokenAsync()
@@ -84,6 +84,10 @@ namespace DRRR.Server.Controllers
             });
         }
 
+        /// <summary>
+        /// 获取用户注册时间
+        /// </summary>
+        /// <returns>获取用户注册时间的任务</returns>
         [HttpGet, Route("registration-time")]
         [JwtAuthorize(Roles.User,Roles.Admin)]
         public async Task<string> GetRegistrationTimeAsync()

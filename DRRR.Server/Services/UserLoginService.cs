@@ -35,7 +35,7 @@ namespace DRRR.Server.Services
         /// 验证登录信息
         /// </summary>
         /// <param name="userDto">用户信息</param>
-        /// <returns>验证结果</returns>
+        /// <returns>异步获取Token的任务</returns>
         public async Task<AccessTokenResponseDto> ValidateAsync(UserLoginRequestDto userDto)
         {
             AccessTokenResponseDto tokenDto = new AccessTokenResponseDto();

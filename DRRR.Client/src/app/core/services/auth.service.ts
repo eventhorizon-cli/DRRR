@@ -31,34 +31,36 @@ export class AuthService {
   ) {
     this.http = new Proxy(httpWithoutAuth, {
       get: (target: HttpClient, propKey: string) => {
-        const prop: Function = target[propKey];
+        // 被调用的对应的Http方法
+        const httpFunc: Function = target[propKey];
+
         return (...args: any[]): Observable<any> => {
           // 对传入的参数进行编辑
           const getArgs = (): any[] => {
             const headers = this.getAuthorizationHeader('access_token');
 
             // 如果最后一个参数即options被传入，则进行合并
-            if (prop.length === args.length) {
-              args[args.length - 1] = {headers, ...args[args.length - 1]};
+            if (httpFunc.length === args.length) {
+              args[args.length - 1] = { headers, ...args[args.length - 1] };
             } else {
-              args.push({headers});
+              args.push({ headers });
             }
             return args;
           };
 
           const payload = this.getPayloadFromToken('access_token');
 
-          // 如果过期，则刷新访问令牌
+          // 如果剩余有效时间小于10分钟，则刷新访问令牌
           if ((payload.exp - Math.floor(Date.now() / 1000)) < 600) {
             return Observable.create((observer: Observer<object>) => {
               this.refreshToken(() => {
-                prop.apply(target, getArgs())
+                httpFunc.apply(target, getArgs())
                   .subscribe(data => observer.next(data));
               })
             })
           }
 
-          return prop.apply(target, getArgs());
+          return httpFunc.apply(target, getArgs());
         };
       }
     });
@@ -92,7 +94,7 @@ export class AuthService {
 
   /**
    * 将访问令牌保存到客户端
-   * @param {string} accessToken
+   * @param {string} accessToken 访问令牌
    */
   saveAccessToken(accessToken: string) {
     this.storage.setItem('access_token', accessToken);
@@ -100,12 +102,11 @@ export class AuthService {
 
   /**
    * 将更新令牌保存到客户端
-   * @param {string} refreshToken
+   * @param {string} refreshToken 更新令牌
    */
   saveRefreshToken(refreshToken: string) {
     this.storage.setItem('refresh_token', refreshToken);
   }
-
 
   /**
    * 从Token中获取信息
@@ -140,14 +141,14 @@ export class AuthService {
   refreshToken(successCallback: Function) {
     this.httpWithoutAuth.post('api/user/refresh-token',
       null,
-      {headers: this.getAuthorizationHeader('refresh_token')})
+      { headers: this.getAuthorizationHeader('refresh_token') })
       .subscribe(res => {
         // 重新保存访问令牌
         this.saveAccessToken(res['accessToken']);
 
         // 执行回调函数
         successCallback();
-      },  (err: HttpErrorResponse) => {
+      }, (err: HttpErrorResponse) => {
         if (err.error instanceof Error) {
           // 如果是客户端异常
           console.log('An error occurred:', err.error.message);
@@ -173,7 +174,7 @@ export class AuthService {
   /**
    * 清除Storage中存放的所有Token信息
    */
-  clearTokens () {
+  clearTokens() {
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('access_token');
     sessionStorage.removeItem('refresh_token');

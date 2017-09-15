@@ -23,7 +23,7 @@ namespace DRRR.Server.Controllers
         /// </summary>
         /// <param name="keyword">关键词</param>
         /// <param name="page">页码</param>
-        /// <returns>房间列表</returns>
+        /// <returns>表示异步获取房间列表的任务，如果创建失败则返回错误信息</returns>
         [HttpGet]
         [JwtAuthorize(Roles.Guest, Roles.User, Roles.Admin)]
         public async Task<ChatRoomSearchResponseDto> GetRoomList(string keyword, int page)
@@ -35,7 +35,7 @@ namespace DRRR.Server.Controllers
         /// 验证房间名
         /// </summary>
         /// <param name="name">房间名</param>
-        /// <returns>验证结果</returns>
+        /// <returns>异步获取验证结果的任务</returns>
         [HttpGet, Route("room-name-validation")]
         [JwtAuthorize(Roles.User, Roles.Admin)]
         public async Task<JsonResult> ValidateRoomNameAsync(string name)
@@ -46,6 +46,11 @@ namespace DRRR.Server.Controllers
             });
         }
 
+        /// <summary>
+        /// 创建房间
+        /// </summary>
+        /// <param name="roomDto">用户输入的用于创建房间的信息</param>
+        /// <returns>表示异步创建房间的任务，如果创建失败则返回错误信息</returns>
         [HttpPost]
         [JwtAuthorize(Roles.User, Roles.Admin)]
         public async Task<JsonResult> CreateRoomAsync([FromBody]ChatRoomDto roomDto)

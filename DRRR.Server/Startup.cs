@@ -107,7 +107,7 @@ namespace DRRR.Server
             }
 
             // 存放头像的目录
-            UserProfileService.AvatarDirectory = Configuration["Resources:Avatars"];
+            UserProfileService.AvatarsDirectory = Configuration["Resources:Avatars"];
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

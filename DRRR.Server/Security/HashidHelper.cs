@@ -24,7 +24,7 @@ namespace DRRR.Server.Security
         /// 对ID进行解码
         /// </summary>
         /// <param name="hash">哈希值</param>
-        /// <returns>ID</returns>
+        /// <returns>解密后的ID</returns>
         public static int Decode(string hash)
         {
             return _hashids.Decode(hash)[0];

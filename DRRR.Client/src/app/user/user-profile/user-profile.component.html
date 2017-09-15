@@ -3,10 +3,10 @@
   <h2>账号设置</h2>
   <div class="well">
     <div class="avatar">
-      <img src="/api/resources/avatars/{{payload.uid}}"
-           class="img-circle circle-border" alt="profile"
-           (click)="changeAvatar()">
-      <a>更换头像</a>
+      <img src="{{avatarURL}}">
+      <a (click)="file.click()">更换头像</a>
+      <input #file type="file" accept="image/jpeg"
+             (change)="updateAvatar(file)">
     </div>
     <div>
       <h3>{{payload.unique_name}}</h3>
@@ -47,5 +47,5 @@
   <input type="button"
          class="btn btn-lg btn-primary btn-block"
          value="重置密码"
-         (click)="register(profileForm.value)">
+         (click)="resetPassword(profileForm.value)">
 </form>

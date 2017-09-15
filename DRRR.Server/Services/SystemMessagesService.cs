@@ -46,6 +46,12 @@ namespace DRRR.Server.Services
             ReloadFiles(null, null);
         }
 
+        /// <summary>
+        /// 获取服务器端消息
+        /// </summary>
+        /// <param name="msgId">消息ID</param>
+        /// <param name="args">用于替换占位符的参数</param>
+        /// <returns>服务器端消息</returns>
         public string GetServerSystemMessage(string msgId, params string[] args)
         {
             string value = _serverSystemMessageSettings[msgId].Value<string>();

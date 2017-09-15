@@ -16,6 +16,7 @@ import { AuthService } from './services/auth.service';
     BrowserAnimationsModule,
     ToastrModule.forRoot(
       {
+
         closeButton: true,
         progressBar: true
       })],

@@ -8,6 +8,9 @@
   height: 90px;
   border-radius: 50%;
 }
+.avatar input {
+  display: none;
+}
 .avatar img {
   margin-bottom: 20px;
 }

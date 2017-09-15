@@ -32,6 +32,11 @@ namespace DRRR.Server.Services
             _dbContext = dbContext;
         }
 
+        /// <summary>
+        /// 验证用户名
+        /// </summary>
+        /// <param name="username">用户名</param>
+        /// <returns>表示异步验证用户名的任务</returns>
         public async Task<string> ValidateUsernameAsync(string username = "")
         {
             // 用户名仅支持中日英文、数字和下划线,且不能为纯数字
@@ -53,6 +58,11 @@ namespace DRRR.Server.Services
             return null;
         }
 
+        /// <summary>
+        /// 用户注册
+        /// </summary>
+        /// <param name="userDto">用于注册的用户信息</param>
+        /// <returns>异步获取Token的任务</returns>
         public async Task<AccessTokenResponseDto> RegisterAsync(UserRegisterRequestDto userDto)
         {
             var tokenDto = new AccessTokenResponseDto();

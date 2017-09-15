@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
+import swal from 'sweetalert2';
+import * as Cropper from 'cropperjs';
+
 import { AuthService } from '../../core/services/auth.service';
 import { UserProfileService } from './user-profile.service';
 import { Payload } from '../../core/models/payload.model';
@@ -21,11 +24,13 @@ export class UserProfileComponent implements OnInit {
 
   profileForm: FormGroup;
 
+  avatarURL: string;
+
+  payload: Payload;
+
   private isValidatingAsync: boolean;
 
   private isWaitingToRegister: boolean;
-
-  private payload: Payload;
 
   constructor(
     private auth: AuthService,
@@ -37,6 +42,8 @@ export class UserProfileComponent implements OnInit {
   ngOnInit() {
     this.payload = this.auth.getPayloadFromToken('access_token');
 
+    this.avatarURL = `/api/resources/avatars/${this.payload.uid}`;
+
     this.profileForm = this.fb.group({});
 
     this.formErrorMessages = {};
@@ -47,7 +54,75 @@ export class UserProfileComponent implements OnInit {
       password: () => this.msg.getMessage('E001', '密码')
     };
 
+    // 获取注册时间
     this.profileService.getRegistrationTime()
       .subscribe(time => this.registrationTime = time);
+  }
+
+  /**
+   * 更新头像
+   * @param {HTMLInputElement} file input的dom对象
+   */
+  updateAvatar(file: HTMLInputElement) {
+    let cropper: Cropper;
+
+    let dataURL: string;
+
+    const url = URL.createObjectURL(file.files[0]);
+    // 清空value值,避免两次选中同样的文件时不触发change事件
+    file.value = '';
+
+    // 设置图像显示区域的最大高度和最大宽度
+    const length = screen.availHeight / 2;
+    swal({
+      title: '裁剪头像',
+      html: `
+        <div class="img-container">
+          <img src="${url}" style="max-height: ${length}px;max-width: ${length}px">
+        </div>`,
+      showCloseButton: true,
+      showLoaderOnConfirm: true,
+      confirmButtonText:
+      '设置新头像',
+      onOpen() {
+        const image = <HTMLImageElement>document.querySelector('.img-container img');
+        cropper = new Cropper(image, {
+          aspectRatio: 1 / 1,
+          viewMode: 3,
+          dragMode: 'move'
+        });
+      },
+      preConfirm: () => {
+        // 确定设置新头像
+        return new Promise((resolve, reject) => {
+          // 图片最大边长为512
+          const croppedLength = Math.min(cropper.getCropBoxData().width, 512);
+          dataURL = cropper
+            .getCroppedCanvas({ height: croppedLength, width: croppedLength })
+            .toDataURL('image/jpeg', 1);
+          this.profileService
+            .updateAvatar(dataURL)
+            .subscribe(resolve,
+            _ => { reject(this.msg.getMessage('E004', '更新头像')) });
+        });
+      },
+    }).then(_ => {
+      swal({
+        type: 'success',
+        title: this.msg.getMessage('I001', '更新头像'),
+      }).then(() => {
+        // 更新本地头像显示
+        this.avatarURL = dataURL;
+      });
+      // 释放资源
+      URL.revokeObjectURL(url);
+    }, _ => {
+      // 释放资源
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  resetPassword(data) {
+
   }
 }
