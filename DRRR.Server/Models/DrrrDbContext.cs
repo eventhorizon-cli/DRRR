@@ -80,6 +80,7 @@ namespace DRRR.Server.Models
                 entity.Property(e => e.UpdateTime)
                     .HasColumnName("update_time")
                     .HasColumnType("timestamp")
+                    .ValueGeneratedOnAddOrUpdate()
                     .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 entity.HasOne(d => d.Owner)
@@ -152,6 +153,7 @@ namespace DRRR.Server.Models
                 entity.Property(e => e.UpdateTime)
                     .HasColumnName("update_time")
                     .HasColumnType("timestamp")
+                    .ValueGeneratedOnAddOrUpdate()
                     .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 entity.Property(e => e.Username)
