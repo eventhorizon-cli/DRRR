@@ -7,7 +7,7 @@ import { AuthService } from '../core/services/auth.service';
 import { SystemMessagesService } from '../core/services/system-messages.service';
 
 @Injectable()
-export class ChatRoomAuthGuard implements CanActivate {
+export class ChatRoomsAuthGuard implements CanActivate {
 
   constructor(
     private auth: AuthService,
@@ -17,10 +17,10 @@ export class ChatRoomAuthGuard implements CanActivate {
 
   canActivate(next: ActivatedRouteSnapshot,
               state: RouterStateSnapshot): boolean {
-    const payload = this.auth.getPayloadFromToken('refresh_token', true);
+    const payload = this.auth.getPayloadFromToken('refresh_token');
 
     if (!payload) {
-      // 如果登录信息不存在则反回登录界面
+      // 如果登录信息不存在则返回登录界面
       swal(this.msg.getMessage('E004', '账号信息获取'),
         this.msg.getMessage('E007', '登录'), 'error')
         .then(() => {

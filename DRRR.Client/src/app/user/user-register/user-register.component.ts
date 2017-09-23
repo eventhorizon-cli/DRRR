@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import { ToastrService } from 'ngx-toastr';
 import swal from 'sweetalert2';
 
 import { SystemMessagesService } from '../../core/services/system-messages.service';
@@ -32,8 +31,7 @@ export class UserRegisterComponent implements OnInit {
     private msg: SystemMessagesService,
     private registerService: UserRegisterService,
     private autoClearer: FormErrorsAutoClearer,
-    private auth: AuthService,
-    private toastr: ToastrService) { }
+    private auth: AuthService) { }
 
   ngOnInit() {
     this.registerForm = this.fb.group({
@@ -124,15 +122,19 @@ export class UserRegisterComponent implements OnInit {
       return;
     }
     if (this.registerForm.valid) {
+      this.msg.showLoadingMessage('I005', '登录');
+
       this.registerService.register(registerInfo)
         .subscribe(res => {
+          this.msg.closeLoadingMessage();
+
           if (!res.error) {
             this.auth.saveAccessToken(res.accessToken);
             this.auth.saveRefreshToken(res.refreshToken);
             swal(this.msg.getMessage('I001', '注册'), '', 'success')
               .then(() => {
                 this.router.navigate(['/rooms']);
-                this.toastr.success(this.msg.getMessage('I001', '登录'));
+                this.msg.showAutoCloseMessage('I001', '登录');
               });
           }
         });

@@ -27,7 +27,9 @@ namespace DRRR.Server.Security
         /// <returns>解密后的ID</returns>
         public static int Decode(string hash)
         {
-            return _hashids.Decode(hash)[0];
+            var arr = _hashids.Decode(hash);
+            // 如果解析出的ID不存在，则得到一个空数组，这时候返回0
+            return arr.Length > 0 ? arr[0] : 0;
         }
     }
 }

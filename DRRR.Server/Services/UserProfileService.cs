@@ -1,4 +1,5 @@
-﻿using DRRR.Server.Models;
+﻿using DRRR.Server.Dtos;
+using DRRR.Server.Models;
 using DRRR.Server.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,12 +26,16 @@ namespace DRRR.Server.Services
 
         private SystemMessagesService _systemMessagesService;
 
+        private TokenAuthService _tokenAuthService;
+
         public UserProfileService(
             DrrrDbContext dbContext,
-            SystemMessagesService systemMessagesService)
+            SystemMessagesService systemMessagesService,
+            TokenAuthService tokenAuthService)
         {
             _dbContext = dbContext;
             _systemMessagesService = systemMessagesService;
+            _tokenAuthService = tokenAuthService;
         }
 
         /// <summary>
@@ -81,6 +86,27 @@ namespace DRRR.Server.Services
                 .Where(user => user.Id == uid)
                 .Select(user => user.CreateTime.ToString("yyyy/MM/dd"))
                 .FirstOrDefaultAsync();
+        }
+
+        /// <summary>
+        /// 更新用户密码
+        /// </summary>
+        /// <param name="uid">用户ID</param>
+        /// <param name="newPassword">新密码</param>
+        /// <returns>用于更新密码的任务，如果成功则返回新的TOKEN</returns>
+        public async Task<AccessTokenResponseDto> UpdatePasswordAsync(int uid, string newPassword)
+        {
+            var user = await _dbContext.User.FindAsync(uid);
+            Guid salt = Guid.NewGuid();
+            user.Salt = salt;
+            user.PasswordHash = PasswordHelper.GeneratePasswordHash(newPassword, salt);
+            _dbContext.User.Update(user);
+            await _dbContext.SaveChangesAsync();
+            return new AccessTokenResponseDto
+            {
+                AccessToken = _tokenAuthService.GenerateAccessToken(user),
+                RefreshToken = _tokenAuthService.GenerateRefreshToken(user)
+            };
         }
     }
 }

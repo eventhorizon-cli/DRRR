@@ -29,7 +29,7 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.router.events
       .filter(event => event instanceof NavigationEnd)
-      .map((event: NavigationEnd) => /[a-z]+/.exec(event.urlAfterRedirects)[0])
+      .map((event: NavigationEnd) => /(\/\w+)+/.exec(event.urlAfterRedirects)[0])
       .subscribe(path => {
         this.currentPath = path;
         // 如果是在没有选择记住登录状态的情况下回到登录界面界面，则依旧显示登录和注册按钮

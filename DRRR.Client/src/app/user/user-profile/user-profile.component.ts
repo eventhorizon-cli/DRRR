@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import swal from 'sweetalert2';
 import * as Cropper from 'cropperjs';
@@ -8,6 +8,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { UserProfileService } from './user-profile.service';
 import { Payload } from '../../core/models/payload.model';
 import { SystemMessagesService } from '../../core/services/system-messages.service';
+import { FormErrorsAutoClearer } from '../../core/services/form-errors-auto-clearer.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -28,30 +29,35 @@ export class UserProfileComponent implements OnInit {
 
   payload: Payload;
 
-  private isValidatingAsync: boolean;
-
-  private isWaitingToRegister: boolean;
-
   constructor(
     private auth: AuthService,
     private profileService: UserProfileService,
     private fb: FormBuilder,
-    private msg: SystemMessagesService
-  ) { }
+    private msg: SystemMessagesService,
+    private autoClearer: FormErrorsAutoClearer
+) { }
 
   ngOnInit() {
+    this.profileForm = this.fb.group({
+      newPassword: ['', [
+        Validators.required,
+        Validators.minLength(6),
+        Validators.maxLength(128)]],
+      confirmNewPassword: ['', Validators.required]
+    });
+
+    this.formErrorMessages = {};
+
     this.payload = this.auth.getPayloadFromToken('access_token');
 
     this.avatarURL = `/api/resources/avatars/${this.payload.uid}`;
 
-    this.profileForm = this.fb.group({});
+    this.autoClearer.register(this.profileForm, this.formErrorMessages);
 
-    this.formErrorMessages = {};
     // 为避免获取消息时配置文件尚未加载，在外面多包一层函数
-
     this.requiredValidationMessages = {
-      username: () => this.msg.getMessage('E001', '用户名'),
-      password: () => this.msg.getMessage('E001', '密码')
+      newPassword: () => this.msg.getMessage ('E001', '新密码'),
+      confirmNewPassword: () => this.msg.getMessage('E001', '确认新密码')
     };
 
     // 获取注册时间
@@ -82,8 +88,8 @@ export class UserProfileComponent implements OnInit {
         </div>`,
       showCloseButton: true,
       showLoaderOnConfirm: true,
-      confirmButtonText:
-      '设置新头像',
+      confirmButtonText: '设置新头像',
+      allowOutsideClick: false,
       onOpen() {
         const image = <HTMLImageElement>document.querySelector('.img-container img');
         cropper = new Cropper(image, {
@@ -101,15 +107,15 @@ export class UserProfileComponent implements OnInit {
             .getCroppedCanvas({ height: croppedLength, width: croppedLength })
             .toDataURL('image/jpeg', 1);
           this.profileService
-            .updateAvatar(dataURL)
+            .updateAvatar(this.payload.uid, dataURL)
             .subscribe(resolve,
-            _ => { reject(this.msg.getMessage('E004', '更新头像')) });
+            _ => { reject(this.msg.getMessage('E004', '头像更新')) });
         });
       },
     }).then(_ => {
       swal({
         type: 'success',
-        title: this.msg.getMessage('I001', '更新头像'),
+        title: this.msg.getMessage('I001', '头像更新'),
       }).then(() => {
         // 更新本地头像显示
         this.avatarURL = dataURL;
@@ -122,7 +128,39 @@ export class UserProfileComponent implements OnInit {
     });
   }
 
-  resetPassword(data) {
+  /**
+   * 验证新密码输入是否合法
+   * @param {AbstractControl} newPassword 密码
+   */
+  validateNewPassword(newPassword: AbstractControl) {
+    if (newPassword.value.trim()) {
+      this.formErrorMessages['newPassword'] = newPassword.valid ? '' :
+        this.msg.getMessage('E002', '6', '128', '密码');
+    }
+  }
 
+  updatePassword(data: object) {
+    // 检查必须输入的字段
+    Object.entries(data).forEach(entry => {
+      if (!entry[1].trim()) {
+        this.formErrorMessages[entry[0]] = this.requiredValidationMessages[entry[0]]();
+      }
+    });
+
+    // 确认密码被输入时才验证确认密码
+    if (data['confirmNewPassword'] && data['newPassword'] !== data['confirmNewPassword']) {
+      this.formErrorMessages['confirmNewPassword'] = this.msg.getMessage('E003', '新密码');
+      return;
+    }
+
+    if (Object.entries(this.formErrorMessages).every(entry => !entry[1].trim())) {
+      this.msg.showLoadingMessage('I005', '提交请求');
+      this.profileService.updatePassword(data)
+        .subscribe(res => {
+          this.msg.showAutoCloseMessage('I001', '密码更新');
+          this.auth.saveRefreshToken(res.refreshToken);
+          this.auth.saveAccessToken(res.accessToken)
+        });
+    }
   }
 }

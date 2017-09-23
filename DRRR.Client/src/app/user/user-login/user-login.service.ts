@@ -11,6 +11,11 @@ export class UserLoginService {
   constructor(private http: HttpClient) {
   }
 
+  /**
+   * 验证登录
+   * @param {Object} loginInfo 验证登录用的用户信息
+   * @returns {Observable<AccessTokenResponseDto>} 验证结果
+   */
   login(loginInfo: object): Observable<AccessTokenResponseDto> {
     // 不要手动序列化json数据，否则会导致413错误
     return this.http

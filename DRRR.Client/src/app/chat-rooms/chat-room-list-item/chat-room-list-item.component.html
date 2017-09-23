@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col-md-9">
     <h4>
-      <a>{{ room.name }}</a>
+      <a routerLink="/rooms/{{ room.id }}">{{ room.name }}</a>
     </h4>
     <p>
       <i class="fa fa-user" aria-hidden="true" title="房主">&nbsp;{{ room.ownerName }}</i>

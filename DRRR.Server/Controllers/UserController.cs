@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DRRR.Server.Services;
 using DRRR.Server.Dtos;
@@ -89,11 +86,24 @@ namespace DRRR.Server.Controllers
         /// </summary>
         /// <returns>获取用户注册时间的任务</returns>
         [HttpGet, Route("registration-time")]
-        [JwtAuthorize(Roles.User,Roles.Admin)]
+        [JwtAuthorize(Roles.User, Roles.Admin)]
         public async Task<string> GetRegistrationTimeAsync()
         {
             string hashid = HttpContext.User.FindFirst("uid").Value;
             return await _userProfileService.GetRegistrationTimeAsync(HashidHelper.Decode(hashid));
+        }
+
+        /// <summary>
+        /// 更新用户密码
+        /// </summary>
+        /// <param name="password">新密码</param>
+        /// <returns>用于更新密码的任务，如果成功则返回新的TOKEN</returns>
+        [HttpPost, Route("password")]
+        [JwtAuthorize(Roles.User, Roles.Admin)]
+        public async Task<AccessTokenResponseDto> UpdatePasswordAsync([FromBody]UserUpdatePasswordRequestDto passwordDto)
+        {
+            string hashid = HttpContext.User.FindFirst("uid").Value;
+            return await _userProfileService.UpdatePasswordAsync(HashidHelper.Decode(hashid), passwordDto.NewPassword);
         }
     }
 }

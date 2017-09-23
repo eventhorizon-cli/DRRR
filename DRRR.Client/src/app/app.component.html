@@ -29,10 +29,10 @@
         </li>
       </ul>
       <ul class="nav navbar-nav navbar-right" *ngIf="isLoggedIn">
-        <li *ngIf="currentPath !== 'profile'">
+        <li *ngIf="currentPath === '/rooms'">
           <a routerLink="./profile">账号设置</a>
         </li>
-        <li *ngIf="currentPath === 'profile'">
+        <li *ngIf="currentPath !== '/rooms'">
           <a routerLink="./rooms">返回大厅</a>
         </li>
         <li>
@@ -43,7 +43,7 @@
   </div>
 </nav>
 <!-- 主体内容区域 -->
-<div class="container main-container">
+<div class="container main-container" (click)="slideUp(navigation.getAttribute('aria-expanded'), btnToggle)">
   <router-outlet></router-outlet>
 </div>
 <!-- 底部区域 -->

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { AuthService } from '../../core/services/auth.service';
+import { AccessTokenResponseDto } from '../dtos/access-token-response.dto';
 
 @Injectable()
 export class UserProfileService {
@@ -21,14 +22,24 @@ export class UserProfileService {
 
   /**
    * 更新用户头像
+   * @param {string} uid 用户ID
    * @param {string} dataURL dataURL字符串
    * @returns {Observable<{error: string}>}
    */
-  updateAvatar(dataURL: string): Observable<never> {
+  updateAvatar(uid: string, dataURL: string): Observable<never> {
     const formData = new FormData();
     formData.append('avatar', this.dataURItoBlob(dataURL));
     return this.auth
-      .http.put('/api/resources/avatars', formData);
+      .http.put<never>(`/api/resources/avatars/${uid}`, formData);
+  }
+
+  /**
+   * 更改密码
+   * @param {Object} data 包含新密码的数据
+   * @returns {Observable<AccessTokenResponseDto>} 新的Token
+   */
+  updatePassword(data: object): Observable<AccessTokenResponseDto> {
+    return this.auth.http.post<AccessTokenResponseDto>('/api/user/password', data);
   }
 
   /**

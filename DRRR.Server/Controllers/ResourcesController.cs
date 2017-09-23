@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using DRRR.Server.Services;
 using DRRR.Server.Security;
 using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
 
 namespace DRRR.Server.Controllers
 {
@@ -39,7 +38,7 @@ namespace DRRR.Server.Controllers
         /// <summary>
         /// 获取用户头像资源
         /// </summary>
-        /// <param name="hashid"></param>
+        /// <param name="hashid">用户哈希ID</param>
         /// <returns>异步获取用户头像资源的任务</returns>
         [HttpGet, Route("Avatars/{hashid}")]
         public async Task<FileResult> GetAvatarAsync(string hashid)
@@ -50,14 +49,13 @@ namespace DRRR.Server.Controllers
         /// <summary>
         /// 更新用户头像资源
         /// </summary>
+        /// <param name="hashid">用户哈希ID</param>
         /// <param name="avatar">用户上传的头像资源</param>
         /// <returns>表示用户更新用户头像资源的任务</returns>
-        [HttpPut, Route("Avatars")]
+        [HttpPut, Route("Avatars/{hashid}")]
         [JwtAuthorize(Roles.User, Roles.Admin)]
-        public async Task UpdateAvatarAsync(IFormFile avatar)
+        public async Task UpdateAvatarAsync(string hashid, IFormFile avatar)
         {
-            var file = Request.Form.Files;
-            string hashid = HttpContext.User.FindFirst("uid").Value;
             await _userProfileService.UpdateAvatarAsync(HashidHelper.Decode(hashid), avatar);
         }
     }

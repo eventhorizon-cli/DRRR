@@ -28,6 +28,6 @@ export class UserRegisterService {
    */
   register(registerInfo: object): Observable<AccessTokenResponseDto> {
     return this.http
-      .post<AccessTokenResponseDto>('/api/user/a', registerInfo);
+      .post<AccessTokenResponseDto>('/api/user/register', registerInfo);
   }
 }

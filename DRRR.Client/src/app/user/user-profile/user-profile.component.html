@@ -16,21 +16,15 @@
     </div>
   </div>
   <div class="form-group"
-       [ngClass]="{ 'has-error': formErrorMessages['username'] }">
-    <input type="text"
-           class="form-control"
-           placeholder="请输入原密码"
-           maxlength="10"
-           autocomplete="off">
-    <span class="help-block">{{ formErrorMessages['password'] }}</span>
-  </div>
-  <div class="form-group"
-       [ngClass]="{ 'has-error': formErrorMessages['password'] }">
+       [ngClass]="{ 'has-error': formErrorMessages['newPassword'] }">
     <input type="password"
            class="form-control"
            placeholder="请输入新密码"
            maxlength="128"
-           autocomplete="off">
+           autocomplete="off"
+           appTextTrim
+           [formControl]="profileForm.controls['newPassword']"
+           (blur)="validateNewPassword(profileForm.controls['newPassword'])">
     <span class="help-block">{{ formErrorMessages['newPassword'] || "不少于6位" }}</span>
   </div>
   <div class="form-group"
@@ -39,13 +33,15 @@
            class="form-control"
            placeholder="请确认新密码"
            maxlength="128"
-           autocomplete="off">
-    <span *ngIf="formErrorMessages['confirmPassword']" class="help-block">
-{{ formErrorMessages['confirmPassword'] }}
-</span>
+           autocomplete="off"
+           appTextTrim
+           [formControl]="profileForm.controls['confirmNewPassword']">
+    <span *ngIf="formErrorMessages['confirmNewPassword']" class="help-block">
+      {{ formErrorMessages['confirmNewPassword'] }}
+    </span>
   </div>
   <input type="button"
          class="btn btn-lg btn-primary btn-block"
-         value="重置密码"
-         (click)="resetPassword(profileForm.value)">
+         value="更新密码"
+         (click)="updatePassword(profileForm.value)">
 </form>

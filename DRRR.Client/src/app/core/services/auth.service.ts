@@ -19,11 +19,6 @@ export class AuthService {
    */
   http: HttpClient;
 
-  /**
-   * 存放Token的容器
-   */
-  private storage: Storage = localStorage;
-
   constructor(
     private httpWithoutAuth: HttpClient,
     private msg: SystemMessagesService,
@@ -70,7 +65,7 @@ export class AuthService {
    * 表示是否已经登录
    */
   get isLoggedIn (): boolean{
-    const payload = this.getPayloadFromToken('access_token', true);
+    const payload = this.getPayloadFromToken('access_token');
     // 游客不算登录
     return payload && payload.role >= Role.user;
   }
@@ -79,7 +74,7 @@ export class AuthService {
    * 表示是否记住登录状态
    */
   get rememberLoginState(): boolean {
-    return this.storage === localStorage;
+    return localStorage.getItem('rememberMe') === 'true';
   }
 
   /**
@@ -87,9 +82,8 @@ export class AuthService {
    * @param {boolean} rememberMe 是否记住登录状态
    */
   set rememberLoginState(rememberMe: boolean) {
-    // 默认是保存到localStorage里，这样的话，
-    // 下次登录的时候就可以根据localStorage里的信息来判断是否进行自动登录
-    this.storage = rememberMe ? localStorage : sessionStorage;
+    // 为了防止刷新后数据出现问题，将是否记住登录状态的信息保存在localStorage中
+    localStorage.setItem('rememberMe', rememberMe + '');
   }
 
   /**
@@ -111,20 +105,11 @@ export class AuthService {
   /**
    * 从Token中获取信息
    * @param {"access_token" | "refresh_token"} tokenName 令牌名称
-   * @param {boolean} retry 是否在获取失败时再次尝试从sessionStorage中获取
    * @returns {Payload} Token信息
    */
-  getPayloadFromToken(tokenName: 'access_token' | 'refresh_token', retry = false): Payload {
+  getPayloadFromToken(tokenName: 'access_token' | 'refresh_token'): Payload {
     let payload: Payload;
-    let token = this.storage.getItem(tokenName);
-
-    if (!token && retry) {
-      // 也有可能是没选记住状态的用户在刷新页面后，
-      // 没有从默认的localStorage获取到信息
-      // 尝试从sessionStorage中获取
-      this.rememberLoginState = false;
-      token = this.storage.getItem(tokenName);
-    }
+    const token = this.storage.getItem(tokenName);
 
     if (token) {
       payload = JSON.parse(atob(token.split('.')[1])) as Payload;
@@ -179,6 +164,14 @@ export class AuthService {
     localStorage.removeItem('access_token');
     sessionStorage.removeItem('refresh_token');
     sessionStorage.removeItem('access_token');
+  }
+
+  /**
+   * 获取存放Token的容器
+   * @returns {Storage} 存放Token的容器
+   */
+  private get storage(): Storage {
+    return this.rememberLoginState ? localStorage : sessionStorage;
   }
 
   /**
