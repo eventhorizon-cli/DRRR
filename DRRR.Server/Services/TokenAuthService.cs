@@ -25,14 +25,14 @@ namespace DRRR.Server.Services
         /// <param name="user">用户信息</param>
         /// <param name="user"></param>
         /// <returns>一个新的 AccessToken</returns>
-        public string GenerateAccessToken(User user) => GenerateToken(user, TokenKind.AccessToken);
+        public string GenerateAccessToken(User user) => GenerateToken(user, TokenTypes.AccessToken);
 
         /// <summary>
         /// 生成一个新的 RefreshToken
         /// </summary>
         /// <param name="user">用户信息</param>
         /// <returns>一个新的 RefreshToken</returns>
-        public string GenerateRefreshToken(User user) => GenerateToken(user, TokenKind.RefreshToken);
+        public string GenerateRefreshToken(User user) => GenerateToken(user, TokenTypes.RefreshToken);
 
         /// <summary>
         /// 更新令牌
@@ -52,7 +52,7 @@ namespace DRRR.Server.Services
         /// <param name="user">用户信息</param>
         /// <param name="tokenKind">令牌类型</param> 
         /// <returns>新的 Token</returns>        
-        private string GenerateToken(User user, TokenKind tokenKind)
+        private string GenerateToken(User user, TokenTypes tokenKind)
         {
             // 这边的处理是位于多线程中的
             var handler = new JwtSecurityTokenHandler();
@@ -68,7 +68,7 @@ namespace DRRR.Server.Services
             // 有效期
             TimeSpan expiresIn;
 
-            if (tokenKind == TokenKind.AccessToken)
+            if (tokenKind == TokenTypes.AccessToken)
             {
                 // 设定权限信息
                 identity.AddClaim(new Claim(ClaimTypes.Role, user.RoleId.ToString()));

@@ -8,7 +8,7 @@ namespace DRRR.Server.Security
     /// <summary>
     /// 令牌类型
     /// </summary>
-    public enum TokenKind
+    public enum TokenTypes
     {
         /// <summary>
         /// 访问令牌

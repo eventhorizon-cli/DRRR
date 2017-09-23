@@ -40,9 +40,11 @@ namespace DRRR.Server.Services
         public SystemMessagesService()
         {
             _watcher = new FileSystemWatcher();
+            _watcher.BeginInit();
             _watcher.Path = Path.Combine(AppContext.BaseDirectory, "Resources");
             _watcher.Changed += ReloadFiles;
             _watcher.NotifyFilter = NotifyFilters.LastWrite;
+            _watcher.EndInit();
             ReloadFiles(null, null);
         }
 
