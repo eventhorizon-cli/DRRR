@@ -21,6 +21,7 @@
     "@angular/platform-browser": "^4.2.4",
     "@angular/platform-browser-dynamic": "^4.2.4",
     "@angular/router": "^4.2.4",
+    "@aspnet/signalr-client": "^1.0.0-alpha1-final",
     "core-js": "^2.4.1",
     "cropperjs": "^1.0.0",
     "ngx-bootstrap": "^1.9.0",

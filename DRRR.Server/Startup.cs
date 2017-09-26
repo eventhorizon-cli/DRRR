@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using DRRR.Server.Models;
 using Microsoft.AspNetCore.Diagnostics;
 using Newtonsoft.Json;
@@ -20,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.IO;
 using DRRR.Server.Services;
+using DRRR.Server.Hubs;
 
 namespace DRRR.Server
 {
@@ -40,7 +37,10 @@ namespace DRRR.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Add framework services.
+            // 添加SignalRCore服务
+            services.AddSignalR();
+
+            // 添加框架的服务
             services.AddMvc();
 
             // 添加MySqle配置，由于官方进展缓慢且找不到具体的文档说明，
@@ -116,7 +116,13 @@ namespace DRRR.Server
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            #region Handle Exception
+            // SignalR路由配置
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<ChatHub>("chat");
+            });
+
+            #region 处理权限认证失败的异常
             app.UseExceptionHandler(appBuilder =>
             {
                 appBuilder.Use(async (context, next) =>
@@ -153,7 +159,6 @@ namespace DRRR.Server
             DefaultFilesOptions options = new DefaultFilesOptions();
             options.DefaultFileNames.Clear();
             options.DefaultFileNames.Add("index.html");
-
             app.Use(async (context, next) =>
             {
                 await next();

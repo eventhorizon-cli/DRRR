@@ -16,6 +16,7 @@ import { ChatRoomCreateService } from './chat-room-create/chat-room-create.servi
 import { ChatRoomCreateComponent } from './chat-room-create/chat-room-create.component';
 import { ChatRoomsAuthGuard } from './chat-rooms-auth.guard';
 import { ChatMessageComponent } from './chat-message/chat-message.component';
+import {ChatRoomService} from './chat-room/chat-room.service';
 
 @NgModule({
   imports: [
@@ -28,7 +29,8 @@ import { ChatMessageComponent } from './chat-message/chat-message.component';
   providers: [
     ChatRoomsAuthGuard,
     ChatRoomListService,
-    ChatRoomCreateService
+    ChatRoomCreateService,
+    ChatRoomService
   ],
   declarations: [
     ChatRoomListComponent,
