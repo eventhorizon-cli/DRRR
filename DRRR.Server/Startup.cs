@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.IO;
 using DRRR.Server.Services;
 using DRRR.Server.Hubs;
+using System.Linq;
 
 namespace DRRR.Server
 {
@@ -50,7 +51,7 @@ namespace DRRR.Server
                 options.UseMySql(Configuration.GetConnectionString("DrrrDatabase")));
 
             // 添加Jwt认证配置
-            // 参考资料https://github.com/mrsheepuk/ASPNETSelfCreatedTokenAuthExample
+            // 参考资料 https://github.com/mrsheepuk/ASPNETSelfCreatedTokenAuthExample
             TokenAuthOptions.Audience = Configuration["Token:Audience"];
             TokenAuthOptions.Issuer = Configuration["Token:Issuer"];
             TokenAuthOptions.ExpiresIn = TimeSpan.FromMinutes(double.Parse(Configuration["Token:ExpiresIn"]));
@@ -93,7 +94,7 @@ namespace DRRR.Server
             {
                 if (type.Name.EndsWith("Service"))
                 {
-                    if (type.Name == nameof(Services.SystemMessagesService))
+                    if (type.Name == nameof(SystemMessagesService))
                     {
                         // 提供单例服务
                         services.AddSingleton(type);
@@ -116,43 +117,29 @@ namespace DRRR.Server
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+            // SignalR通过查询字符串携带Token
+            // 参考资料 http://infozone.se/en/authenticate-against-signalr-2/
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Path.Value.StartsWith("/chat")
+                    && context.Request.QueryString.HasValue)
+                {
+                    var token = context.Request.QueryString.Value
+                        .Split('&')
+                        .SingleOrDefault(x => x.Contains("authorization"))?.Split('=')[1];
+                    if (!string.IsNullOrWhiteSpace(token))
+                    {
+                        context.Request.Headers.Add("Authorization", new[] { $"Bearer {token}" });
+                    }
+                }
+                await next();
+            });
+
             // SignalR路由配置
             app.UseSignalR(routes =>
             {
                 routes.MapHub<ChatHub>("chat");
             });
-
-            #region 处理权限认证失败的异常
-            app.UseExceptionHandler(appBuilder =>
-            {
-                appBuilder.Use(async (context, next) =>
-                {
-                    var error = context.Features[typeof(IExceptionHandlerFeature)] as IExceptionHandlerFeature;
-
-                    //when authorization has failed, should retrun a json message to client
-                    if (error != null && error.Error is SecurityTokenExpiredException)
-                    {
-                        context.Response.StatusCode = 401;
-                        context.Response.ContentType = "application/json";
-
-                        await context.Response.WriteAsync(JsonConvert.SerializeObject(
-                            new { authenticated = false, tokenExpired = true }
-                        ));
-                    }
-                    //when orther error, retrun a error message json to client
-                    else if (error != null && error.Error != null)
-                    {
-                        context.Response.StatusCode = 500;
-                        context.Response.ContentType = "application/json";
-                        await context.Response.WriteAsync(JsonConvert.SerializeObject(
-                            new { success = false, error = error.Error.Message }
-                        ));
-                    }
-                    //when no error, do next.
-                    else await next();
-                });
-            });
-            #endregion
 
             // pushstate路由问题解决方案
             // 参考资料 https://stackoverflow.com/questions/38531904/angular-2-routing-with-asp-net-core-non-mvc

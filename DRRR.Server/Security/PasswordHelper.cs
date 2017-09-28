@@ -10,7 +10,7 @@ namespace DRRR.Server.Security
     /// <summary>
     /// 哈希密码帮助类
     /// </summary>
-    public class PasswordHelper
+    public static class PasswordHelper
     {
         /// <summary>
         /// 生成哈希密码

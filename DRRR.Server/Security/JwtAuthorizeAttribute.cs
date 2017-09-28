@@ -6,7 +6,7 @@ namespace DRRR.Server.Security
     /// <summary>
     /// JWT验证
     /// </summary>
-    public class JwtAuthorizeAttribute : AuthorizeAttribute
+    public sealed class JwtAuthorizeAttribute : AuthorizeAttribute
     {
         /// <summary>
         /// 对指定资源访问进行JWT认证
