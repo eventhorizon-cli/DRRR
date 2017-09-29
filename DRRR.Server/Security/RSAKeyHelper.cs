@@ -53,7 +53,8 @@ namespace DRRR.Server.Security
         /// <returns>生成key用的参数</returns>
         private static RSAParameters GetParameters(string keyDir, bool includePrivateParameters) =>
             JsonConvert.DeserializeObject<RSAParameters>(File.ReadAllText(Path
-                .Combine(keyDir, $"key.{(includePrivateParameters ? "private" : "public")}.json")));
+                .Combine(keyDir, $"key.{(includePrivateParameters ? "private" : "public")}.json")),
+                new JsonSerializerSettings() { ContractResolver = new RsaKeyContractResolver() });
 
         /// <summary>
         /// 生成key用的参数并将其保存到json文件中去
@@ -67,7 +68,8 @@ namespace DRRR.Server.Security
             var parameters = rsa.ExportParameters(includePrivateParameters);
             File.WriteAllText(Path.Combine(keyDir,
                 $"key.{(includePrivateParameters ? "private" : "public")}.json"),
-                JsonConvert.SerializeObject(parameters));
+                JsonConvert.SerializeObject(parameters,
+                new JsonSerializerSettings() { ContractResolver = new RsaKeyContractResolver() }));
             return parameters;
         }
     }

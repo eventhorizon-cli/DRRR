@@ -63,7 +63,7 @@ namespace DRRR.Server.Services
             var identity = new ClaimsIdentity(new GenericIdentity(urlEncodedUserName, tokenKind.ToString()));
 
             // 设定用户ID
-            identity.AddClaim(new Claim("uid", HashidHelper.Encode(user.Id)));
+            identity.AddClaim(new Claim("uid", HashidsHelper.Encode(user.Id)));
 
             // 有效期
             TimeSpan expiresIn;

@@ -57,7 +57,7 @@ namespace DRRR.Server.Services
                 .Take(10)
                 .Select(room => new ChatRoomDto
                 {
-                    Id = HashidHelper.Encode(room.Id),
+                    Id = HashidsHelper.Encode(room.Id),
                     Name = room.Name,
                     MaxUsers = room.MaxUsers,
                     CurrentUsers = room.CurrentUsers,

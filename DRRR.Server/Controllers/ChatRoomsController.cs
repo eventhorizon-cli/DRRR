@@ -58,7 +58,7 @@ namespace DRRR.Server.Controllers
             string hashid = HttpContext.User.FindFirst("uid").Value;
             return new JsonResult(new
             {
-                Error = await _chatRoomService.CreateRoomAsync(HashidHelper.Decode(hashid), roomDto)
+                Error = await _chatRoomService.CreateRoomAsync(HashidsHelper.Decode(hashid), roomDto)
             });
         }
     }

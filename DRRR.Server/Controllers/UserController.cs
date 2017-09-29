@@ -77,7 +77,7 @@ namespace DRRR.Server.Controllers
             string hashid = HttpContext.User.FindFirst("uid").Value;
             return new JsonResult(new
             {
-                AccessToken = await _tokenAuthService.RefreshTokenAsync(HashidHelper.Decode(hashid))
+                AccessToken = await _tokenAuthService.RefreshTokenAsync(HashidsHelper.Decode(hashid))
             });
         }
 
@@ -90,7 +90,7 @@ namespace DRRR.Server.Controllers
         public async Task<string> GetRegistrationTimeAsync()
         {
             string hashid = HttpContext.User.FindFirst("uid").Value;
-            return await _userProfileService.GetRegistrationTimeAsync(HashidHelper.Decode(hashid));
+            return await _userProfileService.GetRegistrationTimeAsync(HashidsHelper.Decode(hashid));
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace DRRR.Server.Controllers
         public async Task<AccessTokenResponseDto> UpdatePasswordAsync([FromBody]UserUpdatePasswordRequestDto passwordDto)
         {
             string hashid = HttpContext.User.FindFirst("uid").Value;
-            return await _userProfileService.UpdatePasswordAsync(HashidHelper.Decode(hashid), passwordDto.NewPassword);
+            return await _userProfileService.UpdatePasswordAsync(HashidsHelper.Decode(hashid), passwordDto.NewPassword);
         }
     }
 }

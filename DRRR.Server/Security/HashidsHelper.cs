@@ -1,14 +1,32 @@
 ﻿using HashidsNet;
 using System;
+using System.IO;
 
 namespace DRRR.Server.Security
 {
     /// <summary>
     /// 哈希ID帮助类
     /// </summary>
-    public static class HashidHelper
+    public static class HashidsHelper
     {
-        private static Hashids _hashids = new Hashids(salt: Guid.NewGuid().ToString(), minHashLength: 10);
+        private static Hashids _hashids;
+
+        static HashidsHelper()
+        {
+            var path = Path.Combine(AppContext.BaseDirectory, "Salt", "salt.hashids.txt");
+            string salt;
+            if (File.Exists(path))
+            {
+                salt = File.ReadAllText(path);
+            }
+            else
+            {
+                salt = Guid.NewGuid().ToString();
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+                File.WriteAllText(path, salt);
+            }
+            _hashids = new Hashids(salt: salt, minHashLength: 10);
+        }
 
         /// <summary>
         /// 对ID进行编码

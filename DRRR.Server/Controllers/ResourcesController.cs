@@ -42,7 +42,7 @@ namespace DRRR.Server.Controllers
         [HttpGet, Route("avatars/{hashid}")]
         public async Task<FileResult> GetAvatarAsync(string hashid)
         {
-            return await _userProfileService.GetAvatarAsync(HashidHelper.Decode(hashid));
+            return await _userProfileService.GetAvatarAsync(HashidsHelper.Decode(hashid));
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace DRRR.Server.Controllers
         [JwtAuthorize(Roles.User, Roles.Admin)]
         public async Task UpdateAvatarAsync(string hashid, IFormFile avatar)
         {
-            await _userProfileService.UpdateAvatarAsync(HashidHelper.Decode(hashid), avatar);
+            await _userProfileService.UpdateAvatarAsync(HashidsHelper.Decode(hashid), avatar);
         }
     }
 }
