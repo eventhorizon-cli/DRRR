@@ -26,11 +26,11 @@ export class UserProfileService {
    * @param {string} dataURL dataURL字符串
    * @returns {Observable<{error: string}>}
    */
-  updateAvatar(uid: string, dataURL: string): Observable<never> {
+  updateAvatar(uid: string, dataURL: string): Observable<boolean> {
     const formData = new FormData();
     formData.append('avatar', this.dataURItoBlob(dataURL));
     return this.auth
-      .http.put<never>(`/api/resources/avatars/${uid}`, formData);
+      .http.put<boolean>(`/api/resources/avatars/${uid}`, formData);
   }
 
   /**

@@ -33,7 +33,7 @@ export class AppComponent implements OnInit {
       .subscribe(path => {
         this.currentPath = path;
         // 如果是在没有选择记住登录状态的情况下回到登录界面界面，则依旧显示登录和注册按钮
-        this.isLoggedIn = !['login', 'register'].includes(path) && this.auth.isLoggedIn;
+        this.isLoggedIn = !['/login', '/register'].includes(path) && this.auth.isLoggedIn;
       });
   }
 

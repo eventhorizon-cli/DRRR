@@ -108,8 +108,8 @@ export class UserProfileComponent implements OnInit {
             .toDataURL('image/jpeg', 1);
           this.profileService
             .updateAvatar(this.payload.uid, dataURL)
-            .subscribe(resolve,
-            _ => { reject(this.msg.getMessage('E004', '头像更新')) });
+            .subscribe(success => success ? resolve() :
+              reject(this.msg.getMessage('E004', '头像更新')) );
         });
       },
     }).then(_ => {

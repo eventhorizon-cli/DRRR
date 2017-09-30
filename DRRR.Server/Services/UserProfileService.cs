@@ -63,14 +63,25 @@ namespace DRRR.Server.Services
         /// </summary>
         /// <param name="uid">用户ID</param>
         /// <param name="avatar">头像文件资源</param>
-        /// <returns>表示异步更新头像的任务</returns>
-        public async Task UpdateAvatarAsync(int uid, IFormFile avatar)
+        /// <returns>表示异步更新头像的任务,成功返回true,失败返回false</returns>
+        public async Task<bool> UpdateAvatarAsync(int uid, IFormFile avatar)
         {
             string path = Path.Combine(AvatarsDirectory, $"{uid}.jpg");
-            using (FileStream fs = File.Create(path))
+            FileStream fs = null;
+            try
             {
+                fs = File.Create(path);
                 await avatar.CopyToAsync(fs);
-                fs.Flush();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            finally
+            {
+                fs?.Flush();
+                fs?.Close();
             }
         }
 

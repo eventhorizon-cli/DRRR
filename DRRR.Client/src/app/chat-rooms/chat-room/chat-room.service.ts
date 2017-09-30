@@ -1,13 +1,17 @@
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 
 import { HubConnection } from '@aspnet/signalr-client';
+
+import { AuthService } from '../../core/services/auth.service';
 
 @Injectable()
 export class ChatRoomService {
 
   private connection: HubConnection;
 
-  constructor() {
+  constructor(
+    private auth: AuthService
+  ) {
   }
 
   /**
@@ -15,7 +19,7 @@ export class ChatRoomService {
    * @param {string} roomId 房间ID
    */
   connect(roomId: string) {
-    this.connection = new HubConnection('/chat');
+    this.connection = new HubConnection(`/chat?authorization=${this.auth.accessToken}`);
 
     // 创建回调函数
     this.connection.on('broadcastMessage', (name, message) => {

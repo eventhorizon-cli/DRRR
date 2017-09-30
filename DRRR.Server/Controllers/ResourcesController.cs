@@ -53,9 +53,9 @@ namespace DRRR.Server.Controllers
         /// <returns>表示用户更新用户头像资源的任务</returns>
         [HttpPut, Route("avatars/{hashid}")]
         [JwtAuthorize(Roles.User, Roles.Admin)]
-        public async Task UpdateAvatarAsync(string hashid, IFormFile avatar)
+        public async Task<bool> UpdateAvatarAsync(string hashid, IFormFile avatar)
         {
-            await _userProfileService.UpdateAvatarAsync(HashidsHelper.Decode(hashid), avatar);
+            return await _userProfileService.UpdateAvatarAsync(HashidsHelper.Decode(hashid), avatar);
         }
     }
 }

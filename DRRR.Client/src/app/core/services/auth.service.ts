@@ -87,6 +87,13 @@ export class AuthService {
   }
 
   /**
+   * 访问令牌
+   */
+  get accessToken() {
+    return this.storage.getItem('access_token');
+  }
+
+  /**
    * 将访问令牌保存到客户端
    * @param {string} accessToken 访问令牌
    */
