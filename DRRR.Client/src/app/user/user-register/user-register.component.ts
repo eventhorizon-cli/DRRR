@@ -137,6 +137,10 @@ export class UserRegisterComponent implements OnInit {
                 this.msg.showAutoCloseMessage('I001', '登录');
               });
           }
+        }, error => {
+          swal(this.msg.getMessage('E004', '注册'),
+            this.msg.getMessage('E010'), 'error')
+            .then(() => {}, () => {});
         });
     }
   }

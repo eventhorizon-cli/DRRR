@@ -50,7 +50,8 @@ export class AuthService {
             return Observable.create((observer: Observer<object>) => {
               this.refreshToken(() => {
                 httpFunc.apply(target, getArgs())
-                  .subscribe(data => observer.next(data));
+                  .subscribe(data => observer.next(data),
+                      error => observer.error(error));
               })
             })
           }

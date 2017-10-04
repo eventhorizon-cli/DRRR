@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.7.17, for Win64 (x86_64)
 --
--- Host: 127.0.0.1    Database: drrr
+-- Host: localhost    Database: drrr
 -- ------------------------------------------------------
 -- Server version	5.7.18-log
 
@@ -27,7 +27,7 @@ CREATE TABLE `chat_room` (
   `name` varchar(20) NOT NULL COMMENT '房间名',
   `owner_id` int(10) unsigned zerofill NOT NULL COMMENT '房主ID',
   `max_users` int(11) unsigned NOT NULL COMMENT '最大用户数',
-  `current_users` int(11) unsigned NOT NULL DEFAULT '1' COMMENT '当前用户数',
+  `current_users` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '当前用户数',
   `is _encrypted` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否被加密',
   `salt` varchar(36) DEFAULT NULL COMMENT '盐',
   `password_hash` varchar(44) DEFAULT NULL COMMENT '哈希密码',
@@ -39,18 +39,26 @@ CREATE TABLE `chat_room` (
   UNIQUE KEY `name_UNIQUE` (`name`),
   KEY `user_id_idx` (`owner_id`),
   CONSTRAINT `user_id` FOREIGN KEY (`owner_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8 COMMENT='聊天室';
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 COMMENT='聊天室';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `chat_room`
+-- Table structure for table `connection`
 --
 
-LOCK TABLES `chat_room` WRITE;
-/*!40000 ALTER TABLE `chat_room` DISABLE KEYS */;
-INSERT INTO `chat_room` VALUES (0000000001,'测试房间',0000000015,20,20,0,NULL,NULL,0,0,'2017-08-12 14:59:33','2017-08-24 15:30:54'),(0000000002,'测试房间1',0000000015,5,4,0,NULL,NULL,0,0,'2017-08-20 03:04:13','2017-08-24 15:31:00'),(0000000003,'测试房间3',0000000015,10,6,0,'',NULL,0,0,'2017-08-21 14:24:23','2017-08-24 14:31:05'),(0000000007,'测试房间4',0000000015,10,5,0,'',NULL,0,0,'2017-08-21 14:39:25','2017-08-24 14:31:07'),(0000000008,'测试房间5',0000000015,10,3,0,'',NULL,0,0,'2017-08-21 14:40:39','2017-08-24 14:31:10'),(0000000018,'房间名称房间名称房间名称房间名称房间名4',0000000015,3,1,0,NULL,NULL,0,0,'2017-08-28 11:39:57','2017-08-28 11:39:57'),(0000000019,'房间名称房间名称房间名称房间名称房间名5',0000000015,3,1,0,NULL,NULL,0,0,'2017-08-28 11:40:00','2017-08-28 11:40:00'),(0000000020,'房间名称房间名称房间名称房间名称房间名7',0000000015,3,1,0,NULL,NULL,0,0,'2017-08-28 11:40:48','2017-08-28 11:40:48'),(0000000021,'房间名称房间名称房间名称房间名称房间名9',0000000015,3,1,0,NULL,NULL,0,0,'2017-08-28 11:40:54','2017-08-28 11:40:54'),(0000000022,'房间名称房间名称房间名称房间名称房间10',0000000015,2,1,0,NULL,NULL,0,0,'2017-08-28 11:41:15','2017-08-28 11:41:15'),(0000000023,'房间名称房间名称房间名称房间名称房间12',0000000015,2,1,0,NULL,NULL,0,0,'2017-08-28 13:00:19','2017-08-28 13:00:19');
-/*!40000 ALTER TABLE `chat_room` ENABLE KEYS */;
-UNLOCK TABLES;
+DROP TABLE IF EXISTS `connection`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `connection` (
+  `room_id` int(10) unsigned zerofill NOT NULL COMMENT '房间ID',
+  `user_id` int(10) unsigned zerofill NOT NULL COMMENT '用户ID',
+  `connection_id` char(36) NOT NULL COMMENT '连接ID',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`room_id`,`user_id`),
+  KEY `connection_idx` (`room_id`,`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='websocket连接';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `role`
@@ -100,18 +108,8 @@ CREATE TABLE `user` (
   KEY `status_code_idx` (`status_code`),
   CONSTRAINT `role_id` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `status_code` FOREIGN KEY (`status_code`) REFERENCES `user_status` (`code`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8 COMMENT='用户表';
+) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8 COMMENT='用户表';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `user`
---
-
-LOCK TABLES `user` WRITE;
-/*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (0000000015,'测试','XYer5pNJzzBxlBtE1vF0NE44qautZXLZLlnpXWSni8w=','8fd372fb-609a-4b4a-bcbd-022cb38132b4',1,0,'2017-08-12 08:09:31','2017-08-12 13:57:26'),(0000000019,'测试2','Fd7X8Xu/bSNSw56iT/GwSSfq3j10h7wDcAgFXA13OY0=','4dc50f07-272d-4a84-acca-484aefa4fed1',1,0,'2017-08-13 00:40:57','2017-08-13 00:40:57'),(0000000020,'测试用户','oJCFjMUYI5aHLoO5Afs27XSn/Pj8DIjlWrL+DSu/050=','2b5eced2-e7d5-4fea-81f9-116f9b22cdb7',1,0,'2017-08-19 12:56:50','2017-08-19 12:56:50'),(0000000025,'13','nL3ga7f4Vi5IiwrgA4LFaW2Z5bpLPtQ5XZvK6fHndJw=','fdd58586-707f-4aec-9216-39618eca4e97',1,0,'2017-08-19 14:58:00','2017-08-19 14:58:00'),(0000000053,'测试3','C/gcfDLHdjbWlbUNEMlRR3eCMU414u9nZxs+Xx3pwW0=','90e9f868-514a-444c-a920-a94bde33cd15',1,0,'2017-08-19 15:30:22','2017-08-19 15:30:22');
-/*!40000 ALTER TABLE `user` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `user_status`
@@ -146,4 +144,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-09-08 22:25:51
+-- Dump completed on 2017-10-04 23:33:35

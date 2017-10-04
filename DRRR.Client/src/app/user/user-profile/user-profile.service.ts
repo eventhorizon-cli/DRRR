@@ -23,12 +23,14 @@ export class UserProfileService {
   /**
    * 更新用户头像
    * @param {string} uid 用户ID
-   * @param {string} dataURL dataURL字符串
+   * @param {string} dataURLOriginal dataURL字符串（原图）
+   * @param {string} dataURLThumbnail dataURL字符串（缩略图）
    * @returns {Observable<{error: string}>}
    */
-  updateAvatar(uid: string, dataURL: string): Observable<boolean> {
+  updateAvatar(uid: string, dataURLOriginal: string, dataURLThumbnail: string): Observable<boolean> {
     const formData = new FormData();
-    formData.append('avatar', this.dataURItoBlob(dataURL));
+    formData.append('original', this.dataURItoBlob(dataURLOriginal));
+    formData.append('thumbnail', this.dataURItoBlob(dataURLThumbnail));
     return this.auth
       .http.put<boolean>(`/api/resources/avatars/${uid}`, formData);
   }

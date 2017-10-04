@@ -5,3 +5,14 @@ p{
 i{
   margin-right: 5px;
 }
+
+a{
+  text-decoration:none;
+}
+
+a.disabled{
+  color: #777;
+  cursor: not-allowed;
+  background-color: #fff;
+  border-color: #ddd;
+}

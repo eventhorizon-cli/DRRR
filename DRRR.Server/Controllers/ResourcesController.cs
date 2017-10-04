@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using DRRR.Server.Services;
 using DRRR.Server.Security;
 using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 
 namespace DRRR.Server.Controllers
 {
@@ -30,32 +31,27 @@ namespace DRRR.Server.Controllers
         /// <returns>客户端的系统通知信息配置</returns>
         [HttpGet, Route("system-messages")]
         public JsonResult GetSystemMessageSettings()
-        {
-            return _systemMessagesService.ClientSystemMessageSettings;
-        }
+            => _systemMessagesService.ClientSystemMessageSettings;
 
         /// <summary>
         /// 获取用户头像资源
         /// </summary>
+        /// <param name="type">图片类型（原图或者缩略图）</param>
         /// <param name="hashid">用户哈希ID</param>
         /// <returns>异步获取用户头像资源的任务</returns>
-        [HttpGet, Route("avatars/{hashid}")]
-        public async Task<FileResult> GetAvatarAsync(string hashid)
-        {
-            return await _userProfileService.GetAvatarAsync(HashidsHelper.Decode(hashid));
-        }
+        [HttpGet, Route("avatars/{type}/{hashid}")]
+        public async Task<FileResult> GetAvatarAsync(string type, string hashid)
+            => await _userProfileService.GetAvatarAsync(type, HashidsHelper.Decode(hashid));
 
         /// <summary>
         /// 更新用户头像资源
         /// </summary>
         /// <param name="hashid">用户哈希ID</param>
-        /// <param name="avatar">用户上传的头像资源</param>
         /// <returns>表示用户更新用户头像资源的任务</returns>
         [HttpPut, Route("avatars/{hashid}")]
         [JwtAuthorize(Roles.User, Roles.Admin)]
-        public async Task<bool> UpdateAvatarAsync(string hashid, IFormFile avatar)
-        {
-            return await _userProfileService.UpdateAvatarAsync(HashidsHelper.Decode(hashid), avatar);
-        }
+        public async Task<bool> UpdateAvatarAsync(string hashid)
+            => await _userProfileService.UpdateAvatarAsync(HashidsHelper.Decode(hashid),
+                Request.Form.Files);
     }
 }

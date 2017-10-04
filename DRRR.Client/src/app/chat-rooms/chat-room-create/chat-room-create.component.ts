@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
+import { Router } from '@angular/router';
+
+import swal from 'sweetalert2';
 
 import { BsModalRef } from 'ngx-bootstrap/modal/modal-options.class';
 
@@ -30,7 +33,8 @@ export class ChatRoomCreateComponent implements OnInit {
     private fb: FormBuilder,
     private msg: SystemMessagesService,
     private autoClearer: FormErrorsAutoClearer,
-    private createService: ChatRoomCreateService) { }
+    private createService: ChatRoomCreateService,
+    private router: Router) { }
 
   ngOnInit() {
     this.form = this.fb.group({
@@ -43,10 +47,10 @@ export class ChatRoomCreateComponent implements OnInit {
         Validators.pattern(/^\d+$/),
         Validators.min(2),
         Validators.max(1000)]],
-      password: ['',
+      password: ['', [
         Validators.required,
         Validators.minLength(6),
-        Validators.maxLength(128)],
+        Validators.maxLength(128)]],
       isEncrypted: [false],
       isPermanent: [false],
       isHidden: [false]
@@ -55,7 +59,7 @@ export class ChatRoomCreateComponent implements OnInit {
 
     this.requiredValidationMessages = {
       name: () => this.msg.getMessage('E001', '房间名'),
-      maxUsers: () => this.msg.getMessage ('E001', '成员人数'),
+      maxUsers: () => this.msg.getMessage('E001', '成员人数'),
       password: () => {
         return (this.form.value as ChatRoomDto).isEncrypted ?
           this.msg.getMessage('E001', '密码') : '';
@@ -86,7 +90,7 @@ export class ChatRoomCreateComponent implements OnInit {
           this.isValidatingAsync = false;
 
           if (this.formErrorMessages['name'] = res.error) {
-            name.setErrors({illegal: !!res.error});
+            name.setErrors({ illegal: !!res.error });
           }
 
           if (this.isWaitingToRegister) {
@@ -128,7 +132,7 @@ export class ChatRoomCreateComponent implements OnInit {
     if (this.isValidatingAsync) {
       this.isWaitingToRegister = true;
       return;
-    }else {
+    } else {
       this.isWaitingToRegister = false;
     }
 
@@ -138,7 +142,17 @@ export class ChatRoomCreateComponent implements OnInit {
 
     if (Object.values(this.formErrorMessages).every(error => !error)) {
       this.createService.createRoom(this.form.value)
-        .subscribe(res => {});
+        .subscribe(res => {
+          this.bsModalRef.hide();
+          swal(this.msg.getMessage('I001', '房间创建'), '', 'success')
+            .then(() => {
+              this.router.navigate(['/rooms', res.roomId]);
+            });
+        }, error => {
+          swal(this.msg.getMessage('E004', '房间创建'),
+            this.msg.getMessage('E010'), 'error')
+            .then(() => { }, () => { });
+        });
     }
   }
 

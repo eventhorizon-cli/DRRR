@@ -1,4 +1,6 @@
-import { Component, OnInit, Input, HostBinding } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
+import { Router } from '@angular/router';
+
 import { ChatRoomDto } from '../dtos/chat-room.dto';
 
 @Component({
@@ -10,9 +12,26 @@ export class ChatRoomListItemComponent implements OnInit {
 
   @Input() room: ChatRoomDto;
 
-  constructor() { }
+  /**
+   * 房间是否满员
+   */
+  full: boolean;
+
+  constructor(
+    private router: Router
+  ) { }
 
   ngOnInit() {
+    this.full = this.room.currentUsers === this.room.maxUsers;
+  }
+
+  /**
+   * 加入房间
+   */
+  joinRoom() {
+    if (!this.full) {
+      this.router.navigateByUrl(`/rooms/${this.room.id}`);
+    }
   }
 
 }

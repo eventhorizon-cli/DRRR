@@ -1,18 +1,17 @@
 <div class="msg-container">
-
-  <!--<div class="avatar"-->
-       <!--*ngIf="!incoming">-->
-    <!--<img src="{{message.author.avatarSrc}}">-->
-  <!--</div>-->
-
-  <!--<div class="messages"-->
-       <!--[ngClass]="{'msg-sent': !incoming, 'msg-receive': incoming}">-->
-    <!--<p>{{message.text}}</p>-->
-    <!--<p class="time">{{message.sender}} • {{message.sentAt | fromNow}}</p>-->
-  <!--</div>-->
-
-  <!--<div class="avatar"-->
-       <!--*ngIf="incoming">-->
-    <!--<img src="{{message.author.avatarSrc}}">-->
-  <!--</div>-->
+  <div *ngIf="!message.isSystemMessage" [style.text-align]="position">
+    <div [ngClass]="['pull-' + position]">
+      <img alt="image" class="img-circle" src="/api/resources/avatars/thumbnails/{{message.userId}}">
+    </div>
+    <p *ngIf="message.incoming" class="author-name">{{ message.username }}</p>
+    <div class="bubble" [ngClass]="[position]">
+      <div class="bubble-content">
+        <pre>{{ message.text }}</pre>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="message.isSystemMessage"
+       class="system-message">
+    <pre>{{ message.text }}</pre>
+  </div>
 </div>

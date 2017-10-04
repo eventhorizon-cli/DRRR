@@ -36,8 +36,9 @@ namespace DRRR.Server.Services
         public async Task<ChatRoomSearchResponseDto> GetRoomList(string keyword, int page)
         {
             int count = await _dbContext.ChatRoom
-                .CountAsync(room => string.IsNullOrEmpty(keyword)
-                            || room.Name.Contains(keyword)).ConfigureAwait(false);
+                .CountAsync(room => string.IsNullOrEmpty(keyword) ? true :
+                (room.Name.Contains(keyword)
+                || room.Owner.Username.Contains(keyword))).ConfigureAwait(false);
 
             int totalPages = (int)Math.Ceiling(((decimal)count / 10));
             page = Math.Min(page, totalPages);
@@ -51,7 +52,9 @@ namespace DRRR.Server.Services
             }
 
             chatRoomListDto.ChatRoomList = _dbContext.ChatRoom
-                .Where(room => string.IsNullOrEmpty(keyword) || room.Name.Contains(keyword))
+                .Where(room => string.IsNullOrEmpty(keyword) ? true :
+                (room.Name.Contains(keyword)
+                || room.Owner.Username.Contains(keyword)))
                 .OrderByDescending(room => room.CreateTime)
                 .Skip((page - 1) * 10)
                 .Take(10)
@@ -83,35 +86,27 @@ namespace DRRR.Server.Services
         /// <returns>表示异步创建房间的任务，如果创建失败则返回错误信息</returns>
         public async Task<string> CreateRoomAsync(int uid, ChatRoomDto roomDto)
         {
-            try
+            var room = new ChatRoom
             {
-                var room = new ChatRoom
-                {
-                    OwnerId = uid,
-                    Name = roomDto.Name,
-                    MaxUsers = roomDto.MaxUsers,
-                    IsEncrypted = roomDto.IsEncrypted,
-                    IsPermanent = roomDto.IsPermanent,
-                    IsHidden = roomDto.IsHidden
-                };
+                OwnerId = uid,
+                Name = roomDto.Name,
+                MaxUsers = roomDto.MaxUsers,
+                IsEncrypted = roomDto.IsEncrypted,
+                IsPermanent = roomDto.IsPermanent,
+                IsHidden = roomDto.IsHidden
+            };
 
-                // 如果房间被加密
+            // 如果房间被加密
+            if (roomDto.IsEncrypted)
+            {
                 Guid salt = Guid.NewGuid();
-                if (roomDto.IsEncrypted)
-                {
-                    // 因为这里的salt字段是可选的，所以不能定义为Guid类型，否则会出问题
-                    room.Salt = salt.ToString();
-                    room.PasswordHash = PasswordHelper.GeneratePasswordHash(roomDto.Password, salt);
-                }
+                room.Salt = salt;
+                room.PasswordHash = PasswordHelper.GeneratePasswordHash(roomDto.Password, salt);
+            }
 
-                _dbContext.ChatRoom.Add(room);
-                await _dbContext.SaveChangesAsync();
-                return null;
-            }
-            catch
-            {
-                return _systemMessagesService.GetServerSystemMessage("E004", "房间创建");
-            }
+            _dbContext.ChatRoom.Add(room);
+            await _dbContext.SaveChangesAsync();
+            return HashidsHelper.Encode(room.Id);
         }
 
         /// <summary>
@@ -138,6 +133,39 @@ namespace DRRR.Server.Services
                 return _systemMessagesService.GetServerSystemMessage("E003", "房间名");
             }
             return null;
+        }
+
+        /// <summary>
+        /// 获取用户上一次登录时所在的房间ID
+        /// </summary>
+        /// <param name="uid">用户ID</param>
+        /// <returns>表示获取用户上一次登录时所在的房间ID的任务</returns>
+        public async Task<string> GetPreviousRoomIdAsync(int uid)
+        {
+            var roomId = await _dbContext.Connection
+                      .Where(conn => conn.UserId == uid)
+                      .Select(conn => conn.RoomId)
+                      .FirstOrDefaultAsync()
+                      .ConfigureAwait(false);
+            // 房间ID为0则说明没找到
+            if (roomId == 0) return null;
+            return HashidsHelper.Encode(roomId);
+        }
+
+        /// <summary>
+        /// 删除连接信息
+        /// </summary>
+        /// <param name="roomId">房间ID</param>
+        /// <param name="userId">用户ID</param>
+        /// <returns>表示删除连接的任务</returns>
+        public async Task<string> DeleteConnectionAsync(int roomId, int userId)
+        {
+            var connection = await _dbContext.Connection.FindAsync(roomId, userId);
+            if (connection == null) return string.Empty;
+            _dbContext.Remove(connection);
+            await _dbContext.SaveChangesAsync();
+            // 返回空字符串避免前台出错
+            return string.Empty;
         }
     }
 }

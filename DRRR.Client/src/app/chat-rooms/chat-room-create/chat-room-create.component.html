@@ -16,7 +16,8 @@
              maxlength="20"
              [formControl]="form.controls['name']"
              (blur)="validateRoomName(form.controls['name'])"
-             (blur)="validateRequired('name')">
+             (blur)="validateRequired('name')"
+             (keydown.enter)="create()">
       <span class="help-block">{{ formErrorMessages['name'] || "中英日文均可，最长 20 个字符" }}</span>
     </div>
     <div class="form-group"
@@ -29,7 +30,8 @@
              maxlength="4"
              [formControl]="form.controls['maxUsers']"
              (blur)="validateMaxUsers(form.controls['maxUsers'])"
-             (blur)="validateRequired('maxUsers')">
+             (blur)="validateRequired('maxUsers')"
+             (keydown.enter)="create()">
       <span class="help-block">{{ formErrorMessages['maxUsers'] || "2-1000 以内的整数" }}</span>
     </div>
     <div class="form-group" *ngIf="form.controls['isEncrypted'].value"

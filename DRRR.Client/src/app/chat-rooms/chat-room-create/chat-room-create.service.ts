@@ -25,9 +25,9 @@ export class ChatRoomCreateService {
   /**
    * 创建房间
    * @param {ChatRoomDto} roomInfo 房间信息
-   * @returns {Observable<{error：string}>}
+   * @returns {Observable<{roomId：string}>} 房间ID
    */
-  createRoom(roomInfo: ChatRoomDto): Observable<{error: string}> {
-    return this.auth.http.post<{error: string}>('api/rooms', roomInfo);
+  createRoom(roomInfo: ChatRoomDto): Observable<{roomId: string}> {
+    return this.auth.http.post<{roomId: string}>('api/rooms', roomInfo);
   }
 }

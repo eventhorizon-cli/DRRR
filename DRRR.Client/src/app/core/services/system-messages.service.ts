@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import swal from 'sweetalert2';
+import { SweetAlertOptions } from 'sweetalert2';
 
 /**
  * 提供系统消息资源
@@ -29,7 +30,7 @@ export class SystemMessagesService {
    */
   getMessage(msgId: string, ...args: string[]): string {
     return ((this.messages || {})[msgId] || '')
-      .replace(/{(\d)}/g, (_ , i) => args[i]);
+      .replace(/{(\d)}/g, (_, i) => args[i]);
   }
 
   /**
@@ -43,7 +44,7 @@ export class SystemMessagesService {
       type: 'success',
       showConfirmButton: false,
       timer: 2000 // 2秒后自动关闭
-    }).then(() => {}, () => {});
+    }).then(() => { }, () => { });
   }
 
   /**
@@ -59,7 +60,24 @@ export class SystemMessagesService {
       onOpen: function () {
         swal.showLoading();
       }
-    }).then(() => {}, () => {});
+    }).then(() => { }, () => { });
+  }
+
+  /**
+   * 显示确认消息窗口
+   * @param {string} type 消息类型
+   * @param {string} title 标题
+   * @param {SweetAlertOptions} additionalSettings 附加设置
+   */
+  showConfirmMessage(type: 'warning' | 'question', title: string, additionalSettings?: SweetAlertOptions): Promise<any> {
+    return swal({
+      title,
+      type,
+      showCancelButton: true,
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      ...additionalSettings
+    });
   }
 
   /**

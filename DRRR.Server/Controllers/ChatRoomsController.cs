@@ -16,7 +16,8 @@ namespace DRRR.Server.Controllers
     public class ChatRoomsController : Controller
     {
         private ChatRoomService _chatRoomService;
-        public ChatRoomsController(ChatRoomService chatRoomService) => _chatRoomService = chatRoomService;
+        public ChatRoomsController(ChatRoomService chatRoomService)
+            => _chatRoomService = chatRoomService;
 
         /// <summary>
         /// 获取房间列表
@@ -27,9 +28,7 @@ namespace DRRR.Server.Controllers
         [HttpGet]
         [JwtAuthorize(Roles.Guest, Roles.User, Roles.Admin)]
         public async Task<ChatRoomSearchResponseDto> GetRoomList(string keyword, int page)
-        {
-            return await _chatRoomService.GetRoomList(keyword, page);
-        }
+            => await _chatRoomService.GetRoomList(keyword, page);
 
         /// <summary>
         /// 验证房间名
@@ -39,12 +38,10 @@ namespace DRRR.Server.Controllers
         [HttpGet, Route("room-name-validation")]
         [JwtAuthorize(Roles.User, Roles.Admin)]
         public async Task<JsonResult> ValidateRoomNameAsync(string name)
-        {
-            return new JsonResult(new
+            => new JsonResult(new
             {
                 Error = await _chatRoomService.ValidateRoomNameAsync(name)
             });
-        }
 
         /// <summary>
         /// 创建房间
@@ -58,8 +55,35 @@ namespace DRRR.Server.Controllers
             string hashid = HttpContext.User.FindFirst("uid").Value;
             return new JsonResult(new
             {
-                Error = await _chatRoomService.CreateRoomAsync(HashidsHelper.Decode(hashid), roomDto)
+                RoomId = await _chatRoomService.CreateRoomAsync(HashidsHelper.Decode(hashid), roomDto)
             });
+        }
+
+        /// <summary>
+        /// 获取用户上一次登录时所在的房间ID
+        /// </summary>
+        /// <returns>表示获取用户上一次登录时所在的房间ID的任务</returns>
+        [HttpGet, Route("previous-room-id")]
+        [JwtAuthorize(Roles.User, Roles.Admin)]
+        public async Task<string> GetPreviousRoomIdAsync()
+        {
+            string hashid = HttpContext.User.FindFirst("uid").Value;
+            return await _chatRoomService.GetPreviousRoomIdAsync(HashidsHelper.Decode(hashid));
+        }
+
+        /// <summary>
+        /// 删除连接信息
+        /// </summary>
+        /// <param name="roomHashid">房间哈希ID</param>
+        /// <param name="userHashid">用户哈希ID</param>
+        /// <returns>表示删除连接的任务</returns>
+        [HttpDelete, Route("{roomHashid}/connections/{userHashid}")]
+        [JwtAuthorize(Roles.User, Roles.Admin, Roles.Guest)]
+        public async Task<string> DeleteConnectionAsync(string roomHashid, string userHashid)
+        {
+            var roomId = HashidsHelper.Decode(roomHashid);
+            var userId = HashidsHelper.Decode(userHashid);
+            return await _chatRoomService.DeleteConnectionAsync(roomId, userId);
         }
     }
 }

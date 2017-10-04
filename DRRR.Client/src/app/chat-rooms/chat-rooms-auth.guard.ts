@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 
+import { Observable } from 'rxjs/Observable';
+
 import swal from 'sweetalert2';
 
 import { AuthService } from '../core/services/auth.service';
 import { SystemMessagesService } from '../core/services/system-messages.service';
+import { Role } from '../core/models/role.enum';
 
 @Injectable()
 export class ChatRoomsAuthGuard implements CanActivate {
@@ -16,7 +19,7 @@ export class ChatRoomsAuthGuard implements CanActivate {
   }
 
   canActivate(next: ActivatedRouteSnapshot,
-              state: RouterStateSnapshot): boolean {
+              state: RouterStateSnapshot): Observable<boolean>|Promise<boolean>|boolean {
     const payload = this.auth.getPayloadFromToken('refresh_token');
 
     if (!payload) {
@@ -29,6 +32,21 @@ export class ChatRoomsAuthGuard implements CanActivate {
         });
       return false;
     }
-    return true;
+
+    // 游客直接让其进入房间列表页面
+    if (payload.role === Role.guest) {
+      return true;
+    }
+
+    // 判断用户是否处于某个房间中
+    return this.auth.http.get('/api/rooms/previous-room-id', { responseType: 'text' })
+      .map(id => {
+        if (id) {
+          // 如果存在之前房间，则直接跳转到之前的房间
+          this.router.navigateByUrl(`/rooms/${id}`);
+          return false;
+        }
+        return true;
+      })
   }
 }

@@ -49,7 +49,6 @@ namespace DRRR.Server.Controllers
         /// <param name="userDto">用户信息</param>
         /// <returns>异步获取Token的任务</returns>
         [HttpPost, Route("register")]
-
         public async Task<AccessTokenResponseDto> RegisterAsync([FromBody]UserRegisterRequestDto userDto)
         {
             return await _registerService.RegisterAsync(userDto);

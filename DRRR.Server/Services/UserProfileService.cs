@@ -41,17 +41,18 @@ namespace DRRR.Server.Services
         /// <summary>
         /// 获取头像资源
         /// </summary>
+        /// <param name="type">图片类型（原图或者缩略图）</param>
         /// <param name="uid">用户ID</param>
         /// <returns>异步获取用户头像资源的任务</returns>
-        public async Task<FileResult> GetAvatarAsync(int uid)
+        public async Task<FileResult> GetAvatarAsync(string type, int uid)
         {
             return await Task.Run<FileResult>(() =>
             {
-                string path = Path.Combine(AvatarsDirectory, $"{uid}.jpg");
+                string path = Path.Combine(AvatarsDirectory, type, $"{uid}.jpg");
 
                 if (!File.Exists(path))
                 {
-                    path = Path.Combine(AvatarsDirectory, "default.jpg");
+                    path = Path.Combine(AvatarsDirectory, type, "default.jpg");
                 }
 
                 return new FileStreamResult(new MemoryStream(File.ReadAllBytes(path)), "application/x-img");
@@ -62,16 +63,20 @@ namespace DRRR.Server.Services
         /// 更新用户头像
         /// </summary>
         /// <param name="uid">用户ID</param>
-        /// <param name="avatar">头像文件资源</param>
+        /// <param name="avatars">用户上传的头像资源（包括裁剪后的原图和缩略图）</param>
         /// <returns>表示异步更新头像的任务,成功返回true,失败返回false</returns>
-        public async Task<bool> UpdateAvatarAsync(int uid, IFormFile avatar)
+        public async Task<bool> UpdateAvatarAsync(int uid, IFormFileCollection avatars)
         {
-            string path = Path.Combine(AvatarsDirectory, $"{uid}.jpg");
-            FileStream fs = null;
+            string pathOriginal = Path.Combine(AvatarsDirectory, "originals", $"{uid}.jpg");
+            string pathThumbnail = Path.Combine(AvatarsDirectory, "thumbnails", $"{uid}.jpg");
+            FileStream fsOriginal = null;
+            FileStream fsThumbnail = null;
             try
             {
-                fs = File.Create(path);
-                await avatar.CopyToAsync(fs);
+                fsOriginal = File.Create(pathOriginal);
+                fsThumbnail = File.Create(pathThumbnail);
+                await Task.WhenAll(avatars[0].CopyToAsync(fsOriginal),
+                    avatars[1].CopyToAsync(fsThumbnail));
                 return true;
             }
             catch (Exception)
@@ -80,8 +85,10 @@ namespace DRRR.Server.Services
             }
             finally
             {
-                fs?.Flush();
-                fs?.Close();
+                fsOriginal?.Flush();
+                fsOriginal?.Close();
+                fsThumbnail?.Flush();
+                fsThumbnail?.Close();
             }
         }
 

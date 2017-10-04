@@ -7,6 +7,7 @@ namespace DRRR.Server.Models
     public partial class DrrrDbContext : DbContext
     {
         public virtual DbSet<ChatRoom> ChatRoom { get; set; }
+        public virtual DbSet<Connection> Connection { get; set; }
         public virtual DbSet<Role> Role { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<UserStatus> UserStatus { get; set; }
@@ -88,6 +89,38 @@ namespace DRRR.Server.Models
                     .HasForeignKey(d => d.OwnerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("user_id");
+            });
+
+            modelBuilder.Entity<Connection>(entity =>
+            {
+                entity.HasKey(e => new { e.RoomId, e.UserId });
+
+                entity.ToTable("connection");
+
+                entity.HasIndex(e => new { e.RoomId, e.UserId })
+                    .HasName("connection_idx");
+
+                entity.Property(e => e.RoomId)
+                    .HasColumnName("room_id")
+                    .HasColumnType("int(10) unsigned zerofill");
+
+                entity.Property(e => e.UserId)
+                    .HasColumnName("user_id")
+                    .HasColumnType("int(10) unsigned zerofill");
+
+                entity.Property(e => e.ConnectionId)
+                    .HasColumnName("connection_id");
+
+                entity.Property(e => e.UpdateTime)
+                    .HasColumnName("update_time")
+                    .HasColumnType("timestamp")
+                    .ValueGeneratedOnAddOrUpdate()
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.Property(e => e.CreateTime)
+                   .HasColumnName("create_time")
+                   .HasColumnType("timestamp")
+                   .HasDefaultValueSql("CURRENT_TIMESTAMP");
             });
 
             modelBuilder.Entity<Role>(entity =>

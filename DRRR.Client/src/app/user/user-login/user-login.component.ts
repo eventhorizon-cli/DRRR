@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
+import swal from 'sweetalert2';
+
 import { SystemMessagesService } from '../../core/services/system-messages.service';
 import { FormErrorsAutoClearer } from '../../core/services/form-errors-auto-clearer.service';
 import { UserLoginService } from './user-login.service';
@@ -90,6 +92,10 @@ export class UserLoginComponent implements OnInit {
             this.router.navigate(['/rooms']);
             this.msg.showAutoCloseMessage('I001', '登录');
           }
+        }, error => {
+          swal(this.msg.getMessage('E004', '登录'),
+            this.msg.getMessage('E010'), 'error')
+            .then(() => {}, () => {});
         });
     }
   }

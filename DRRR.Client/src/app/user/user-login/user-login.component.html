@@ -8,7 +8,8 @@
            placeholder="用户名"
            maxlength="10"
            appTextTrim
-           [formControl]="loginForm.controls['username']">
+           [formControl]="loginForm.controls['username']"
+           (keydown.enter)="login(loginForm.value)">
     <span *ngIf="formErrorMessages['username']" class="help-block">
       {{ formErrorMessages['username'] }}
     </span>
@@ -20,7 +21,8 @@
             placeholder="密码"
             maxlength="128"
             appTextTrim
-            [formControl]="loginForm.controls['password']">
+            [formControl]="loginForm.controls['password']"
+            (keydown.enter)="login(loginForm.value)">
     <span *ngIf="formErrorMessages['password']" class="help-block">
       {{ formErrorMessages['password'] }}
     </span>

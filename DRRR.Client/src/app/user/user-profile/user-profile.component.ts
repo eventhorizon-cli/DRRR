@@ -50,7 +50,7 @@ export class UserProfileComponent implements OnInit {
 
     this.payload = this.auth.getPayloadFromToken('access_token');
 
-    this.avatarURL = `/api/resources/avatars/${this.payload.uid}`;
+    this.avatarURL = `/api/resources/avatars/originals/${this.payload.uid}`;
 
     this.autoClearer.register(this.profileForm, this.formErrorMessages);
 
@@ -72,13 +72,17 @@ export class UserProfileComponent implements OnInit {
   updateAvatar(file: HTMLInputElement) {
     let cropper: Cropper;
 
-    let dataURL: string;
+    // 裁剪后的原图
+    let dataURLOriginal: string;
+    // 裁剪后的缩略图
+    let dataURLThumbnail: string;
 
     const url = URL.createObjectURL(file.files[0]);
     // 清空value值,避免两次选中同样的文件时不触发change事件
     file.value = '';
 
     // 设置图像显示区域的最大高度和最大宽度
+    // 当前设备屏幕的一半
     const length = screen.availHeight / 2;
     swal({
       title: '裁剪头像',
@@ -103,13 +107,18 @@ export class UserProfileComponent implements OnInit {
         return new Promise((resolve, reject) => {
           // 图片最大边长为512
           const croppedLength = Math.min(cropper.getCropBoxData().width, 512);
-          dataURL = cropper
+          const thumbnailLength = Math.min(cropper.getCropBoxData().width, 100);
+          dataURLOriginal = cropper
             .getCroppedCanvas({ height: croppedLength, width: croppedLength })
             .toDataURL('image/jpeg', 1);
+          dataURLThumbnail = cropper
+            .getCroppedCanvas({ height: thumbnailLength, width: thumbnailLength })
+            .toDataURL('image/jpeg', 1);
           this.profileService
-            .updateAvatar(this.payload.uid, dataURL)
+            .updateAvatar(this.payload.uid, dataURLOriginal, dataURLThumbnail)
             .subscribe(success => success ? resolve() :
-              reject(this.msg.getMessage('E004', '头像更新')) );
+              reject(this.msg.getMessage('E004', '头像更新')),
+              error => reject(this.msg.getMessage('E004', '头像更新')));
         });
       },
     }).then(_ => {
@@ -118,11 +127,12 @@ export class UserProfileComponent implements OnInit {
         title: this.msg.getMessage('I001', '头像更新'),
       }).then(() => {
         // 更新本地头像显示
-        this.avatarURL = dataURL;
-      });
+        this.avatarURL = dataURLOriginal;
+      }, () => {});
       // 释放资源
       URL.revokeObjectURL(url);
     }, _ => {
+      // 取消按钮被按下
       // 释放资源
       URL.revokeObjectURL(url);
     });
@@ -160,7 +170,10 @@ export class UserProfileComponent implements OnInit {
           this.msg.showAutoCloseMessage('I001', '密码更新');
           this.auth.saveRefreshToken(res.refreshToken);
           this.auth.saveAccessToken(res.accessToken)
-        });
+        },  error =>
+          swal(this.msg.getMessage('E004', '密码更新'),
+            this.msg.getMessage('E010'), 'error')
+            .then(() => {}, () => {}));
     }
   }
 }
