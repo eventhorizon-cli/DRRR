@@ -73,7 +73,10 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   // 将消息框内容滚动至最下方
   scrollToBottom() {
     const scrollPane = document.querySelector('.msg-container-base');
-    scrollPane.scrollTop = scrollPane.scrollHeight;
+    // 避免某些情况下离开房间时导致的异常
+    if (scrollPane) {
+      scrollPane.scrollTop = scrollPane.scrollHeight;
+    }
   }
 
   setHeight() {
