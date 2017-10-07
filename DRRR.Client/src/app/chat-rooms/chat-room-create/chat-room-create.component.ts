@@ -26,7 +26,7 @@ export class ChatRoomCreateComponent implements OnInit {
 
   private isValidatingAsync: boolean;
 
-  private isWaitingToRegister: boolean;
+  private isWaitingToCreate: boolean;
 
   constructor(
     public bsModalRef: BsModalRef,
@@ -93,7 +93,7 @@ export class ChatRoomCreateComponent implements OnInit {
             name.setErrors({ illegal: !!res.error });
           }
 
-          if (this.isWaitingToRegister) {
+          if (this.isWaitingToCreate) {
             // 如果在后台验证结果尚未回来之前，用户点击了创建
             // 则在这里继续被中断的创建处理
             this.create();
@@ -130,10 +130,10 @@ export class ChatRoomCreateComponent implements OnInit {
   create() {
     // 如果存在异步验证，则稍后进行注册
     if (this.isValidatingAsync) {
-      this.isWaitingToRegister = true;
+      this.isWaitingToCreate = true;
       return;
     } else {
-      this.isWaitingToRegister = false;
+      this.isWaitingToCreate = false;
     }
 
     for (const controlName of Object.keys(this.form.controls)) {
@@ -141,13 +141,21 @@ export class ChatRoomCreateComponent implements OnInit {
     }
 
     if (Object.values(this.formErrorMessages).every(error => !error)) {
+      this.msg.showLoadingMessage('I005', '创建房间');
       this.createService.createRoom(this.form.value)
         .subscribe(res => {
-          this.bsModalRef.hide();
-          swal(this.msg.getMessage('I001', '房间创建'), '', 'success')
-            .then(() => {
-              this.router.navigate(['/rooms', res.roomId]);
-            });
+          this.msg.closeLoadingMessage();
+          if (res.error) {
+            // 房间名重复或者房间名不符合规范
+            this.formErrorMessages['name'] = res.error;
+            this.form.controls['name'].setErrors({ illegal: true });
+          } else {
+            this.bsModalRef.hide();
+            swal(this.msg.getMessage('I001', '房间创建'), '', 'success')
+              .then(() => {
+                this.router.navigate(['/rooms', res.roomId]);
+              }, () => { });
+          }
         }, error => {
           swal(this.msg.getMessage('E004', '房间创建'),
             this.msg.getMessage('E010'), 'error')

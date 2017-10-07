@@ -65,21 +65,45 @@ namespace DRRR.Server.Services
         /// <returns>异步获取Token的任务</returns>
         public async Task<AccessTokenResponseDto> RegisterAsync(UserRegisterRequestDto userDto)
         {
-            var tokenDto = new AccessTokenResponseDto();
-            Guid salt = Guid.NewGuid();
-            var user = new User
+            // 因为前台可以按下回车就可以提交表单，所以可能一开始没check住
+            var error = await ValidateUsernameAsync(userDto.Username);
+            if (error !=null)
             {
-                Username = userDto.Username,
-                PasswordHash = GeneratePasswordHash(userDto.Password, salt),
-                Salt = salt,
-                // 默认为普通用户
-                RoleId = (int)Roles.User
-            };
-            _dbContext.User.Add(user);
-            int count = await _dbContext.SaveChangesAsync().ConfigureAwait(false);
-            tokenDto.AccessToken = _tokenAuthService.GenerateAccessToken(user);
-            tokenDto.RefreshToken = _tokenAuthService.GenerateRefreshToken(user);
-            return tokenDto;
+                return new AccessTokenResponseDto
+                {
+                    Error = error
+                };
+            }
+
+            try
+            {
+                Guid salt = Guid.NewGuid();
+                var user = new User
+                {
+                    Username = userDto.Username,
+                    PasswordHash = GeneratePasswordHash(userDto.Password, salt),
+                    Salt = salt,
+                    // 默认为普通用户
+                    RoleId = (int)Roles.User
+                };
+                _dbContext.User.Add(user);
+                await _dbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                return new AccessTokenResponseDto
+                {
+                    AccessToken = _tokenAuthService.GenerateAccessToken(user),
+                    RefreshToken = _tokenAuthService.GenerateRefreshToken(user)
+                };
+            }
+            catch
+            {
+                // 因为是多线程，依旧可能用户名重复
+                // 用户名重复会导致异常
+                return new AccessTokenResponseDto
+                {
+                    Error = _systemMessagesService.GetServerSystemMessage("E003", "用户名")
+                };
+            }
         }
     }
 }

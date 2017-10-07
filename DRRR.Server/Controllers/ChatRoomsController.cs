@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using DRRR.Server.Services;
 using DRRR.Server.Dtos;
 using DRRR.Server.Security;
+using System.Security.Claims;
 
 namespace DRRR.Server.Controllers
 {
@@ -50,13 +51,10 @@ namespace DRRR.Server.Controllers
         /// <returns>表示异步创建房间的任务，如果创建失败则返回错误信息</returns>
         [HttpPost]
         [JwtAuthorize(Roles.User, Roles.Admin)]
-        public async Task<JsonResult> CreateRoomAsync([FromBody]ChatRoomDto roomDto)
+        public async Task<ChatRoomCreateResponseDto> CreateRoomAsync([FromBody]ChatRoomDto roomDto)
         {
             string hashid = HttpContext.User.FindFirst("uid").Value;
-            return new JsonResult(new
-            {
-                RoomId = await _chatRoomService.CreateRoomAsync(HashidsHelper.Decode(hashid), roomDto)
-            });
+            return await _chatRoomService.CreateRoomAsync(HashidsHelper.Decode(hashid), roomDto);
         }
 
         /// <summary>
@@ -84,6 +82,34 @@ namespace DRRR.Server.Controllers
             var roomId = HashidsHelper.Decode(roomHashid);
             var userId = HashidsHelper.Decode(userHashid);
             return await _chatRoomService.DeleteConnectionAsync(roomId, userId);
+        }
+
+        /// <summary>
+        /// 申请进入房间
+        /// </summary>
+        /// <param name="id">房间哈希ID</param>
+        /// <returns>表示申请进入房间的任务</returns>
+        [HttpGet, Route("application-for-entry")]
+        [JwtAuthorize(Roles.User, Roles.Admin, Roles.Guest)]
+        public async Task<ChatRoomApplyForEntryResponseDto> ApplyForEntryAsync(string id)
+        {
+            int userId = HashidsHelper.Decode(HttpContext.User.FindFirst("uid").Value);
+            int roomId = HashidsHelper.Decode(id);
+            Roles userRole = (Roles)Convert.ToInt32(HttpContext.User.FindFirst(ClaimTypes.Role).Value);
+            return await _chatRoomService.ApplyForEntryAsync(userId, userRole, roomId);
+        }
+
+        /// <summary>
+        /// 验证房间密码
+        /// </summary>
+        /// <param name="entryRequestDto">房间ID和用户输入的密码</param>
+        /// <returns>表示验证房间密码的任务</returns>
+        [HttpPost, Route("password-validation")]
+        public async Task<ChatRoomValidatePasswordResponseDto> ValidatePasswordAsync([FromBody]ChatRoomValidatePasswordRequestDto entryRequestDto)
+        {
+            var roomId = HashidsHelper.Decode(entryRequestDto.RoomId);
+            return await _chatRoomService
+                .ValidatePasswordAsync(roomId, entryRequestDto.Password);
         }
     }
 }

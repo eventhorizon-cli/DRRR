@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable'
 
 import { AuthService } from '../../core/services/auth.service';
 import { ChatRoomDto } from '../dtos/chat-room.dto';
+import { ChatRoomCreateResponseDto } from '../dtos/chat-room-create-response.dto';
 
 @Injectable()
 export class ChatRoomCreateService {
@@ -25,9 +26,9 @@ export class ChatRoomCreateService {
   /**
    * 创建房间
    * @param {ChatRoomDto} roomInfo 房间信息
-   * @returns {Observable<{roomId：string}>} 房间ID
+   * @returns {Observable<ChatRoomCreateResponseDto>} 创建房间的请求的响应DTO
    */
-  createRoom(roomInfo: ChatRoomDto): Observable<{roomId: string}> {
-    return this.auth.http.post<{roomId: string}>('api/rooms', roomInfo);
+  createRoom(roomInfo: ChatRoomDto): Observable<ChatRoomCreateResponseDto> {
+    return this.auth.http.post<ChatRoomCreateResponseDto>('api/rooms', roomInfo);
   }
 }

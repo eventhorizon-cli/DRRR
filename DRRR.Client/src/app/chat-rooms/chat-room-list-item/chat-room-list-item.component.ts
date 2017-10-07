@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { ChatRoomDto } from '../dtos/chat-room.dto';
@@ -13,13 +13,21 @@ export class ChatRoomListItemComponent implements OnInit {
   @Input() room: ChatRoomDto;
 
   /**
+   * 进入房间失败事件
+   */
+  @Output() failedToJoinTheRoom: EventEmitter<never>;
+
+  /**
    * 房间是否满员
    */
   full: boolean;
 
   constructor(
     private router: Router
-  ) { }
+  ) {
+    // 不能放在init事件里，否则会引发
+    this.failedToJoinTheRoom = new EventEmitter();
+  }
 
   ngOnInit() {
     this.full = this.room.currentUsers === this.room.maxUsers;
@@ -30,7 +38,11 @@ export class ChatRoomListItemComponent implements OnInit {
    */
   joinRoom() {
     if (!this.full) {
-      this.router.navigateByUrl(`/rooms/${this.room.id}`);
+      this.router.navigateByUrl(`/rooms/${this.room.id}`)
+        .catch(() => {
+          this.failedToJoinTheRoom.next();
+          this.failedToJoinTheRoom.unsubscribe();
+        });
     }
   }
 

@@ -134,8 +134,12 @@ export class UserRegisterComponent implements OnInit {
             swal(this.msg.getMessage('I001', '注册'), '', 'success')
               .then(() => {
                 this.router.navigate(['/rooms']);
-                this.msg.showAutoCloseMessage('I001', '登录');
+                this.msg.showAutoCloseMessage('success', 'I001', '登录');
               });
+          } else {
+            // 用户名不符合规范，或者用户名重复
+            this.formErrorMessages['username'] = res.error;
+            this.registerForm.controls['username'].setErrors({illegal: true});
           }
         }, error => {
           swal(this.msg.getMessage('E004', '注册'),

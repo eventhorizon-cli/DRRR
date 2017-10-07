@@ -57,7 +57,7 @@ export class UserLoginComponent implements OnInit {
         this.auth.refreshToken(() => {
           // 登录信息未过期则直接跳转
           this.router.navigate(['/rooms', { page: 1 }]);
-          this.msg.showAutoCloseMessage('I002', payload.unique_name);
+          this.msg.showAutoCloseMessage('success', 'I002', payload.unique_name);
         });
       } else {
         // 不存在登录信息则将记住登录设为false
@@ -90,7 +90,7 @@ export class UserLoginComponent implements OnInit {
             this.auth.saveAccessToken(res.accessToken);
             this.auth.saveRefreshToken(res.refreshToken);
             this.router.navigate(['/rooms']);
-            this.msg.showAutoCloseMessage('I001', '登录');
+            this.msg.showAutoCloseMessage('success', 'I001', '登录');
           }
         }, error => {
           swal(this.msg.getMessage('E004', '登录'),

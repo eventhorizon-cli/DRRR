@@ -7,13 +7,12 @@
                placeholder="请输入关键词"
                appTextTrim
                [(ngModel)]="keyword"
-               name="keyword"
-               (keydown.enter)="search()">
+               name="keyword">
         <span class="input-group-btn">
           <button class="btn btn-default"
                   type="button"
-                  (click)="search()">
-            <i class="fa fa-search" aria-hidden="true"></i>&nbsp;检索
+                  (click)="refresh()">
+            <i class="fa fa-refresh" aria-hidden="true"></i>&nbsp;刷新
           </button>
         </span>
       </div>
@@ -31,7 +30,10 @@
   <div class="col-sm-12">
     <ul class="list-group">
       <li class="list-group-item" *ngFor="let room of roomList">
-        <app-chat-room-list-item [room]="room"></app-chat-room-list-item>
+        <app-chat-room-list-item
+          [room]="room"
+          (failedToJoinTheRoom)="onFailedToJoinTheRoom()">
+        </app-chat-room-list-item>
       </li>
     </ul>
   </div>
@@ -52,6 +54,13 @@
                   [boundaryLinks]="true"
                   (pageChanged)="onPageChanged($event)">
       </pagination>
+    </div>
+    <div class="alert alert-danger alert-dismissible" role="alert"
+         *ngIf="roomList === null">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      没有找到符合关键词的房间
     </div>
   </div>
 </div>

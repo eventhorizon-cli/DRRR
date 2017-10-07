@@ -38,10 +38,10 @@ export class SystemMessagesService {
    * @param {string} msgId 消息代号
    * @param {string} args 替换占位符用的参数
    */
-  showAutoCloseMessage(msgId: string, ...args: string[]) {
+  showAutoCloseMessage(type: 'success' | 'error', msgId: string, ...args: string[]) {
     swal({
       title: this.getMessage(msgId, ...args),
-      type: 'success',
+      type,
       showConfirmButton: false,
       timer: 2000 // 2秒后自动关闭
     }).then(() => { }, () => { });

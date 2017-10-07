@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using HashidsNet;
 using DRRR.Server.Security;
 using System.Text.RegularExpressions;
 
@@ -35,10 +34,16 @@ namespace DRRR.Server.Services
         /// <returns>表示异步获取房间列表的任务，如果创建失败则返回错误信息</returns>
         public async Task<ChatRoomSearchResponseDto> GetRoomList(string keyword, int page)
         {
-            int count = await _dbContext.ChatRoom
-                .CountAsync(room => string.IsNullOrEmpty(keyword) ? true :
-                (room.Name.Contains(keyword)
-                || room.Owner.Username.Contains(keyword))).ConfigureAwait(false);
+            var query = from room in _dbContext.ChatRoom
+                        where (((string.IsNullOrEmpty(keyword) ?
+                        true : room.Name.Contains(keyword)
+                        || room.Owner.Username.Contains(keyword))
+                        && !room.IsHidden.Value)
+                        ||
+                        (room.Name == keyword && room.IsHidden.Value))
+                        select room;
+
+            int count = await query.CountAsync().ConfigureAwait(false);
 
             int totalPages = (int)Math.Ceiling(((decimal)count / 10));
             page = Math.Min(page, totalPages);
@@ -51,10 +56,7 @@ namespace DRRR.Server.Services
                 return chatRoomListDto;
             }
 
-            chatRoomListDto.ChatRoomList = _dbContext.ChatRoom
-                .Where(room => string.IsNullOrEmpty(keyword) ? true :
-                (room.Name.Contains(keyword)
-                || room.Owner.Username.Contains(keyword)))
+            chatRoomListDto.ChatRoomList = await query
                 .OrderByDescending(room => room.CreateTime)
                 .Skip((page - 1) * 10)
                 .Take(10)
@@ -66,7 +68,7 @@ namespace DRRR.Server.Services
                     CurrentUsers = room.CurrentUsers,
                     OwnerName = room.Owner.Username,
                     CreateTime = new DateTimeOffset(room.CreateTime).ToUnixTimeMilliseconds()
-                }).ToList();
+                }).ToListAsync().ConfigureAwait(false);
 
             chatRoomListDto.Pagination = new PaginationDto
             {
@@ -84,29 +86,55 @@ namespace DRRR.Server.Services
         /// <param name="uid">用户ID</param>
         /// <param name="roomDto">用户输入的用于创建房间的信息</param>
         /// <returns>表示异步创建房间的任务，如果创建失败则返回错误信息</returns>
-        public async Task<string> CreateRoomAsync(int uid, ChatRoomDto roomDto)
+        public async Task<ChatRoomCreateResponseDto> CreateRoomAsync(int uid, ChatRoomDto roomDto)
         {
-            var room = new ChatRoom
-            {
-                OwnerId = uid,
-                Name = roomDto.Name,
-                MaxUsers = roomDto.MaxUsers,
-                IsEncrypted = roomDto.IsEncrypted,
-                IsPermanent = roomDto.IsPermanent,
-                IsHidden = roomDto.IsHidden
-            };
+            // 因为前台可以按下回车就可以提交表单，所以可能一开始没check住
+            var error = await ValidateRoomNameAsync(roomDto.Name);
 
-            // 如果房间被加密
-            if (roomDto.IsEncrypted)
+            if (error != null)
             {
-                Guid salt = Guid.NewGuid();
-                room.Salt = salt;
-                room.PasswordHash = PasswordHelper.GeneratePasswordHash(roomDto.Password, salt);
+                return new ChatRoomCreateResponseDto
+                {
+                    Error = error
+                };
             }
 
-            _dbContext.ChatRoom.Add(room);
-            await _dbContext.SaveChangesAsync();
-            return HashidsHelper.Encode(room.Id);
+            try
+            {
+                var room = new ChatRoom
+                {
+                    OwnerId = uid,
+                    Name = roomDto.Name,
+                    MaxUsers = roomDto.MaxUsers,
+                    IsEncrypted = roomDto.IsEncrypted,
+                    IsPermanent = roomDto.IsPermanent,
+                    IsHidden = roomDto.IsHidden
+                };
+
+                // 如果房间被加密
+                if (roomDto.IsEncrypted)
+                {
+                    Guid salt = Guid.NewGuid();
+                    room.Salt = salt;
+                    room.PasswordHash = PasswordHelper.GeneratePasswordHash(roomDto.Password, salt);
+                }
+
+                _dbContext.ChatRoom.Add(room);
+                await _dbContext.SaveChangesAsync();
+                return new ChatRoomCreateResponseDto
+                {
+                    RoomId = HashidsHelper.Encode(room.Id)
+                };
+            }
+            catch (Exception)
+            {
+                // 因为是多线程，任然可能发生异常
+                // 房间名重复
+                return new ChatRoomCreateResponseDto
+                {
+                    Error = _systemMessagesService.GetServerSystemMessage("E003", "房间名")
+                };
+            }
         }
 
         /// <summary>
@@ -166,6 +194,77 @@ namespace DRRR.Server.Services
             await _dbContext.SaveChangesAsync();
             // 返回空字符串避免前台出错
             return string.Empty;
+        }
+
+        /// <summary>
+        /// 申请加入房间
+        /// </summary>
+        /// <param name="userId">用户ID</param>
+        /// <param name="roomId">房间ID</param>
+        /// <param name="userRole">用户角色</param>
+        /// <returns></returns>
+        public async Task<ChatRoomApplyForEntryResponseDto> ApplyForEntryAsync(int userId, Roles userRole, int roomId)
+        {
+            var room = await _dbContext.ChatRoom.FindAsync(roomId);
+            var res = new ChatRoomApplyForEntryResponseDto();
+            if (room == null)
+            {
+                // 该房间已经不存在
+                res.Error = _systemMessagesService.GetServerSystemMessage("E005");
+            }
+            else if (room.CurrentUsers == room.MaxUsers)
+            {
+                // 该房间成员数已满
+                res.Error = _systemMessagesService.GetServerSystemMessage("E006");
+            }
+            else if (room.IsEncrypted.Value)
+            {
+                // 该房间为加密房
+                if (userRole != Roles.Admin && room.OwnerId != userId)
+                {
+                    // 用户不是管理员或者房主
+                    var conn = await _dbContext.Connection.FindAsync(roomId, userId);
+                    if (conn == null)
+                    {
+                        // 第一次来这个房间
+                        res.PasswordRequired = true;
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        /// <summary>
+        /// 验证房间密码
+        /// </summary>
+        /// <param name="roomId">房间ID</param>
+        /// <param name="password">密码</param>
+        /// <returns>表示验证房间密码的任务</returns>
+        public async Task<ChatRoomValidatePasswordResponseDto> ValidatePasswordAsync(int roomId, string password)
+        {
+            var room = await _dbContext.ChatRoom.FindAsync(roomId);
+
+            var res = new ChatRoomValidatePasswordResponseDto();
+
+            if (room == null)
+            {
+                // 该房间已经不存在
+                res.Error = _systemMessagesService.GetServerSystemMessage("E005");
+                res.Refresh = true;
+            }
+            else if (room.CurrentUsers == room.MaxUsers)
+            {
+                // 该房间已经不存在
+                res.Error = _systemMessagesService.GetServerSystemMessage("E006");
+                res.Refresh = true;
+            }
+            else if (!PasswordHelper.ValidatePassword(password, room.Salt, room.PasswordHash))
+            {
+                // 密码错误
+                res.Error = _systemMessagesService.GetServerSystemMessage("E007", "密码");
+            }
+            return res;
         }
     }
 }

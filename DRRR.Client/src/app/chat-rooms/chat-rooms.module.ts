@@ -15,6 +15,7 @@ import { ChatRoomListService } from './chat-room-list/chat-room-list.service';
 import { ChatRoomCreateService } from './chat-room-create/chat-room-create.service';
 import { ChatRoomCreateComponent } from './chat-room-create/chat-room-create.component';
 import { ChatRoomsAuthGuard } from './chat-rooms-auth.guard';
+import { ChatRoomAuthGuard } from './chat-room-auth.guard';
 import { ChatMessageComponent } from './chat-message/chat-message.component';
 import { ChatRoomService } from './chat-room/chat-room.service';
 
@@ -28,6 +29,7 @@ import { ChatRoomService } from './chat-room/chat-room.service';
   ],
   providers: [
     ChatRoomsAuthGuard,
+    ChatRoomAuthGuard,
     ChatRoomListService,
     ChatRoomCreateService,
     ChatRoomService

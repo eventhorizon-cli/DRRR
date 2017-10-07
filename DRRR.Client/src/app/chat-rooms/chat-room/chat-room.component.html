@@ -18,19 +18,11 @@
     </div>
 
     <div class="panel-footer">
-      <div class="input-group">
-        <input class="form-control"
-               type="text" #msg
-               maxlength="200"
-               (keydown.enter)="sendMessage(msg)">
-        <span class="input-group-btn">
-              <button class="btn btn-primary"
-                      type="button"
-                      (click)="sendMessage(msg)">
-                发送
-              </button>
-            </span>
-      </div>
+      <input class="form-control"
+             type="text" #msg
+             maxlength="200"
+             placeholder="按Enter键发送消息"
+             (keydown.enter)="sendMessage(msg)">
     </div>
 
   </div>

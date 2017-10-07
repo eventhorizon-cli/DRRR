@@ -5,6 +5,7 @@ import { ChatRoomsAuthGuard } from './chat-rooms-auth.guard';
 import { ChatRoomsComponent } from './chat-rooms.component';
 import { ChatRoomListComponent } from './chat-room-list/chat-room-list.component';
 import { ChatRoomComponent } from './chat-room/chat-room.component';
+import { ChatRoomAuthGuard } from './chat-room-auth.guard';
 
 const ChatRoomsRouts: Routes = [
   {
@@ -18,6 +19,7 @@ const ChatRoomsRouts: Routes = [
   {
     path: ':id',
     component: ChatRoomComponent,
+    canActivate: [ChatRoomAuthGuard],
   }
 ];
 

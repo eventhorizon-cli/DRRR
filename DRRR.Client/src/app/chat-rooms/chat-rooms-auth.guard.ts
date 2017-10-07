@@ -19,7 +19,7 @@ export class ChatRoomsAuthGuard implements CanActivate {
   }
 
   canActivate(next: ActivatedRouteSnapshot,
-              state: RouterStateSnapshot): Observable<boolean>|Promise<boolean>|boolean {
+    state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
     const payload = this.auth.getPayloadFromToken('refresh_token');
 
     if (!payload) {

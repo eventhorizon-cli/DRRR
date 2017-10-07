@@ -44,7 +44,8 @@
              maxlength="128"
              [formControl]="form.controls['password']"
              (blur)="validatePassword(form.controls['password'])"
-             (blur)="validateRequired('password')">
+             (blur)="validateRequired('password')"
+             (keydown.enter)="create()">
       <span class="help-block">{{ formErrorMessages['password'] || "不少于 6 位" }}</span>
     </div>
     <div class="checkbox" >

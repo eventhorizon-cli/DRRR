@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 
 import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/debounceTime';
+import { FromEventObservable } from 'rxjs/observable/FromEventObservable';
 
 import { BsModalService } from 'ngx-bootstrap/modal';
 
@@ -29,19 +31,19 @@ export class ChatRoomListComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private chatRoomListService: ChatRoomListService,
-    private modalService: BsModalService
+    private modalService: BsModalService,
   ) {}
 
   ngOnInit() {
     this.route.params
       .map(params => +params['page'] || 1)
       .subscribe(page => {
-        this.chatRoomListService.getList(this.keyword, page)
-          .subscribe(data => {
-            this.roomList = data.chatRoomList;
-            this.pagination = data.pagination;
-          });
+        this.refresh(page);
       });
+
+    FromEventObservable.create<Event>(document.querySelector('[name=keyword]'), 'keyup')
+      .debounceTime(250)
+      .subscribe(this.search.bind(this));
   }
 
   /**
@@ -51,7 +53,7 @@ export class ChatRoomListComponent implements OnInit {
     const page = this.currentPage || 1;
     const params = this.keyword ? { keyword: this.keyword, page } : { page };
     this.router.navigate(['../rooms', params]);
-    // 请空当前页，这样的话，每次点检索还是从第一页开始
+    // 请空当前页，这样的话，每次检索还是从第一页开始
     this.currentPage = 0;
   }
 
@@ -75,5 +77,25 @@ export class ChatRoomListComponent implements OnInit {
         backdrop: 'static',
         animated: 'inmodal'
       });
+  }
+
+  /**
+   * 刷新列表
+   */
+  refresh(page?: number) {
+    page = page || +this.route.snapshot.params['page'] || 1;
+    this.chatRoomListService.getList(this.keyword, page)
+      .subscribe(data => {
+        this.roomList = data.chatRoomList;
+        this.pagination = data.pagination;
+      });
+  }
+
+  /**
+   * 进入房间失败
+   */
+  onFailedToJoinTheRoom() {
+    // 刷新房间列表
+    this.refresh();
   }
 }

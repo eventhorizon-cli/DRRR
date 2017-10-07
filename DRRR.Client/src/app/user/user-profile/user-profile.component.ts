@@ -107,13 +107,13 @@ export class UserProfileComponent implements OnInit {
         return new Promise((resolve, reject) => {
           // 图片最大边长为512
           const croppedLength = Math.min(cropper.getCropBoxData().width, 512);
-          const thumbnailLength = Math.min(cropper.getCropBoxData().width, 100);
+          const thumbnailLength = Math.min(cropper.getCropBoxData().width, 150);
           dataURLOriginal = cropper
             .getCroppedCanvas({ height: croppedLength, width: croppedLength })
             .toDataURL('image/jpeg', 1);
           dataURLThumbnail = cropper
             .getCroppedCanvas({ height: thumbnailLength, width: thumbnailLength })
-            .toDataURL('image/jpeg', 1);
+            .toDataURL('image/jpeg', 0.9);
           this.profileService
             .updateAvatar(this.payload.uid, dataURLOriginal, dataURLThumbnail)
             .subscribe(success => success ? resolve() :
@@ -167,7 +167,7 @@ export class UserProfileComponent implements OnInit {
       this.msg.showLoadingMessage('I005', '提交请求');
       this.profileService.updatePassword(data)
         .subscribe(res => {
-          this.msg.showAutoCloseMessage('I001', '密码更新');
+          this.msg.showAutoCloseMessage('success', 'I001', '密码更新');
           this.auth.saveRefreshToken(res.refreshToken);
           this.auth.saveAccessToken(res.accessToken)
         },  error =>
