@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import swal from 'sweetalert2';
+
+import { Subscription } from 'rxjs/Subscription';
 
 import { SystemMessagesService } from '../../core/services/system-messages.service';
 import { FormErrorsAutoClearer } from '../../core/services/form-errors-auto-clearer.service';
@@ -13,13 +15,17 @@ import { AuthService } from '../../core/services/auth.service';
   templateUrl: './user-login.component.html',
   styleUrls: ['./user-login.component.css']
 })
-export class UserLoginComponent implements OnInit {
+export class UserLoginComponent implements OnInit, OnDestroy {
 
   loginForm: FormGroup;
 
   formErrorMessages: object;
 
   private validationMessages: { [key: string]: Function };
+
+  private formValueChanges: Subscription;
+
+  private controlsValueChanges: Subscription[];
 
   constructor(
     private fb: FormBuilder,
@@ -41,8 +47,8 @@ export class UserLoginComponent implements OnInit {
       username: () => this.msg.getMessage('E001', '用户名'),
       password: () => this.msg.getMessage('E001', '密码')
     };
-    this.autoClearer.register(this.loginForm, this.formErrorMessages);
-    this.loginForm.valueChanges.subscribe(_ => {
+    this.controlsValueChanges = this.autoClearer.register(this.loginForm, this.formErrorMessages);
+    this.formValueChanges = this.loginForm.valueChanges.subscribe(_ => {
       if (this.loginForm.valid) {
         this.formErrorMessages['username'] = '';
       }
@@ -66,6 +72,15 @@ export class UserLoginComponent implements OnInit {
     }
   }
 
+  ngOnDestroy () {
+    this.formValueChanges.unsubscribe();
+    this.controlsValueChanges.forEach(subscription => subscription.unsubscribe());
+  }
+
+  /**
+   * 登录
+   * @param {Object} loginInfo 登录信息
+   */
   login(loginInfo: object) {
     if (!this.loginForm.valid) {
       for (const controlName in this.loginForm.controls) {

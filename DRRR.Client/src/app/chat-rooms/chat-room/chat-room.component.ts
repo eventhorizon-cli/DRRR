@@ -19,6 +19,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
   height: string;
 
+  roomName: Observable<string>;
+
   private msgSubscription: Subscription;
 
   constructor(
@@ -36,9 +38,6 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       this.scrollToBottom();
     });
 
-    window.addEventListener('scroll', () => {
-    });
-
     this.messages = this.chatRoomService.message
       .scan((messages: Message[], message: Message) =>
         messages.concat(message), []);
@@ -52,6 +51,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
     const roomId = this.route.snapshot.params['id'];
     this.chatRoomService.connect(roomId);
+    this.roomName = this.chatRoomService.getRoomName(roomId);
   }
 
   ngOnDestroy() {
@@ -61,6 +61,11 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     this.chatRoomService.disconnect();
   }
 
+  /**
+   * 发送消息
+   * @param {HTMLInputElement} message 消息框输入控件
+   * @returns {boolean} 返回false避免事件冒泡
+   */
   sendMessage(message: HTMLInputElement): boolean | undefined{
     if (message.value && message.value.length <= 200) {
       this.chatRoomService.sendMessage(message);
@@ -70,7 +75,9 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     }
   }
 
-  // 将消息框内容滚动至最下方
+  /**
+   * 将消息框内容滚动至最下方
+   */
   scrollToBottom() {
     const scrollPane = document.querySelector('.msg-container-base');
     // 避免某些情况下离开房间时导致的异常
@@ -79,6 +86,9 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * 设置消息容器高度
+   */
   setHeight() {
     const panelHeading = document.querySelector('.panel-heading') as HTMLElement;
     const panelFooter = document.querySelector('.panel-footer') as HTMLElement;

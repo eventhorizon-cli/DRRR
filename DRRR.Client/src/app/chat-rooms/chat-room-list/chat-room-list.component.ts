@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/debounceTime';
 import { FromEventObservable } from 'rxjs/observable/FromEventObservable';
+import { Subscription } from 'rxjs/Subscription';
 
 import { BsModalService } from 'ngx-bootstrap/modal';
 
@@ -17,7 +18,7 @@ import { ChatRoomCreateComponent } from '../chat-room-create/chat-room-create.co
   templateUrl: './chat-room-list.component.html',
   styleUrls: ['./chat-room-list.component.css']
 })
-export class ChatRoomListComponent implements OnInit {
+export class ChatRoomListComponent implements OnInit, OnDestroy {
 
   keyword: string;
 
@@ -27,6 +28,10 @@ export class ChatRoomListComponent implements OnInit {
 
   currentPage: number;
 
+  private routeParams: Subscription;
+
+  private keyup: Subscription;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -35,15 +40,20 @@ export class ChatRoomListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.route.params
+    this.routeParams = this.route.params
       .map(params => +params['page'] || 1)
       .subscribe(page => {
         this.refresh(page);
       });
 
-    FromEventObservable.create<Event>(document.querySelector('[name=keyword]'), 'keyup')
+    this.keyup = FromEventObservable.create<Event>(document.querySelector('[name=keyword]'), 'keyup')
       .debounceTime(250)
       .subscribe(this.search.bind(this));
+  }
+
+  ngOnDestroy() {
+    this.routeParams.unsubscribe();
+    this.keyup.unsubscribe();
   }
 
   /**

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { Subject } from 'rxjs/Subject';
+import { Observable } from 'rxjs/Observable';
 
 import { HubConnection } from '@aspnet/signalr-client';
 
@@ -127,5 +128,9 @@ export class ChatRoomService {
         // 尝试重新连接
         this.connect(this.roomId);
       }, () => {});
-  };
+  }
+
+  getRoomName(roomId: string): Observable<string> {
+    return this.auth.http.get(`api/rooms/${roomId}/name`, { responseType: 'text' });
+  }
 }

@@ -1,5 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+
+import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 
 import swal from 'sweetalert2';
 import * as Cropper from 'cropperjs';
@@ -15,19 +18,21 @@ import { FormErrorsAutoClearer } from '../../core/services/form-errors-auto-clea
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.css']
 })
-export class UserProfileComponent implements OnInit {
+export class UserProfileComponent implements OnInit, OnDestroy {
 
-  registrationTime: string;
+  registrationTime: Observable<string>;
 
   formErrorMessages: object;
-
-  requiredValidationMessages: { [key: string]: Function };
 
   profileForm: FormGroup;
 
   avatarURL: string;
 
   payload: Payload;
+
+  private requiredValidationMessages: { [key: string]: Function };
+
+  private controlsValueChanges: Subscription[];
 
   constructor(
     private auth: AuthService,
@@ -52,7 +57,7 @@ export class UserProfileComponent implements OnInit {
 
     this.avatarURL = `/api/resources/avatars/originals/${this.payload.uid}`;
 
-    this.autoClearer.register(this.profileForm, this.formErrorMessages);
+    this.controlsValueChanges = this.autoClearer.register(this.profileForm, this.formErrorMessages);
 
     // 为避免获取消息时配置文件尚未加载，在外面多包一层函数
     this.requiredValidationMessages = {
@@ -61,8 +66,11 @@ export class UserProfileComponent implements OnInit {
     };
 
     // 获取注册时间
-    this.profileService.getRegistrationTime()
-      .subscribe(time => this.registrationTime = time);
+    this.registrationTime = this.profileService.getRegistrationTime()
+  }
+
+  ngOnDestroy () {
+    this.controlsValueChanges.forEach(subscription => subscription.unsubscribe());
   }
 
   /**

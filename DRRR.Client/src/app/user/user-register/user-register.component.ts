@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import swal from 'sweetalert2';
+
+import { Subscription } from 'rxjs/Subscription';
 
 import { SystemMessagesService } from '../../core/services/system-messages.service';
 import { UserRegisterService } from './user-register.service';
@@ -13,7 +15,7 @@ import { AuthService } from '../../core/services/auth.service';
   templateUrl: './user-register.component.html',
   styleUrls: ['./user-register.component.css']
 })
-export class UserRegisterComponent implements OnInit {
+export class UserRegisterComponent implements OnInit, OnDestroy {
 
   registerForm: FormGroup;
 
@@ -24,6 +26,8 @@ export class UserRegisterComponent implements OnInit {
   private isValidatingAsync: boolean;
 
   private isWaitingToRegister: boolean;
+
+  private controlsValueChanges: Subscription[];
 
   constructor(
     private fb: FormBuilder,
@@ -53,7 +57,11 @@ export class UserRegisterComponent implements OnInit {
       password: () => this.msg.getMessage ('E001', '密码'),
       confirmPassword: () => this.msg.getMessage('E001', '确认密码')
     };
-    this.autoClearer.register(this.registerForm, this.formErrorMessages);
+    this.controlsValueChanges = this.autoClearer.register(this.registerForm, this.formErrorMessages);
+  }
+
+  ngOnDestroy () {
+    this.controlsValueChanges.forEach(subscription => subscription.unsubscribe());
   }
 
   /**

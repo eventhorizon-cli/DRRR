@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import swal from 'sweetalert2';
+
+import { Subscription } from 'rxjs/Subscription'
 
 import { BsModalRef } from 'ngx-bootstrap/modal/modal-options.class';
 
@@ -16,7 +18,7 @@ import { ChatRoomCreateService } from './chat-room-create.service';
   templateUrl: './chat-room-create.component.html',
   styleUrls: ['./chat-room-create.component.css']
 })
-export class ChatRoomCreateComponent implements OnInit {
+export class ChatRoomCreateComponent implements OnInit, OnDestroy {
 
   form: FormGroup;
 
@@ -27,6 +29,8 @@ export class ChatRoomCreateComponent implements OnInit {
   private isValidatingAsync: boolean;
 
   private isWaitingToCreate: boolean;
+
+  private controlsValueChanges: Subscription[];
 
   constructor(
     public bsModalRef: BsModalRef,
@@ -66,7 +70,11 @@ export class ChatRoomCreateComponent implements OnInit {
       }
     };
 
-    this.autoClearer.register(this.form, this.formErrorMessages);
+    this.controlsValueChanges = this.autoClearer.register(this.form, this.formErrorMessages);
+  }
+
+  ngOnDestroy () {
+    this.controlsValueChanges.forEach(subscription => subscription.unsubscribe());
   }
 
   /**

@@ -111,5 +111,15 @@ namespace DRRR.Server.Controllers
             return await _chatRoomService
                 .ValidatePasswordAsync(roomId, entryRequestDto.Password);
         }
+
+        /// <summary>
+        /// 获取房间名
+        /// </summary>
+        /// <param name="id">房间ID</param>
+        /// <returns>表示获取房间名的任务</returns>
+        [HttpGet, Route("{id}/name")]
+        [JwtAuthorize(Roles.User, Roles.Admin, Roles.Guest)]
+        public async Task<string> GetRoomNameAsync(string id) =>
+         await _chatRoomService.GetRoomNameAsync(HashidsHelper.Decode(id));
     }
 }

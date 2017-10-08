@@ -266,5 +266,15 @@ namespace DRRR.Server.Services
             }
             return res;
         }
+
+        /// <summary>
+        /// 获取房间名
+        /// </summary>
+        /// <param name="id">房间ID</param>
+        /// <returns>表示获取房间名的任务</returns>
+        public async Task<string> GetRoomNameAsync(int id) =>
+            await _dbContext.ChatRoom.Where(room => room.Id == id)
+                .Select(room => room.Name)
+                .FirstOrDefaultAsync();
     }
 }
