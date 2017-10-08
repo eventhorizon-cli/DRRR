@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
@@ -8,10 +7,11 @@ using DRRR.Server.Services;
 using System.Web;
 using DRRR.Server.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace DRRR.Server.Hubs
 {
-    [JwtAuthorize(Roles.User, Roles.Admin)]
+    [JwtAuthorize(Roles.Guest, Roles.User, Roles.Admin)]
     public class ChatHub : Hub
     {
         private DrrrDbContext _dbContext;
@@ -94,12 +94,24 @@ namespace DRRR.Server.Hubs
         /// <returns>表示离开房间的任务</returns>
         public async Task LeaveRoomAsync(string roomHashid)
         {
+            var roomId = HashidsHelper.Decode(roomHashid);
+            int userId = HashidsHelper.Decode(Context.User.FindFirst("uid").Value);
+
             await Groups.RemoveAsync(Context.ConnectionId, roomHashid);
             // 通知同一房间里其他人该用户已经离开房间
             await Clients.Group(roomHashid).InvokeAsync(
                "broadcastSystemMessage",
                _systemMessagesService.GetServerSystemMessage("I004",
                HttpUtility.UrlDecode(Context.User.Identity.Name)));
+
+            var room = await _dbContext.ChatRoom.Where(x => x.Id == roomId)
+                .FirstOrDefaultAsync().ConfigureAwait(false);
+
+            // 如果不是永久房，则房主离开，就意味着房间要被解散
+            if(room?.OwnerId == userId && !room.IsPermanent.Value)
+            {
+                await DeleteRoomAsync(roomHashid);
+            }
         }
 
         /// <summary>
@@ -111,16 +123,55 @@ namespace DRRR.Server.Hubs
         {
             var roomId = await _dbContext.Connection
                  .Where(conn => conn.ConnectionId.ToString() == Context.ConnectionId)
-                 .Select(conn=> conn.RoomId)
+                 .Select(conn => conn.RoomId)
                  .FirstOrDefaultAsync();
 
-            // 通知同一房间里其他人该用户已经离线
-            await Clients.Group(HashidsHelper.Encode(roomId)).InvokeAsync(
-               "broadcastSystemMessage",
-               _systemMessagesService.GetServerSystemMessage("I002",
-               HttpUtility.UrlDecode(Context.User.Identity.Name)));
+            // 如果该房间已经被删除，这里得到的id为0
+            if (roomId != 0)
+            {
+                // 通知同一房间里其他人该用户已经离线
+                await Clients.Group(HashidsHelper.Encode(roomId)).InvokeAsync(
+                   "broadcastSystemMessage",
+                   _systemMessagesService.GetServerSystemMessage("I002",
+                   HttpUtility.UrlDecode(Context.User.Identity.Name)));
+            }
             await base.OnDisconnectedAsync(exception);
 
+        }
+
+        /// <summary>
+        /// 删除房间
+        /// </summary>
+        /// <param name="roomHashid">房间哈希ID</param>
+        /// <returns>表示删除房间的任务</returns>
+        [JwtAuthorize(Roles.User, Roles.Admin)]
+        public async Task DeleteRoomAsync(string roomHashid)
+        {
+            var roomId = HashidsHelper.Decode(roomHashid);
+            Roles userRole = (Roles)Convert.ToInt32(Context.User.FindFirst(ClaimTypes.Role).Value);
+            int userId = HashidsHelper.Decode(Context.User.FindFirst("uid").Value);
+
+            var room = await _dbContext.ChatRoom.FindAsync(roomId).ConfigureAwait(false);
+
+            // 为了安全做一次判断
+            // 如果不是房主或者管理员则无权进行删除处理
+            if (userId != room.OwnerId && userRole != Roles.Admin)
+            {
+                return;
+            }
+
+            // 删除房间
+            _dbContext.ChatRoom.Remove(room);
+
+            var connections = _dbContext.Connection.Where(conn => conn.RoomId == roomId);
+
+            // 删除所有连接信息
+            _dbContext.Connection.RemoveRange(connections);
+
+            await _dbContext.SaveChangesAsync();
+
+            await Clients.Group(roomHashid).InvokeAsync("onRoomDeleted",
+                _systemMessagesService.GetServerSystemMessage("E008"));
         }
     }
 }

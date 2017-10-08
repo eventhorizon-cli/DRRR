@@ -2,6 +2,10 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { ChatRoomDto } from '../dtos/chat-room.dto';
+import { AuthService } from '../../core/services/auth.service';
+import { Roles } from '../../core/models/roles.enum';
+import { ChatRoomListItemService } from './chat-room-list-item.service';
+import { SystemMessagesService } from '../../core/services/system-messages.service';
 
 @Component({
   selector: 'app-chat-room-list-item',
@@ -22,15 +26,25 @@ export class ChatRoomListItemComponent implements OnInit {
    */
   full: boolean;
 
+  /**
+   * 房主或者是管理员
+   */
+  ownerOrAdmin: boolean;
+
   constructor(
-    private router: Router
+    private router: Router,
+    private auth: AuthService,
+    private chatRoomListItemService: ChatRoomListItemService,
+    private msg: SystemMessagesService,
   ) {
-    // 不能放在init事件里，否则会引发
+    // 不能放在init事件里，否则会引发异常
     this.failedToJoinTheRoom = new EventEmitter();
   }
 
   ngOnInit() {
     this.full = this.room.currentUsers === this.room.maxUsers;
+    const payLoad = this.auth.getPayloadFromToken('access_token');
+    this.ownerOrAdmin = (this.room.ownerName === payLoad.unique_name || payLoad.role === Roles.admin);
   }
 
   /**
@@ -46,4 +60,18 @@ export class ChatRoomListItemComponent implements OnInit {
     }
   }
 
+  /**
+   * 删除房间
+   */
+  deleteRoom() {
+    this.msg.showConfirmMessage('warning', this.msg.getMessage('I008'))
+      .then(() => {
+        this.chatRoomListItemService.deleteRoom(this.room.id)
+          .then(() => {
+            // 通知列表刷新
+            this.failedToJoinTheRoom.next();
+            this.failedToJoinTheRoom.unsubscribe();
+          });
+      }, () => {});
+  }
 }

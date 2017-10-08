@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs/Observable';
@@ -29,6 +30,7 @@ export class ChatRoomService {
   constructor(
     private auth: AuthService,
     private msg: SystemMessagesService,
+    private router: Router
   ) {
     this.message = new Subject<Message>();
     this.userInfo = auth.getPayloadFromToken('access_token');
@@ -74,6 +76,15 @@ export class ChatRoomService {
 
       // 连接被异常切断
       this.connection.onClosed = this.onClose.bind(this);
+
+      // 当房间被关闭时
+      this.connection.on('onRoomDeleted', (msg) => {
+        swal(msg, '', 'error')
+          .then(() => {
+            // 返回大厅
+            this.router.navigateByUrl('/rooms');
+          }, () => {});
+      })
     });
   }
 
@@ -130,6 +141,11 @@ export class ChatRoomService {
       }, () => {});
   }
 
+  /**
+   * 获取房间名
+   * @param {string} roomId 房间ID
+   * @returns {Observable<string>} 房间名
+   */
   getRoomName(roomId: string): Observable<string> {
     return this.auth.http.get(`api/rooms/${roomId}/name`, { responseType: 'text' });
   }

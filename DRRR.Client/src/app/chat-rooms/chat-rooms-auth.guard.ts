@@ -7,7 +7,7 @@ import swal from 'sweetalert2';
 
 import { AuthService } from '../core/services/auth.service';
 import { SystemMessagesService } from '../core/services/system-messages.service';
-import { Role } from '../core/models/role.enum';
+import { Roles } from '../core/models/roles.enum';
 
 @Injectable()
 export class ChatRoomsAuthGuard implements CanActivate {
@@ -34,7 +34,7 @@ export class ChatRoomsAuthGuard implements CanActivate {
     }
 
     // 游客直接让其进入房间列表页面
-    if (payload.role === Role.guest) {
+    if (payload.role === Roles.guest) {
       return true;
     }
 

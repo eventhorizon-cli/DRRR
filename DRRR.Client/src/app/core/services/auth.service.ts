@@ -8,7 +8,7 @@ import { Observable } from 'rxjs/Observable';
 import swal from 'sweetalert2';
 
 import { Payload } from '../models/payload.model';
-import { Role } from '../models/role.enum';
+import { Roles } from '../models/roles.enum';
 import { SystemMessagesService } from './system-messages.service';
 
 @Injectable()
@@ -68,7 +68,7 @@ export class AuthService {
   get isLoggedIn (): boolean{
     const payload = this.getPayloadFromToken('access_token');
     // 游客不算登录
-    return payload && payload.role >= Role.user;
+    return payload && payload.role >= Roles.user;
   }
 
   /**
