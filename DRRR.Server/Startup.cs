@@ -38,6 +38,9 @@ namespace DRRR.Server
             // 添加SignalRCore服务
             services.AddSignalR();
 
+            // GZIP设置
+            services.AddResponseCompression();
+
             // 添加框架的服务
             services.AddMvc();
 
@@ -157,6 +160,7 @@ namespace DRRR.Server
             })
             .UseDefaultFiles(options)
             .UseAuthentication()
+            .UseResponseCompression()
             .UseMvc()
             .UseStaticFiles();
         }
