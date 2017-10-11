@@ -23,7 +23,8 @@ namespace DRRR.Server
             // 通过启动参数改变监听端口
             if (args.Length > 0 && int.TryParse(args[0], out _))
                 port = args[0];
-            return WebHost.CreateDefaultBuilder(args)
+            // 此处因为不需要往下传递命令行参数，故去除
+            return WebHost.CreateDefaultBuilder()
                 .UseStartup<Startup>()
                 .UseUrls($"http://*:{port}")
                 .Build();
