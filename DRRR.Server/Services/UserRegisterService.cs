@@ -65,16 +65,6 @@ namespace DRRR.Server.Services
         /// <returns>异步获取Token的任务</returns>
         public async Task<AccessTokenResponseDto> RegisterAsync(UserRegisterRequestDto userDto)
         {
-            // 因为前台可以按下回车就可以提交表单，所以可能一开始没check住
-            var error = await ValidateUsernameAsync(userDto.Username);
-            if (error != null)
-            {
-                return new AccessTokenResponseDto
-                {
-                    Error = error
-                };
-            }
-
             try
             {
                 Guid salt = Guid.NewGuid();

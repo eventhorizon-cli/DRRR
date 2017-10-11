@@ -11,8 +11,7 @@
            appTextTrim
            [formControl]="registerForm.controls['username']"
            (blur)="validateUsername(registerForm.controls['username'])"
-           (blur)="validateRequired('username')"
-           (keydown.enter)="register(registerForm.value)">
+           (blur)="validateRequired('username')">
     <span class="help-block">{{ formErrorMessages['username'] || "中英文均可，最长10个字符" }}</span>
   </div>
   <div class="form-group"
@@ -25,8 +24,7 @@
            appTextTrim
            [formControl]="registerForm.controls['password']"
            (blur)="validatePassword(registerForm.controls['password'])"
-           (blur)="validateRequired('password')"
-           (keydown.enter)="register(registerForm.value)">
+           (blur)="validateRequired('password')">
     <span class="help-block">{{ formErrorMessages['password'] || "不少于6位" }}</span>
   </div>
   <div class="form-group"
@@ -38,8 +36,7 @@
            autocomplete="off"
            appTextTrim
            [formControl]="registerForm.controls['confirmPassword']"
-           (blur)="validateRequired('confirmPassword')"
-           (keydown.enter)="register(registerForm.value)">
+           (blur)="validateRequired('confirmPassword')">
     <span *ngIf="formErrorMessages['confirmPassword']" class="help-block">
       {{ formErrorMessages['confirmPassword'] }}
     </span>

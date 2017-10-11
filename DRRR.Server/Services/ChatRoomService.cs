@@ -88,17 +88,6 @@ namespace DRRR.Server.Services
         /// <returns>表示异步创建房间的任务，如果创建失败则返回错误信息</returns>
         public async Task<ChatRoomCreateResponseDto> CreateRoomAsync(int uid, ChatRoomDto roomDto)
         {
-            // 因为前台可以按下回车就可以提交表单，所以可能一开始没check住
-            var error = await ValidateRoomNameAsync(roomDto.Name);
-
-            if (error != null)
-            {
-                return new ChatRoomCreateResponseDto
-                {
-                    Error = error
-                };
-            }
-
             try
             {
                 var room = new ChatRoom

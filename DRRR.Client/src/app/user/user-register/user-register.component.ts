@@ -145,7 +145,7 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
                 this.msg.showAutoCloseMessage('success', 'I001', '登录');
               });
           } else {
-            // 用户名不符合规范，或者用户名重复
+            // 多线程导致的用户名重复
             this.formErrorMessages['username'] = res.error;
             this.registerForm.controls['username'].setErrors({illegal: true});
           }

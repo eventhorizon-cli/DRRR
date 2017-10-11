@@ -154,7 +154,7 @@ export class ChatRoomCreateComponent implements OnInit, OnDestroy {
         .subscribe(res => {
           this.msg.closeLoadingMessage();
           if (res.error) {
-            // 房间名重复或者房间名不符合规范
+            // 多线程导致的房间名重复
             this.formErrorMessages['name'] = res.error;
             this.form.controls['name'].setErrors({ illegal: true });
           } else {

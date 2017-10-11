@@ -24,8 +24,7 @@
            autocomplete="off"
            appTextTrim
            [formControl]="profileForm.controls['newPassword']"
-           (blur)="validateNewPassword(profileForm.controls['newPassword'])"
-           (keydown.enter)="updatePassword(profileForm.value)">
+           (blur)="validateNewPassword(profileForm.controls['newPassword'])">
     <span class="help-block">{{ formErrorMessages['newPassword'] || "不少于6位" }}</span>
   </div>
   <div class="form-group"
@@ -36,8 +35,7 @@
            maxlength="128"
            autocomplete="off"
            appTextTrim
-           [formControl]="profileForm.controls['confirmNewPassword']"
-           (keydown.enter)="updatePassword(profileForm.value)">
+           [formControl]="profileForm.controls['confirmNewPassword']">
     <span *ngIf="formErrorMessages['confirmNewPassword']" class="help-block">
       {{ formErrorMessages['confirmNewPassword'] }}
     </span>
