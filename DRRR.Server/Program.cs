@@ -16,11 +16,17 @@ namespace DRRR.Server
         {
             BuildWebHost(args).Run();
         }
-
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+        public static IWebHost BuildWebHost(string[] args)
+        {
+            // 默认5000端口
+            string port = "5000";
+            // 通过启动参数改变监听端口
+            if (args.Length > 0 && int.TryParse(args[0], out _))
+                port = args[0];
+            return WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
-                .UseUrls("http://*:5000")
+                .UseUrls($"http://*:{port}")
                 .Build();
+        }
     }
 }
