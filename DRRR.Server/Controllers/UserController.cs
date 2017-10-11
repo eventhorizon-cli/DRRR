@@ -40,7 +40,14 @@ namespace DRRR.Server.Controllers
         [HttpPost("login")]
         public async Task<AccessTokenResponseDto> LoginAsync([FromBody]UserLoginRequestDto userDto)
         {
-            return await _loginService.ValidateAsync(userDto);
+            if (!userDto.IsGuest)
+            {
+                return await _loginService.LoginAsRegisteredUserAsync(userDto);
+            }
+            else
+            {
+                return await _loginService.LoginAsGuestAsync();
+            }
         }
 
         /// <summary>

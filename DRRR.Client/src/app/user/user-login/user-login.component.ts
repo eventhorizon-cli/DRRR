@@ -10,6 +10,7 @@ import { SystemMessagesService } from '../../core/services/system-messages.servi
 import { FormErrorsAutoClearer } from '../../core/services/form-errors-auto-clearer.service';
 import { UserLoginService } from './user-login.service';
 import { AuthService } from '../../core/services/auth.service';
+import { UserLoginRequestDto } from '../dtos/user-login-request.dto';
 
 @Component({
   templateUrl: './user-login.component.html',
@@ -35,7 +36,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     private autoClearer: FormErrorsAutoClearer,
     private auth: AuthService) { }
 
-  ngOnInit () {
+  ngOnInit() {
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required],
@@ -72,16 +73,53 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy () {
+  ngOnDestroy() {
     this.formValueChanges.unsubscribe();
     this.controlsValueChanges.forEach(subscription => subscription.unsubscribe());
   }
 
   /**
    * 登录
-   * @param {Object} loginInfo 登录信息
+   * @param {UserLoginRequestDto} loginInfo 登录信息
    */
-  login(loginInfo: object) {
+  login(loginInfo: UserLoginRequestDto) {
+    // 显示加载消息框
+    this.msg.showLoadingMessage('I005', '登录');
+
+    this.loginService
+      .login(loginInfo)
+      .subscribe(res => {
+        this.msg.closeLoadingMessage();
+        if (res.error) {
+          // 在用户名输入框下方显示错误信息
+          this.formErrorMessages['username'] = res.error;
+        } else {
+          // 保存登录信息
+          this.auth.rememberLoginState = loginInfo.rememberMe;
+          this.auth.saveAccessToken(res.accessToken);
+          this.auth.saveRefreshToken(res.refreshToken);
+          this.router.navigate(['/rooms']);
+          this.msg.showAutoCloseMessage('success', 'I001', '登录');
+        }
+      }, error => {
+        swal(this.msg.getMessage('E004', '登录'),
+          this.msg.getMessage('E010'), 'error')
+          .then(() => { }, () => { });
+      });
+  }
+
+  /**
+   * 作为游客登录
+   */
+  loginAsGuest() {
+    this.login({ isGuest: true, rememberMe: false });
+  }
+
+  /**
+   * 作为注册用户登录
+   * @param {UserLoginRequestDto} loginInfo 登录信息
+   */
+  loginAsRegisteredUser(loginInfo: UserLoginRequestDto) {
     if (!this.loginForm.valid) {
       for (const controlName in this.loginForm.controls) {
         if (!this.loginForm.controls[controlName].valid) {
@@ -89,29 +127,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
         }
       }
     } else if (!this.formErrorMessages['username']) {
-      // 显示加载消息框
-      this.msg.showLoadingMessage('I005', '登录');
-
-      this.loginService
-        .login(loginInfo)
-        .subscribe(res => {
-          this.msg.closeLoadingMessage();
-          if (res.error) {
-            // 在用户名输入框下方显示错误信息
-            this.formErrorMessages['username'] = res.error;
-          } else {
-            // 保存登录信息
-            this.auth.rememberLoginState = loginInfo['rememberMe'];
-            this.auth.saveAccessToken(res.accessToken);
-            this.auth.saveRefreshToken(res.refreshToken);
-            this.router.navigate(['/rooms']);
-            this.msg.showAutoCloseMessage('success', 'I001', '登录');
-          }
-        }, error => {
-          swal(this.msg.getMessage('E004', '登录'),
-            this.msg.getMessage('E010'), 'error')
-            .then(() => {}, () => {});
-        });
+      this.login(loginInfo);
     }
   }
 }

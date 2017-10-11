@@ -51,7 +51,7 @@ export class ChatRoomAuthGuard implements CanActivate {
                         // 没有异常，直接进入
                         innerResolve(true);
                       } else {
-                        if (!innerRes.refresh) {
+                        if (!innerRes.refreshRequired) {
                           innerReject(innerRes.error);
                         } else {
                           // 通知列表组件刷新数据

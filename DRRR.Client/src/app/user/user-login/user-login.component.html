@@ -36,12 +36,12 @@
   <input type="button"
          class="btn btn-lg btn-primary btn-block"
          value="登录"
-         (click)="login(loginForm.value)">
+         (click)="loginAsRegisteredUser(loginForm.value)">
 </form>
 <div class="login-extra">
   <p><span>还没有账号？</span>
     <a routerLink="../register">立即注册</a>
     <i class="s-line"></i>
-    <a routerLink="../register">游客登录</a>
+    <a (click)="loginAsGuest()">游客登录</a>
   </p>
 </div>

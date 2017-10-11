@@ -7,6 +7,7 @@ using DRRR.Server.Models;
 using Microsoft.EntityFrameworkCore;
 using DRRR.Server.Security;
 using static DRRR.Server.Security.PasswordHelper;
+using System.Web;
 
 namespace DRRR.Server.Services
 {
@@ -32,11 +33,11 @@ namespace DRRR.Server.Services
         }
 
         /// <summary>
-        /// 验证登录信息
+        /// 作为注册用户登录
         /// </summary>
         /// <param name="userDto">用户信息</param>
         /// <returns>异步获取Token的任务</returns>
-        public async Task<AccessTokenResponseDto> ValidateAsync(UserLoginRequestDto userDto)
+        public async Task<AccessTokenResponseDto> LoginAsRegisteredUserAsync(UserLoginRequestDto userDto)
         {
             AccessTokenResponseDto tokenDto = new AccessTokenResponseDto();
             User user = await _dbContext.User
@@ -47,8 +48,8 @@ namespace DRRR.Server.Services
             if (user != null
                 && ValidatePassword(userDto.Password, user.Salt, user.PasswordHash))
             {
-                tokenDto.AccessToken = _tokenAuthService.GenerateAccessToken(user);
-                tokenDto.RefreshToken = _tokenAuthService.GenerateRefreshToken(user);
+                tokenDto.AccessToken = await _tokenAuthService.GenerateAccessTokenAsync(user);
+                tokenDto.RefreshToken = await _tokenAuthService.GenerateRefreshTokenAsync(user);
             }
             else
             {
@@ -56,6 +57,28 @@ namespace DRRR.Server.Services
                 tokenDto.Error = _systemMessagesService.GetServerSystemMessage("E001", "用户名或密码");
             }
             return tokenDto;
+        }
+
+        /// <summary>
+        /// 作为游客登录
+        /// </summary>
+        /// <returns>异步获取Token的任务</returns>
+        public async Task<AccessTokenResponseDto> LoginAsGuestAsync()
+        {
+            var guestId = Convert.ToInt32(DateTime.Now.ToString("ddHHmmss") + new Random().Next(0, 9));
+            var username = $"游客{HttpUtility.UrlDecode(HashidsHelper.Encode(guestId))}";
+
+            var user = new User
+            {
+                Id = guestId,
+                Username = username,
+                RoleId = (int)Roles.Guest
+            };
+            return new AccessTokenResponseDto
+            {
+                AccessToken = await _tokenAuthService.GenerateAccessTokenAsync(user),
+                RefreshToken = await _tokenAuthService.GenerateRefreshTokenAsync(user)
+            };
         }
     }
 }

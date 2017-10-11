@@ -122,8 +122,8 @@ namespace DRRR.Server.Services
             await _dbContext.SaveChangesAsync();
             return new AccessTokenResponseDto
             {
-                AccessToken = _tokenAuthService.GenerateAccessToken(user),
-                RefreshToken = _tokenAuthService.GenerateRefreshToken(user)
+                AccessToken = await _tokenAuthService.GenerateAccessTokenAsync(user),
+                RefreshToken = await _tokenAuthService.GenerateRefreshTokenAsync(user)
             };
         }
     }

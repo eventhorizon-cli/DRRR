@@ -67,7 +67,7 @@ namespace DRRR.Server.Services
         {
             // 因为前台可以按下回车就可以提交表单，所以可能一开始没check住
             var error = await ValidateUsernameAsync(userDto.Username);
-            if (error !=null)
+            if (error != null)
             {
                 return new AccessTokenResponseDto
                 {
@@ -91,8 +91,8 @@ namespace DRRR.Server.Services
 
                 return new AccessTokenResponseDto
                 {
-                    AccessToken = _tokenAuthService.GenerateAccessToken(user),
-                    RefreshToken = _tokenAuthService.GenerateRefreshToken(user)
+                    AccessToken = await _tokenAuthService.GenerateAccessTokenAsync(user),
+                    RefreshToken = await _tokenAuthService.GenerateRefreshTokenAsync(user)
                 };
             }
             catch

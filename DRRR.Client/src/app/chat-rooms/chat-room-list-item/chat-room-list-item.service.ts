@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 
-import { HubConnection } from '@aspnet/signalr-client/dist/src';
+// 可能会导致编译问题
+// 参考资料：https://github.com/aspnet/SignalR/issues/983
+// import { HubConnection } from '@aspnet/signalr-client/dist/browser/signalr-clientES5-1.0.0-alpha1-final.js';
+import { HubConnection } from '@aspnet/signalr-client';
 
 import { AuthService } from '../../core/services/auth.service';
 
@@ -19,15 +22,17 @@ export class ChatRoomListItemService {
   deleteRoom(roomId: string): Promise<never> {
     return new Promise<never>((resolve) => {
       // 需要打开WebSocket通知房间内的人
-      const connection = new HubConnection(`/chat?authorization=${this.auth.accessToken}`);
+      this.auth.refreshTokenWhenNecessary(() => {
+        const connection = new HubConnection(`/chat?authorization=${this.auth.accessToken}`);
 
-      // 打开连接
-      connection.start().then(() => {
-        connection.invoke('deleteRoomAsync', roomId)
-          .then(() => {
-            connection.stop();
-            resolve();
-          });
+        // 打开连接
+        connection.start().then(() => {
+          connection.invoke('deleteRoomAsync', roomId)
+            .then(() => {
+              connection.stop();
+              resolve();
+            });
+        });
       });
     });
   }

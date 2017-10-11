@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 
 import { AccessTokenResponseDto } from '../dtos/access-token-response.dto';
+import { UserLoginRequestDto } from '../dtos/user-login-request.dto';
 
 @Injectable()
 export class UserLoginService {
@@ -13,10 +14,10 @@ export class UserLoginService {
 
   /**
    * 验证登录
-   * @param {Object} loginInfo 验证登录用的用户信息
+   * @param {UserLoginRequestDto} loginInfo 验证登录用的用户信息
    * @returns {Observable<AccessTokenResponseDto>} 验证结果
    */
-  login(loginInfo: object): Observable<AccessTokenResponseDto> {
+  login(loginInfo: UserLoginRequestDto): Observable<AccessTokenResponseDto> {
     // 不要手动序列化json数据，否则会导致413错误
     return this.http
       .post<AccessTokenResponseDto>('/api/user/login', loginInfo);

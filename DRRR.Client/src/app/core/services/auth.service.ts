@@ -51,7 +51,7 @@ export class AuthService {
               this.refreshToken(() => {
                 httpFunc.apply(target, getArgs())
                   .subscribe(data => observer.next(data),
-                      error => observer.error(error));
+                  error => observer.error(error));
               })
             })
           }
@@ -65,7 +65,7 @@ export class AuthService {
   /**
    * 表示是否已经登录
    */
-  get isLoggedIn (): boolean{
+  get isLoggedIn(): boolean {
     const payload = this.getPayloadFromToken('access_token');
     // 游客不算登录
     return payload && payload.role >= Roles.user;
@@ -75,7 +75,7 @@ export class AuthService {
    * 表示是否记住登录状态
    */
   get rememberLoginState(): boolean {
-    return localStorage.getItem('rememberMe') === 'true';
+    return localStorage.getItem('remember_me') === 'true';
   }
 
   /**
@@ -84,7 +84,7 @@ export class AuthService {
    */
   set rememberLoginState(rememberMe: boolean) {
     // 为了防止刷新后数据出现问题，将是否记住登录状态的信息保存在localStorage中
-    localStorage.setItem('rememberMe', rememberMe + '');
+    localStorage.setItem('remember_me', rememberMe + '');
   }
 
   /**
@@ -123,6 +123,10 @@ export class AuthService {
       payload = JSON.parse(atob(token.split('.')[1])) as Payload;
       // 用atob解码含中文的信息会导致异常，所以在后台对用户名进行了url编码
       payload.unique_name = decodeURI(payload.unique_name);
+      // 角色ID为数字
+      if (payload.role) {
+        payload.role = +payload.role;
+      }
     }
     return payload;
   }
@@ -162,6 +166,21 @@ export class AuthService {
           }
         }
       });
+  }
+
+  /**
+   * 当令牌即将过期时先刷新令牌，否则直接执行回调函数
+   * @param {Function} successCallback 刷新令牌成功时执行的回调函数
+   */
+  refreshTokenWhenNecessary(successCallback: Function) {
+    const payload = this.getPayloadFromToken('access_token');
+
+    // 如果剩余有效时间小于10分钟，则刷新访问令牌
+    if ((payload.exp - Math.floor(Date.now() / 1000)) < 600) {
+      this.refreshToken(successCallback);
+    } else {
+      successCallback();
+    }
   }
 
   /**

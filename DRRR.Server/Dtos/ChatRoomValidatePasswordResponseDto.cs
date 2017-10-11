@@ -18,6 +18,6 @@ namespace DRRR.Server.Dtos
         /// <summary>
         /// 是否需要刷新
         /// </summary>
-        public bool? Refresh { get; set; }
+        public bool? RefreshRequired { get; set; }
     }
 }

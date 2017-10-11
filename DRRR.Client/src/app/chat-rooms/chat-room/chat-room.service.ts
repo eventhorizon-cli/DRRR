@@ -4,6 +4,9 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs/Observable';
 
+// 可能会导致编译问题
+// 参考资料：https://github.com/aspnet/SignalR/issues/983
+// import { HubConnection } from '@aspnet/signalr-client/dist/browser/signalr-clientES5-1.0.0-alpha1-final.js';
 import { HubConnection } from '@aspnet/signalr-client';
 
 import swal from 'sweetalert2';
@@ -41,13 +44,12 @@ export class ChatRoomService {
    * @param {string} roomId 房间ID
    */
   connect(roomId: string) {
-    // 尝试刷新Token避免过期
-    this.auth.refreshToken(() => {
+    this.auth.refreshTokenWhenNecessary(() => {
       this.roomId = roomId;
 
       this.connection = new HubConnection(`/chat?authorization=${this.auth.accessToken}`);
 
-      this.disconnected = false
+      this.disconnected = false;
 
       // 创建回调函数
       // 聊天消息
@@ -75,7 +77,7 @@ export class ChatRoomService {
       });
 
       // 连接被异常切断
-      this.connection.onClosed = this.onClose.bind(this);
+      this.connection.onclose = this.onClose.bind(this);
 
       // 当房间被关闭时
       this.connection.on('onRoomDeleted', (msg) => {

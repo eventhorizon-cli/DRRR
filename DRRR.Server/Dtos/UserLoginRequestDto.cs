@@ -14,5 +14,10 @@
         /// 密码
         /// </summary>
         public string Password { get; set; }
+
+        /// <summary>
+        /// 是否是游客
+        /// </summary>
+        public bool IsGuest { get; set; }
     }
 }

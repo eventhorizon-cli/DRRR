@@ -251,13 +251,13 @@ namespace DRRR.Server.Services
             {
                 // 该房间已经不存在
                 res.Error = _systemMessagesService.GetServerSystemMessage("E005");
-                res.Refresh = true;
+                res.RefreshRequired = true;
             }
             else if (room.CurrentUsers == room.MaxUsers)
             {
                 // 该房间已经不存在
                 res.Error = _systemMessagesService.GetServerSystemMessage("E006");
-                res.Refresh = true;
+                res.RefreshRequired = true;
             }
             else if (!PasswordHelper.ValidatePassword(password, room.Salt, room.PasswordHash))
             {
