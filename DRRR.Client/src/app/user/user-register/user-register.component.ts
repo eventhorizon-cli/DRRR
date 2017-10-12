@@ -109,7 +109,7 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
 
   /**
    * 点击注册
-   * @param {Object} data
+   * @param {Object} registerInfo 注册信息
    */
   register(registerInfo: object) {
     // 如果存在异步验证，则稍后进行注册
@@ -155,6 +155,15 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
             .then(() => {}, () => {});
         });
     }
+  }
+
+  /**
+   * 通过点击回车进行登录
+   * @param {Event} event 事件参数
+   */
+  registerByPressingEnter(event: Event) {
+    (<HTMLInputElement>event.target).blur();
+    setTimeout(() => this.register(this.registerForm.value));
   }
 
   /**

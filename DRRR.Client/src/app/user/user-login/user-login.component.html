@@ -9,7 +9,7 @@
            maxlength="10"
            appTextTrim
            [formControl]="loginForm.controls['username']"
-           (keydown.enter)="login(loginForm.value)">
+           (keydown.enter)="loginAsRegisteredUser(loginForm.value)">
     <span *ngIf="formErrorMessages['username']" class="help-block">
       {{ formErrorMessages['username'] }}
     </span>
@@ -22,7 +22,7 @@
             maxlength="128"
             appTextTrim
             [formControl]="loginForm.controls['password']"
-            (keydown.enter)="login(loginForm.value)">
+            (keydown.enter)="loginAsRegisteredUser(loginForm.value)">
     <span *ngIf="formErrorMessages['password']" class="help-block">
       {{ formErrorMessages['password'] }}
     </span>

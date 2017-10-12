@@ -157,6 +157,10 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * 更新用户密码
+   * @param {Object} data 更新用户密码所需的数据
+   */
   updatePassword(data: object) {
     // 检查必须输入的字段
     Object.entries(data).forEach(entry => {
@@ -183,5 +187,14 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             this.msg.getMessage('E010'), 'error')
             .then(() => {}, () => {}));
     }
+  }
+
+  /**
+   * 通过按下回车键更新密码
+   * @param {Event} event 事件参数
+   */
+  updatePasswordByPressingEnter(event: Event) {
+    (<HTMLInputElement>event.target).blur();
+    setTimeout(() => this.updatePassword(this.profileForm.value))
   }
 }

@@ -12,6 +12,7 @@ import { SystemMessagesService } from '../../core/services/system-messages.servi
 import { FormErrorsAutoClearer } from '../../core/services/form-errors-auto-clearer.service';
 import { ChatRoomDto } from '../dtos/chat-room.dto'
 import { ChatRoomCreateService } from './chat-room-create.service';
+import set = Reflect.set;
 
 @Component({
   selector: 'app-chat-room-create',
@@ -170,6 +171,15 @@ export class ChatRoomCreateComponent implements OnInit, OnDestroy {
             .then(() => { }, () => { });
         });
     }
+  }
+
+  /**
+   * 通过按下回车创建房间
+   * @param {Event} event 事件参数
+   */
+  createByPressingEnter(event: Event) {
+    (<HTMLInputElement>event.target).blur();
+    setTimeout(() => this.create());
   }
 
   /**
