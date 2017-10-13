@@ -58,7 +58,8 @@ export class ChatRoomCreateComponent implements OnInit, OnDestroy {
         Validators.maxLength(128)]],
       isEncrypted: [false],
       isPermanent: [false],
-      isHidden: [false]
+      isHidden: [false],
+      allowGuest: [false]
     });
     this.formErrorMessages = {};
 
@@ -99,7 +100,8 @@ export class ChatRoomCreateComponent implements OnInit, OnDestroy {
           this.isValidatingAsync = false;
 
           if (this.formErrorMessages['name'] = res.error) {
-            name.setErrors({ illegal: !!res.error });
+            // 值改变后，该error会被自动删除
+            name.setErrors({ illegal: true });
           }
 
           if (this.isWaitingToCreate) {
@@ -178,8 +180,12 @@ export class ChatRoomCreateComponent implements OnInit, OnDestroy {
    * @param {Event} event 事件参数
    */
   createByPressingEnter(event: Event) {
-    (<HTMLInputElement>event.target).blur();
-    setTimeout(() => this.create());
+    const target = event.target as HTMLInputElement;
+    target.blur();
+    setTimeout(() => {
+      target.focus();
+      this.create();
+    });
   }
 
   /**

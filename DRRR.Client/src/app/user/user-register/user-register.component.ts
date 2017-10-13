@@ -84,7 +84,8 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
           this.isValidatingAsync = false;
 
           if (this.formErrorMessages['username'] = res.error) {
-            username.setErrors({illegal: !!res.error});
+            // 值改变后，该error会被自动删除
+            username.setErrors({illegal: true});
           }
 
           if (this.isWaitingToRegister) {
@@ -130,7 +131,7 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
       return;
     }
     if (this.registerForm.valid) {
-      this.msg.showLoadingMessage('I005', '登录');
+      this.msg.showLoadingMessage('I005', '注册');
 
       this.registerService.register(registerInfo)
         .subscribe(res => {
@@ -162,8 +163,12 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
    * @param {Event} event 事件参数
    */
   registerByPressingEnter(event: Event) {
-    (<HTMLInputElement>event.target).blur();
-    setTimeout(() => this.register(this.registerForm.value));
+    const target = event.target as HTMLInputElement;
+    target.blur();
+    setTimeout(() => {
+      target.focus();
+      this.register(this.registerForm.value);
+    });
   }
 
   /**

@@ -116,8 +116,8 @@ namespace DRRR.Server.Services
         {
             var user = await _dbContext.User.FindAsync(uid);
             Guid salt = Guid.NewGuid();
-            user.Salt = salt;
-            user.PasswordHash = PasswordHelper.GeneratePasswordHash(newPassword, salt);
+            user.Salt = salt.ToString();
+            user.PasswordHash = PasswordHelper.GeneratePasswordHash(newPassword, user.Salt);
             _dbContext.User.Update(user);
             await _dbContext.SaveChangesAsync();
             return new AccessTokenResponseDto

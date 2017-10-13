@@ -78,6 +78,11 @@ namespace DRRR.Server.Models
                     .HasColumnName("salt")
                     .HasMaxLength(36);
 
+                entity.Property(e => e.AllowGuest)
+                    .HasColumnName("allow_guest")
+                    .HasColumnType("tinyint(1) unsigned")
+                    .HasDefaultValueSql("0");
+
                 entity.Property(e => e.UpdateTime)
                     .HasColumnName("update_time")
                     .HasColumnType("timestamp")

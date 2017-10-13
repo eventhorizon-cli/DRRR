@@ -71,8 +71,8 @@ namespace DRRR.Server.Services
                 var user = new User
                 {
                     Username = userDto.Username,
-                    PasswordHash = GeneratePasswordHash(userDto.Password, salt),
-                    Salt = salt,
+                    PasswordHash = GeneratePasswordHash(userDto.Password, salt.ToString()),
+                    Salt = salt.ToString(),
                     // 默认为普通用户
                     RoleId = (int)Roles.User
                 };

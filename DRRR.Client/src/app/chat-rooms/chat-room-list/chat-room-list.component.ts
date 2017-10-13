@@ -12,6 +12,9 @@ import { ChatRoomListService } from './chat-room-list.service';
 import { ChatRoomDto } from '../dtos/chat-room.dto';
 import { PaginationDto } from '../dtos/pagination.dto';
 import { ChatRoomCreateComponent } from '../chat-room-create/chat-room-create.component';
+import { AuthService } from '../../core/services/auth.service';
+import { Roles } from '../../core/models/roles.enum';
+import { SystemMessagesService } from '../../core/services/system-messages.service';
 
 @Component({
   selector: 'app-chat-room-list',
@@ -37,6 +40,8 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
     private router: Router,
     private chatRoomListService: ChatRoomListService,
     private modalService: BsModalService,
+    private auth: AuthService,
+    private msg: SystemMessagesService,
   ) {}
 
   ngOnInit() {
@@ -69,9 +74,9 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
 
   /**
    * 翻页
-   * @param {any} page 页码
+   * @param {number} page 页码
    */
-  onPageChanged({ page }) {
+  onPageChanged({ page }: {page: number}) {
     this.currentPage = page;
     // 把关键词输入框还原成和路由参数一致的状态
     this.keyword = this.route.snapshot.params['keyword'];
@@ -80,12 +85,34 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
 
   /**
    * 创建房间
+   * @param {HTMLButtonElement} btnCreate 创建房间按钮
    */
-  create() {
-    this.modalService.show(ChatRoomCreateComponent,
-      {
-        backdrop: 'static',
-        animated: 'inmodal'
+  create(btnCreate: HTMLButtonElement) {
+    const role = this.auth.getPayloadFromToken('access_token').role;
+
+    if (role === Roles.guest) {
+      this.msg.showConfirmMessage('question',
+        this.msg.getMessage('I009'), {
+        text: this.msg.getMessage('I010')
+      }).then(() => {
+        this.router.navigate(['/register']);
+      }, () => {});
+      return;
+    }
+
+    btnCreate.disabled = true;
+    this.chatRoomListService.applyForCreatingRoom()
+      .subscribe(res => {
+        btnCreate.disabled = false;
+        if (res.error) {
+          this.msg.showAutoCloseMessage('error', 'E000', res.error);
+        } else {
+          this.modalService.show(ChatRoomCreateComponent,
+            {
+              backdrop: 'static',
+              animated: 'inmodal'
+            });
+        }
       });
   }
 

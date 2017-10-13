@@ -56,6 +56,11 @@ namespace DRRR.Server.Dtos
         public bool IsHidden { get; set; }
 
         /// <summary>
+        /// 是否允许游客进入
+        /// </summary>
+        public bool AllowGuest { get; set; }
+
+        /// <summary>
         /// 创建时间
         /// </summary>
         public long CreateTime { get; set; }

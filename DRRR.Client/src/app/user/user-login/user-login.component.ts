@@ -49,6 +49,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
       password: () => this.msg.getMessage('E001', '密码')
     };
     this.controlsValueChanges = this.autoClearer.register(this.loginForm, this.formErrorMessages);
+    // 不管是改了用户名还是密码，都会把用户名或密码错误的报错信息清除
     this.formValueChanges = this.loginForm.valueChanges.subscribe(_ => {
       if (this.loginForm.valid) {
         this.formErrorMessages['username'] = '';
@@ -127,7 +128,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
         }
       }
     } else if (!this.formErrorMessages['username']) {
-      this.login(loginInfo);
+      this.login({...loginInfo, isGuest: false});
     }
   }
 }

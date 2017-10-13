@@ -8,5 +8,6 @@ export interface ChatRoomDto {
   password?: string;
   isPermanent?: boolean;
   isHidden?: boolean;
+  allowGuest?: boolean;
   createTime?: number;
 }

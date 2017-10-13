@@ -50,15 +50,19 @@
     </div>
     <div class="checkbox" >
       <input type="checkbox" [formControl]="form.controls['isEncrypted']" id="isEncrypted">
-      <label for="isEncrypted">加密房</label>
+      <label for="isEncrypted">加密房（除房主及管理员外需输入密码才可进入）</label>
     </div>
     <div class="checkbox">
       <input type="checkbox" [formControl]="form.controls['isPermanent']" id="isPermanent">
-      <label for="isPermanent">永久房</label>
+      <label for="isPermanent">永久房（房主退出后不会自动解散）</label>
     </div>
     <div class="checkbox">
         <input type="checkbox" [formControl]="form.controls['isHidden']" id="isHidden">
-        <label for="isHidden">隐藏房</label>
+        <label for="isHidden">隐藏房（只能通过输入完整房间名查询找到）</label>
+    </div>
+    <div class="checkbox">
+      <input type="checkbox" [formControl]="form.controls['allowGuest']" id="allowGuest">
+      <label for="allowGuest">允许游客进入</label>
     </div>
   </form>
 </div>

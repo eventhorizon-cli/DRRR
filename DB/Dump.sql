@@ -52,7 +52,7 @@ DROP TABLE IF EXISTS `connection`;
 CREATE TABLE `connection` (
   `room_id` int(10) unsigned zerofill NOT NULL COMMENT '房间ID',
   `user_id` int(10) unsigned zerofill NOT NULL COMMENT '用户ID',
-  `connection_id` char(36) NOT NULL COMMENT '连接ID',
+  `connection_id` varchar(36) NOT NULL COMMENT '连接ID',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`room_id`,`user_id`),
@@ -133,7 +133,7 @@ CREATE TABLE `user` (
   `id` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT '用户ID',
   `username` varchar(10) NOT NULL COMMENT '用户名',
   `password_hash` char(44) NOT NULL COMMENT '哈希密码',
-  `salt` char(36) NOT NULL COMMENT '盐',
+  `salt` varchar(36) NOT NULL COMMENT '盐',
   `role_id` int(1) unsigned NOT NULL DEFAULT '1' COMMENT '角色ID',
   `status_code` int(1) unsigned NOT NULL DEFAULT '0' COMMENT '用户状态',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',

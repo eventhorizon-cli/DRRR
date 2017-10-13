@@ -67,6 +67,8 @@ namespace DRRR.Server.Services
                     MaxUsers = room.MaxUsers,
                     CurrentUsers = room.CurrentUsers,
                     OwnerName = room.Owner.Username,
+                    IsEncrypted = room.IsEncrypted.Value,
+                    AllowGuest = room.AllowGuest.Value,
                     CreateTime = new DateTimeOffset(room.CreateTime).ToUnixTimeMilliseconds()
                 }).ToListAsync().ConfigureAwait(false);
 
@@ -97,15 +99,16 @@ namespace DRRR.Server.Services
                     MaxUsers = roomDto.MaxUsers,
                     IsEncrypted = roomDto.IsEncrypted,
                     IsPermanent = roomDto.IsPermanent,
-                    IsHidden = roomDto.IsHidden
+                    IsHidden = roomDto.IsHidden,
+                    AllowGuest = roomDto.AllowGuest
                 };
 
                 // 如果房间被加密
                 if (roomDto.IsEncrypted)
                 {
                     Guid salt = Guid.NewGuid();
-                    room.Salt = salt;
-                    room.PasswordHash = PasswordHelper.GeneratePasswordHash(roomDto.Password, salt);
+                    room.Salt = salt.ToString();
+                    room.PasswordHash = PasswordHelper.GeneratePasswordHash(roomDto.Password, room.Salt);
                 }
 
                 _dbContext.ChatRoom.Add(room);
@@ -192,10 +195,13 @@ namespace DRRR.Server.Services
         /// <param name="roomId">房间ID</param>
         /// <param name="userRole">用户角色</param>
         /// <returns></returns>
-        public async Task<ChatRoomApplyForEntryResponseDto> ApplyForEntryAsync(int userId, Roles userRole, int roomId)
+        public async Task<ChatRoomEntryPermissionResponseDto> ApplyForEntryAsync(int userId, Roles userRole, int roomId)
         {
             var room = await _dbContext.ChatRoom.FindAsync(roomId);
-            var res = new ChatRoomApplyForEntryResponseDto();
+            var res = new ChatRoomEntryPermissionResponseDto
+            {
+                AllowGuest = room?.AllowGuest.Value ?? false
+            };
             if (room == null)
             {
                 // 该房间已经不存在
@@ -265,5 +271,22 @@ namespace DRRR.Server.Services
             await _dbContext.ChatRoom.Where(room => room.Id == id)
                 .Select(room => room.Name)
                 .FirstOrDefaultAsync();
+
+        /// <summary>
+        /// 申请创建房间
+        /// </summary>
+        /// <param name="uid">用户ID</param>
+        /// <returns></returns>
+        public async Task<string> ApplyForCreatingRoomAsync(int uid)
+        {
+            var count = await _dbContext.ChatRoom
+                .Where(room => room.OwnerId == uid
+                && room.Owner.RoleId == (int)Roles.User).CountAsync();
+            if (count > 0)
+            {
+                return _systemMessagesService.GetServerSystemMessage("E009");
+            }
+            return null;
+        }
     }
 }

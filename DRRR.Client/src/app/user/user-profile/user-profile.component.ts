@@ -194,7 +194,11 @@ export class UserProfileComponent implements OnInit, OnDestroy {
    * @param {Event} event 事件参数
    */
   updatePasswordByPressingEnter(event: Event) {
-    (<HTMLInputElement>event.target).blur();
-    setTimeout(() => this.updatePassword(this.profileForm.value))
+    const target = event.target as HTMLInputElement;
+    target.blur();
+    setTimeout(() => {
+      target.focus();
+      this.updatePassword(this.profileForm.value);
+    })
   }
 }

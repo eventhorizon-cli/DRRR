@@ -15,7 +15,8 @@ namespace DRRR.Server.Models
         public string Name { get; set; }
         public int OwnerId { get; set; }
         public string PasswordHash { get; set; }
-        public Guid Salt { get; set; }
+        public string Salt { get; set; }
+        public bool? AllowGuest { get; set; }
         public DateTime UpdateTime { get; set; }
 
         public User Owner { get; set; }

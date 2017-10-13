@@ -17,6 +17,7 @@ namespace DRRR.Server.Controllers
     public class ChatRoomsController : Controller
     {
         private ChatRoomService _chatRoomService;
+
         public ChatRoomsController(ChatRoomService chatRoomService)
             => _chatRoomService = chatRoomService;
 
@@ -89,9 +90,9 @@ namespace DRRR.Server.Controllers
         /// </summary>
         /// <param name="id">房间哈希ID</param>
         /// <returns>表示申请进入房间的任务</returns>
-        [HttpGet, Route("application-for-entry")]
+        [HttpGet, Route("entry-permission")]
         [JwtAuthorize(Roles.User, Roles.Admin, Roles.Guest)]
-        public async Task<ChatRoomApplyForEntryResponseDto> ApplyForEntryAsync(string id)
+        public async Task<ChatRoomEntryPermissionResponseDto> ApplyForEntryAsync(string id)
         {
             int userId = HashidsHelper.Decode(HttpContext.User.FindFirst("uid").Value);
             int roomId = HashidsHelper.Decode(id);
@@ -121,5 +122,20 @@ namespace DRRR.Server.Controllers
         [JwtAuthorize(Roles.User, Roles.Admin, Roles.Guest)]
         public async Task<string> GetRoomNameAsync(string id) =>
          await _chatRoomService.GetRoomNameAsync(HashidsHelper.Decode(id));
+
+        /// <summary>
+        /// 申请创建房间
+        /// </summary>
+        /// <returns>表示申请创建房间的任务</returns>
+        [HttpGet, Route("creating-permission")]
+        [JwtAuthorize(Roles.User, Roles.Admin)]
+        public async Task<JsonResult> ApplyForCreatingRoomAsync()
+        {
+            int userId = HashidsHelper.Decode(HttpContext.User.FindFirst("uid").Value);
+            return new JsonResult(new
+            {
+                Error = await _chatRoomService.ApplyForCreatingRoomAsync(userId)
+            });
+        }
     }
 }
