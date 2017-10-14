@@ -21,8 +21,6 @@ export class AppComponent implements OnInit {
 
   currentPath: string;
 
-  inTheRoom: boolean;
-
   constructor(private router: Router,
     private auth: AuthService,
     private msg: SystemMessagesService) {
@@ -36,8 +34,6 @@ export class AppComponent implements OnInit {
         this.currentPath = path;
         // 如果是在没有选择记住登录状态的情况下回到登录界面界面，则依旧显示登录和注册按钮
         this.isLoggedIn = !['/login', '/register'].includes(path) && this.auth.isLoggedIn;
-        // 判断当前是否是在一个房间里
-        this.inTheRoom = /rooms\/(\w+)/.test(this.currentPath);
       });
   }
 
@@ -57,7 +53,7 @@ export class AppComponent implements OnInit {
    */
   logout() {
     let additionalSettings: SweetAlertOptions;
-    if (this.inTheRoom) {
+    if (/rooms\/(\w+)/.test(this.currentPath)) {
       // 如果在一个房间内
       additionalSettings = {
         input: 'checkbox',

@@ -59,15 +59,12 @@ namespace DRRR.Server.Hubs
             if (connection == null)
             {
                 // 第一次进入该房间
-                Roles userRole = (Roles)Convert.ToInt32(Context.User.FindFirst(ClaimTypes.Role).Value);
-
                 msgId = "I001";
                 _dbContext.Add(new Connection
                 {
                     RoomId = roomId,
                     UserId = userId,
-                    ConnectionId = Context.ConnectionId,
-                    IsGuest = userRole == Roles.Guest
+                    ConnectionId = Context.ConnectionId
                 });
             }
             else
@@ -132,25 +129,20 @@ namespace DRRR.Server.Hubs
             // 如果该房间已经被删除，这里得到的id为0
             if (roomId != 0)
             {
-                var connenction = await _dbContext.Connection
-                    .Where(conn => conn.ConnectionId == Context.ConnectionId)
-                    .FirstOrDefaultAsync().ConfigureAwait(false);
-
                 // // 通知同一房间里其他人该用户已经离线的ID
                 string msgId = "I002";
+                Roles userRole = (Roles)Convert.ToInt32(Context.User.FindFirst(ClaimTypes.Role).Value);
                 // 如果是游客，直接删除链接信息
-                if (connenction.IsGuest.Value)
+                if (userRole == Roles.Guest)
                 {
                     // 游客直接通知离开房间
                     msgId = "I004";
+                    var connenction = await _dbContext
+                        .Connection.Where(conn => conn.ConnectionId == Context.ConnectionId)
+                        .FirstOrDefaultAsync().ConfigureAwait(false);
                     _dbContext.Connection.Remove(connenction);
+                    await _dbContext.SaveChangesAsync();
                 }
-                else
-                {
-                    connenction.IsOnline = false;
-                    _dbContext.Update(connenction);
-                }
-                await _dbContext.SaveChangesAsync();
 
                 // 通知同一房间里其他人该用户已经离线
                 await Clients.Group(HashidsHelper.Encode(roomId)).InvokeAsync(
