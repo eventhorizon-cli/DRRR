@@ -27,7 +27,7 @@
         <li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
           <a routerLink="./register">注册</a>
         </li>
-        <li *ngIf="!['/rooms', '/login', '/register'].includes(currentPath)">
+        <li *ngIf="inTheRoom">
           <a (click)="backToLobby()">返回大厅</a>
         </li>
       </ul>
