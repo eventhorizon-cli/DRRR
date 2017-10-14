@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.7.17, for Win64 (x86_64)
 --
--- Host: 127.0.0.1    Database: drrr
+-- Host: localhost    Database: drrr
 -- ------------------------------------------------------
 -- Server version	5.7.18-log
 
@@ -33,6 +33,7 @@ CREATE TABLE `chat_room` (
   `password_hash` varchar(44) DEFAULT NULL COMMENT '哈希密码',
   `is_hidden` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否为加密房',
   `is_permanent` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否为永久房',
+  `allow_guest` tinyint(1) unsigned NOT NULL COMMENT '是否允许游客进入',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
@@ -70,7 +71,7 @@ CREATE TABLE `connection` (
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `drrr`.`connection_AFTER_INSERT` AFTER INSERT ON `connection` FOR EACH ROW
 BEGIN
-UPDATE `chat_room` SET `chat_room`.`current_users` = `chat_room`.`current_users` + 1 WHERE `chat_room`.`id` = new.room_id;
+UPDATE `chat_room` SET `chat_room`.`current_users` = `chat_room`.`current_users` + 1 WHERE `chat_room`.`id` = NEW.room_id;
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -88,7 +89,7 @@ DELIMITER ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `drrr`.`connection_AFTER_DELETE` AFTER DELETE ON `connection` FOR EACH ROW
 BEGIN
-UPDATE `chat_room` SET `chat_room`.`current_users` = `chat_room`.`current_users` - 1 WHERE `chat_room`.`id` = old.room_id;
+UPDATE `chat_room` SET `chat_room`.`current_users` = `chat_room`.`current_users` - 1 WHERE `chat_room`.`id` = OLD.room_id;
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -180,4 +181,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-10-11 23:42:28
+-- Dump completed on 2017-10-14 13:36:12
