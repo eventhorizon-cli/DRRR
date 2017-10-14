@@ -3,8 +3,9 @@
     <h3 class="panel-title">{{ currentTime | date:'yyyy-MM-dd HH:mm:ss' }}</h3>
   </div>
   <div class="panel-body">
-    <p>注册用户总数：12772</p>
-    <p>在线注册用户：187</p>
-    <p>在线游客：2</p>
+    <p>房间总数：{{ (siteStatus | async)?.currentRooms | number}}</p>
+    <p>注册用户总数：{{ (siteStatus | async)?.registeredUsers | number}}</p>
+    <p>在线注册用户总数：{{ (siteStatus | async)?.onlineRegisteredUsers  | number}}</p>
+    <p>在线游客总数：{{ (siteStatus | async)?.onlineGuests | number}}</p>
   </div>
 </div>

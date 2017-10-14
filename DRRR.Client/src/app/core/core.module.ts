@@ -6,6 +6,7 @@ import { SelectivePreloadingStrategy } from './services/selective-preloading-str
 import { SystemMessagesService } from './services/system-messages.service';
 import { FormErrorsAutoClearer } from './services/form-errors-auto-clearer.service';
 import { AuthService } from './services/auth.service';
+import { SiteInfoService } from './services/site-info.service';
 
 @NgModule({
   imports: [
@@ -15,6 +16,7 @@ import { AuthService } from './services/auth.service';
     SystemMessagesService,
     FormErrorsAutoClearer,
     AuthService,
+    SiteInfoService,
   ]
 })
 export class CoreModule {

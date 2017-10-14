@@ -116,6 +116,16 @@ namespace DRRR.Server.Models
                 entity.Property(e => e.ConnectionId)
                     .HasColumnName("connection_id");
 
+                entity.Property(e => e.IsOnline)
+                    .HasColumnName("is_online")
+                    .HasColumnType("tinyint(1) unsigned")
+                    .HasDefaultValueSql("1");
+
+                entity.Property(e => e.IsGuest)
+                    .HasColumnName("is_guest")
+                    .HasColumnType("tinyint(1) unsigned")
+                    .HasDefaultValueSql("1");
+
                 entity.Property(e => e.UpdateTime)
                     .HasColumnName("update_time")
                     .HasColumnType("timestamp")

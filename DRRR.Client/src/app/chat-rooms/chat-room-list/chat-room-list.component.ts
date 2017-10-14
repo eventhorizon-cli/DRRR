@@ -15,6 +15,7 @@ import { ChatRoomCreateComponent } from '../chat-room-create/chat-room-create.co
 import { AuthService } from '../../core/services/auth.service';
 import { Roles } from '../../core/models/roles.enum';
 import { SystemMessagesService } from '../../core/services/system-messages.service';
+import {SiteInfoService} from "../../core/services/site-info.service";
 
 @Component({
   selector: 'app-chat-room-list',
@@ -42,6 +43,7 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
     private modalService: BsModalService,
     private auth: AuthService,
     private msg: SystemMessagesService,
+    private siteInfoService: SiteInfoService
   ) {}
 
   ngOnInit() {
@@ -126,6 +128,7 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
         this.roomList = data.chatRoomList;
         this.pagination = data.pagination;
       });
+    this.siteInfoService.refreshSiteStatus();
   }
 
   /**
