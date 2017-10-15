@@ -6,8 +6,8 @@ import { Observable } from 'rxjs/Observable';
 
 // 可能会导致编译问题
 // 参考资料：https://github.com/aspnet/SignalR/issues/983
-import { HubConnection } from '@aspnet/signalr-client/dist/browser/signalr-clientES5-1.0.0-alpha2-final.js';
-// import { HubConnection } from '@aspnet/signalr-client';
+// import { HubConnection } from '@aspnet/signalr-client/dist/browser/signalr-clientES5-1.0.0-alpha2-final.js';
+import { HubConnection } from '@aspnet/signalr-client';
 
 import swal from 'sweetalert2';
 
@@ -20,6 +20,8 @@ import { Payload } from '../../core/models/payload.model';
 export class ChatRoomService {
 
   message: Subject<Message>;
+
+  messageHistory: Subject<Message[]>;
 
   private connection: HubConnection;
 
@@ -53,7 +55,8 @@ export class ChatRoomService {
 
       // 创建回调函数
       // 聊天消息
-      this.connection.on('broadcastMessage', (userId, username, message) => {
+      this.connection.on('broadcastMessage',
+        (userId: string, username: string, message: string) => {
         this.message.next({
           userId,
           username,
@@ -64,12 +67,17 @@ export class ChatRoomService {
       });
 
       // 系统消息
-      this.connection.on('broadcastSystemMessage', (message) => {
+      this.connection.on('broadcastSystemMessage',
+        (message: string) => {
         this.message.next({
           isSystemMessage: true,
           text: message
         });
       });
+
+      // 接收历史消息
+      this.connection.on('receiveMessageHistory',
+        this.receiveMessageHistory.bind(this));
 
       // 打开连接
       this.connection.start().then(() => {
@@ -77,7 +85,7 @@ export class ChatRoomService {
       });
 
       // 连接被异常切断
-      this.connection.onclose = this.onClose.bind(this);
+      this.connection.onclose(this.onClose.bind(this));
 
       // 当房间被关闭时
       this.connection.on('onRoomDeleted', (msg) => {
@@ -150,5 +158,13 @@ export class ChatRoomService {
    */
   getRoomName(roomId: string): Observable<string> {
     return this.auth.http.get(`api/rooms/${roomId}/name`, { responseType: 'text' });
+  }
+
+  /**
+   * 接收历史消息
+   * @param {Message[]} history
+   */
+  receiveMessageHistory(history: Message[]) {
+    console.log(history);
   }
 }

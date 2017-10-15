@@ -25,7 +25,7 @@ namespace DRRR.Server.Security
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
                 File.WriteAllText(path, salt);
             }
-            _hashids = new Hashids(salt: salt, minHashLength: 10);
+            _hashids = new Hashids(salt: salt, minHashLength: 6);
         }
 
         /// <summary>

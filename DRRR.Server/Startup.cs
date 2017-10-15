@@ -108,7 +108,20 @@ namespace DRRR.Server
             }
 
             // 存放头像的目录
-            UserProfileService.AvatarsDirectory = Configuration["Resources:Avatars"];
+            var destAvatarsDir = Configuration["Resources:Avatars"];
+            UserProfileService.AvatarsDirectory = destAvatarsDir;
+            var destAvatarsDirInfo = new DirectoryInfo(destAvatarsDir);
+            // 创建对应的文件夹
+            if (!destAvatarsDirInfo.Exists || destAvatarsDirInfo.GetDirectories().Count() != 2)
+            {
+                var sourceAvatarsDir = Path.Combine(AppContext.BaseDirectory, "Resources", "avatars");
+                foreach (var dirName in new string[] { "originals", "thumbnails" })
+                {
+                    Directory.CreateDirectory(Path.Combine(destAvatarsDir, dirName));
+                    File.Copy(Path.Combine(sourceAvatarsDir, dirName, "default.jpg"),
+                        Path.Combine(destAvatarsDir, dirName, "default.jpg"));
+                }
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

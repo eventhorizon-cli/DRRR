@@ -32,13 +32,24 @@ namespace DRRR.Server.Hubs
         /// <param name="roomHashid">房间哈希ID</param>
         /// <param name="message">消息</param>
         /// <returns></returns>
-        public async Task SendMessage(string roomId, string message)
+        public async Task SendMessage(string roomHashid, string message)
         {
-            await Clients.Group(roomId)
-                .InvokeAsync("broadcastMessage",
-                Context.User.FindFirst("uid").Value,
-                HttpUtility.UrlDecode(Context.User.Identity.Name),
-                message);
+            var userHashId = Context.User.FindFirst("uid").Value;
+            var username = HttpUtility.UrlDecode(Context.User.Identity.Name);
+            await Clients.Group(roomHashid)
+                .InvokeAsync("broadcastMessage", userHashId, username, message)
+                .ConfigureAwait(false);
+            // 将消息保存到数据库
+            var history = new MessageHistory
+            {
+                RoomId = HashidsHelper.Decode(roomHashid),
+                UserId = HashidsHelper.Decode(userHashId),
+                UnixTimeMilliseconds = new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds(),
+                Username = username,
+                Message = message
+            };
+            _dbContext.MessageHistory.Add(history);
+            await _dbContext.SaveChangesAsync();
         }
 
         /// <summary>
@@ -52,7 +63,8 @@ namespace DRRR.Server.Hubs
             var userId = HashidsHelper.Decode(Context.User.FindFirst("uid").Value);
 
             var connection = await _dbContext.Connection
-                .Where(x => x.RoomId == roomId && x.UserId == userId).FirstOrDefaultAsync();
+                .Where(x => x.RoomId == roomId && x.UserId == userId).FirstOrDefaultAsync()
+                .ConfigureAwait(false);
 
             string msgId = null;
 
@@ -79,12 +91,28 @@ namespace DRRR.Server.Hubs
             await _dbContext.SaveChangesAsync();
 
             await Groups.AddAsync(Context.ConnectionId, roomHashid);
+            // 只加载加入房间前的消息，避免消息重复显示
+            long unixTimeMilliseconds = new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds();
 
             // 显示欢迎用户加入房间的消息
             await Clients.Group(roomHashid).InvokeAsync(
                 "broadcastSystemMessage",
                 _systemMessagesService.GetServerSystemMessage(msgId,
                 HttpUtility.UrlDecode(Context.User.Identity.Name)));
+
+            // 加载历史消息
+            var history = await _dbContext.MessageHistory
+                 .Where(msg => msg.RoomId == roomId
+                 && msg.UnixTimeMilliseconds < unixTimeMilliseconds)
+                 .OrderByDescending(msg => msg.UnixTimeMilliseconds)
+                 .Select(msg => new
+                 {
+                     UserId = msg.UserId,
+                     Username = msg.Username,
+                     Text = msg.Message
+                 }).ToListAsync();
+            await Clients.Client(Context.ConnectionId)
+                .InvokeAsync("receiveMessageHistory", history);
         }
 
         /// <summary>
@@ -177,12 +205,7 @@ namespace DRRR.Server.Hubs
 
             // 删除房间
             _dbContext.ChatRoom.Remove(room);
-
-            var connections = _dbContext.Connection.Where(conn => conn.RoomId == roomId);
-
-            // 删除所有连接信息
-            _dbContext.Connection.RemoveRange(connections);
-
+            // MySQL触发器负责删除所有连接信息和消息记录
             await _dbContext.SaveChangesAsync();
 
             await Clients.Group(roomHashid).InvokeAsync("onRoomDeleted",

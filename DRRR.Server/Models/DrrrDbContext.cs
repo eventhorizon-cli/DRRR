@@ -8,6 +8,7 @@ namespace DRRR.Server.Models
     {
         public virtual DbSet<ChatRoom> ChatRoom { get; set; }
         public virtual DbSet<Connection> Connection { get; set; }
+        public virtual DbSet<MessageHistory> MessageHistory { get; set; }
         public virtual DbSet<Role> Role { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<UserStatus> UserStatus { get; set; }
@@ -40,7 +41,7 @@ namespace DRRR.Server.Models
                 entity.Property(e => e.CurrentUsers)
                     .HasColumnName("current_users")
                     .HasColumnType("int(11) unsigned")
-                    .HasDefaultValueSql("1");
+                    .HasDefaultValueSql("0");
 
                 entity.Property(e => e.IsEncrypted)
                     .HasColumnName("is _encrypted")
@@ -96,6 +97,37 @@ namespace DRRR.Server.Models
                     .HasConstraintName("user_id");
             });
 
+            modelBuilder.Entity<MessageHistory>(entity =>
+            {
+                entity.HasKey(e => new { e.RoomId, e.UserId, e.UnixTimeMilliseconds });
+
+                entity.ToTable("message_history");
+
+                entity.HasIndex(e => new { e.RoomId, e.UnixTimeMilliseconds })
+                    .HasName("message_history_idx");
+
+                entity.Property(e => e.RoomId)
+                    .HasColumnName("room_id")
+                    .HasColumnType("int(10) unsigned zerofill");
+
+                entity.Property(e => e.UserId)
+                    .HasColumnName("user_id")
+                    .HasColumnType("int(10) unsigned zerofill");
+
+                entity.Property(e => e.UnixTimeMilliseconds)
+                    .HasColumnName("unix_time_milliseconds")
+                    .HasColumnType("bigint(20)");
+
+                entity.Property(e => e.Message)
+                    .HasColumnName("message")
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.Username)
+                    .IsRequired()
+                    .HasColumnName("username")
+                    .HasMaxLength(10);
+            });
+
             modelBuilder.Entity<Connection>(entity =>
             {
                 entity.HasKey(e => new { e.RoomId, e.UserId });
@@ -124,7 +156,7 @@ namespace DRRR.Server.Models
                 entity.Property(e => e.IsGuest)
                     .HasColumnName("is_guest")
                     .HasColumnType("tinyint(1) unsigned")
-                    .HasDefaultValueSql("1");
+                    .HasDefaultValueSql("0");
 
                 entity.Property(e => e.UpdateTime)
                     .HasColumnName("update_time")

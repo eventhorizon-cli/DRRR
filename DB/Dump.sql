@@ -44,6 +44,34 @@ CREATE TABLE `chat_room` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `chat_room`
+--
+
+LOCK TABLES `chat_room` WRITE;
+/*!40000 ALTER TABLE `chat_room` DISABLE KEYS */;
+/*!40000 ALTER TABLE `chat_room` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `drrr`.`chat_room_AFTER_DELETE` AFTER DELETE ON `chat_room` FOR EACH ROW
+BEGIN
+DELETE FROM `connection` WHERE `connection`.`room_id` = old.`id`;
+DELETE FROM `message_history` WHERE `message_history`.`room_id` = old.`id`;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
 -- Table structure for table `connection`
 --
 
@@ -54,12 +82,23 @@ CREATE TABLE `connection` (
   `room_id` int(10) unsigned zerofill NOT NULL COMMENT '房间ID',
   `user_id` int(10) unsigned zerofill NOT NULL COMMENT '用户ID',
   `connection_id` varchar(36) NOT NULL COMMENT '连接ID',
+  `is_online` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '是否在线',
+  `is_guest` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否为游客',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`room_id`,`user_id`),
   KEY `connection_idx` (`room_id`,`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='websocket连接';
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `connection`
+--
+
+LOCK TABLES `connection` WRITE;
+/*!40000 ALTER TABLE `connection` DISABLE KEYS */;
+/*!40000 ALTER TABLE `connection` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -96,6 +135,33 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Table structure for table `message_history`
+--
+
+DROP TABLE IF EXISTS `message_history`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `message_history` (
+  `room_id` int(10) unsigned zerofill NOT NULL COMMENT '房间ID',
+  `user_id` int(10) unsigned zerofill NOT NULL COMMENT '用户ID',
+  `unix_time_milliseconds` bigint(20) NOT NULL COMMENT '创建时间',
+  `username` varchar(10) NOT NULL,
+  `message` varchar(200) DEFAULT NULL COMMENT '消息',
+  PRIMARY KEY (`room_id`,`user_id`,`unix_time_milliseconds`),
+  KEY `message_history_idx` (`room_id`,`unix_time_milliseconds`) COMMENT '由房间ID和创建时间组成的索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='消息历史记录';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `message_history`
+--
+
+LOCK TABLES `message_history` WRITE;
+/*!40000 ALTER TABLE `message_history` DISABLE KEYS */;
+/*!40000 ALTER TABLE `message_history` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `role`
@@ -149,6 +215,15 @@ CREATE TABLE `user` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `user`
+--
+
+LOCK TABLES `user` WRITE;
+/*!40000 ALTER TABLE `user` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `user_status`
 --
 
@@ -181,4 +256,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-10-14 13:36:12
+-- Dump completed on 2017-10-15 15:21:07
