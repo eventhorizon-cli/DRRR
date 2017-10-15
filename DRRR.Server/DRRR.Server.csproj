@@ -30,17 +30,12 @@
     <Content Update="Resources\system-messages.server.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Resources\avatars\originals\default.jpg">
+    <Content Include="Resources\avatars\originals\default.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\avatars\thumbnails\default.jpg">
+    </Content>
+    <Content Include="Resources\avatars\thumbnails\default.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Content>
   </ItemGroup>
-
-  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JSONSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>
