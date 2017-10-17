@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
 import 'rxjs/add/operator/scan';
 
@@ -17,9 +18,11 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
   messages: Observable<Message[]>;
 
-  height: string;
+  chatHistory: Observable<Message[]>;
 
-  roomName: Observable<string>;
+  roomName: Subject<string>;
+
+  noMoreMessage: boolean;
 
   private msgSubscription: Subscription;
 
@@ -42,6 +45,11 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       .scan((messages: Message[], message: Message) =>
         messages.concat(message), []);
 
+    // 聊天历史记录
+    this.chatHistory = this.chatRoomService.chatHistory
+      .scan((messages: Message[], message: Message) =>
+        [message].concat(messages), []);
+
     this.msgSubscription = this.messages.subscribe(_ => {
       // 消息窗口滚至下方
       setTimeout(() => {
@@ -49,9 +57,19 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       });
     });
 
+    this.chatRoomService.onReconnect = () => {
+      this.chatRoomService.getChatHistory()
+        .then(count => {
+          this.noMoreMessage = count < 50;
+          setTimeout(() => {
+            this.scrollToBottom();
+          });
+        });
+    };
+
     const roomId = this.route.snapshot.params['id'];
     this.chatRoomService.connect(roomId);
-    this.roomName = this.chatRoomService.getRoomName(roomId);
+    this.roomName = this.chatRoomService.roomName;
   }
 
   ngOnDestroy() {
@@ -76,31 +94,41 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * 显示更多历史消息
+   */
+  showMoreChatHistory() {
+    this.chatRoomService.getChatHistory()
+      .then(count => {
+        this.noMoreMessage = count < 50;
+      });
+  }
+
+  /**
    * 将消息框内容滚动至最下方
    */
-  scrollToBottom() {
-    const scrollPane = document.querySelector('.msg-container-base');
+  private scrollToBottom() {
+    const scrollPane = $('.msg-container-base');
     // 避免某些情况下离开房间时导致的异常
-    if (scrollPane) {
-      scrollPane.scrollTop = scrollPane.scrollHeight;
+    if (scrollPane.length) {
+      scrollPane.animate({scrollTop: scrollPane[0].scrollHeight});
     }
   }
 
   /**
    * 设置消息容器高度
    */
-  setHeight() {
-    const panelHeading = document.querySelector('.panel-heading') as HTMLElement;
-    const panelFooter = document.querySelector('.panel-footer') as HTMLElement;
+  private setHeight() {
+    const panelHeading = $('.panel-heading');
+    const panelFooter = $('.panel-footer');
 
     // 避免某些情况下离开房间时导致的异常
-    if (panelHeading && panelFooter) {
+    if (panelHeading.length && panelFooter.length) {
       const height = window.innerHeight
-        - (+panelHeading.offsetTop)
-        - (+panelHeading.clientHeight)
-        - (+panelFooter.clientHeight) - 15;
+        - (+panelHeading[0].offsetTop)
+        - (+panelHeading[0].clientHeight)
+        - (+panelFooter[0].clientHeight) - 50;
 
-      this.height = `${height}px`;
+      $('.msg-container-base').height(height);
     }
   }
 }

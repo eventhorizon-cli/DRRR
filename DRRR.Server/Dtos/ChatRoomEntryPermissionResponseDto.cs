@@ -16,7 +16,7 @@ namespace DRRR.Server.Dtos
         public string Error { get; set; }
 
         /// <summary>
-        /// 需要密码
+        /// 是否需要密码
         /// </summary>
         public bool? PasswordRequired { get; set; }
 

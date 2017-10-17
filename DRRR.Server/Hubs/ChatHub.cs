@@ -8,6 +8,8 @@ using System.Web;
 using DRRR.Server.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using DRRR.Server.Dtos;
+using System.Collections.Generic;
 
 namespace DRRR.Server.Hubs
 {
@@ -40,7 +42,7 @@ namespace DRRR.Server.Hubs
                 .InvokeAsync("broadcastMessage", userHashId, username, message)
                 .ConfigureAwait(false);
             // 将消息保存到数据库
-            var history = new MessageHistory
+            var history = new ChatHistory
             {
                 RoomId = HashidsHelper.Decode(roomHashid),
                 UserId = HashidsHelper.Decode(userHashId),
@@ -48,7 +50,7 @@ namespace DRRR.Server.Hubs
                 Username = username,
                 Message = message
             };
-            _dbContext.MessageHistory.Add(history);
+            _dbContext.ChatHistory.Add(history);
             await _dbContext.SaveChangesAsync();
         }
 
@@ -56,8 +58,8 @@ namespace DRRR.Server.Hubs
         /// 加入房间
         /// </summary>
         /// <param name="roomHashid">房间哈希ID</param>
-        /// <returns>表示加入房间的任务</returns>
-        public async Task JoinRoomAsync(string roomHashid)
+        /// <returns>表示加入房间的任务，返回房间名和加入该房间的时间</returns>
+        public async Task<Object> JoinRoomAsync(string roomHashid)
         {
             var roomId = HashidsHelper.Decode(roomHashid);
             var userId = HashidsHelper.Decode(Context.User.FindFirst("uid").Value);
@@ -65,6 +67,11 @@ namespace DRRR.Server.Hubs
             var connection = await _dbContext.Connection
                 .Where(x => x.RoomId == roomId && x.UserId == userId).FirstOrDefaultAsync()
                 .ConfigureAwait(false);
+
+            var roomName = await _dbContext.ChatRoom
+                .Where(room => room.Id == roomId)
+                .Select(room => room.Name)
+                .FirstOrDefaultAsync().ConfigureAwait(false);
 
             string msgId = null;
 
@@ -100,19 +107,11 @@ namespace DRRR.Server.Hubs
                 _systemMessagesService.GetServerSystemMessage(msgId,
                 HttpUtility.UrlDecode(Context.User.Identity.Name)));
 
-            // 加载历史消息
-            var history = await _dbContext.MessageHistory
-                 .Where(msg => msg.RoomId == roomId
-                 && msg.UnixTimeMilliseconds < unixTimeMilliseconds)
-                 .OrderByDescending(msg => msg.UnixTimeMilliseconds)
-                 .Select(msg => new
-                 {
-                     UserId = msg.UserId,
-                     Username = msg.Username,
-                     Text = msg.Message
-                 }).ToListAsync();
-            await Clients.Client(Context.ConnectionId)
-                .InvokeAsync("receiveMessageHistory", history);
+            return new
+            {
+                RoomName = roomName,
+                EntryTime = unixTimeMilliseconds
+            };
         }
 
         /// <summary>
@@ -210,6 +209,33 @@ namespace DRRR.Server.Hubs
 
             await Clients.Group(roomHashid).InvokeAsync("onRoomDeleted",
                 _systemMessagesService.GetServerSystemMessage("E008"));
+        }
+
+        /// <summary>
+        /// 获取历史聊天记录
+        /// </summary>
+        /// <param name="roomHashid">房间哈希ID</param>
+        /// <param name="entryTime">进入房间的时间</param>
+        /// <param name="startIndex">此次获取的聊天历史记录的开始序号</param>
+        /// <returns>表示获取聊天记录的任务</returns>
+        public async Task<List<ChatHistoryDto>> GetChatHistoryAsync(string roomHashid, long entryTime, int startIndex)
+        {
+            var roomId = HashidsHelper.Decode(roomHashid);
+            var history = await _dbContext.ChatHistory
+                 .Where(msg => msg.RoomId == roomId
+                 && msg.UnixTimeMilliseconds < entryTime)
+                 .OrderByDescending(msg => msg.UnixTimeMilliseconds)
+                 .Select(msg => new ChatHistoryDto
+                 {
+                     UserId = HashidsHelper.Encode(msg.UserId),
+                     Username = msg.Username,
+                     Message = msg.Message,
+                     Timestamp = msg.UnixTimeMilliseconds
+                 })
+                 .Skip(startIndex)
+                 .Take(50).ToListAsync();
+
+            return history;
         }
     }
 }

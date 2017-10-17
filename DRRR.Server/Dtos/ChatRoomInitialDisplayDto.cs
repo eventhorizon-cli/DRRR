@@ -6,18 +6,18 @@ using System.Threading.Tasks;
 namespace DRRR.Server.Dtos
 {
     /// <summary>
-    /// 聊天室列表检索响应DTO
+    /// 房间初期显示DTO
     /// </summary>
-    public class ChatRoomSearchResponseDto
+    public class ChatRoomInitialDisplayDto
     {
         /// <summary>
-        /// 聊天室列表
+        /// 房间名
         /// </summary>
-        public List<ChatRoomDto> ChatRoomList { get; set; }
+        public string RoomName { get; set; }
 
         /// <summary>
-        /// 分页信息
+        /// 进入房间的时间（时间戳）
         /// </summary>
-        public PaginationDto Pagination { get; set; }
+        public long EntryTime { get; set; }
     }
 }

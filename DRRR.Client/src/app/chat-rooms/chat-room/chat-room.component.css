@@ -2,7 +2,7 @@
   background: #ffffff;
 }
 .panel-container{
-  max-width: 900px;
+  max-width: 800px;
   margin: 0 auto;
 }
 .msg-container-base {
@@ -30,4 +30,10 @@
   border-radius: 1px;
   background-color: #aeadaa;
   opacity: 0.5;
+}
+.btn.btn-block:focus{
+  outline:none
+}
+.panel-default {
+  margin-bottom: 15px;
 }

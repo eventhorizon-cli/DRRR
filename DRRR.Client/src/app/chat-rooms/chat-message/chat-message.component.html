@@ -14,4 +14,7 @@
        class="system-message">
     <pre>{{ message.text }}</pre>
   </div>
+  <div *ngIf="message.timestamp">
+    <P class="time">{{ message.timestamp | date: 'yyyy/MM/dd HH:mm:ss'}}</P>
+  </div>
 </div>

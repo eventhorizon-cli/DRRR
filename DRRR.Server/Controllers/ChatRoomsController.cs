@@ -94,10 +94,10 @@ namespace DRRR.Server.Controllers
         [JwtAuthorize(Roles.User, Roles.Admin, Roles.Guest)]
         public async Task<ChatRoomEntryPermissionResponseDto> ApplyForEntryAsync(string id)
         {
-            int userId = HashidsHelper.Decode(HttpContext.User.FindFirst("uid").Value);
             int roomId = HashidsHelper.Decode(id);
+            int userId = HashidsHelper.Decode(HttpContext.User.FindFirst("uid").Value);
             Roles userRole = (Roles)Convert.ToInt32(HttpContext.User.FindFirst(ClaimTypes.Role).Value);
-            return await _chatRoomService.ApplyForEntryAsync(userId, userRole, roomId);
+            return await _chatRoomService.ApplyForEntryAsync(roomId, userId, userRole);
         }
 
         /// <summary>
@@ -109,19 +109,10 @@ namespace DRRR.Server.Controllers
         public async Task<ChatRoomValidatePasswordResponseDto> ValidatePasswordAsync([FromBody]ChatRoomValidatePasswordRequestDto entryRequestDto)
         {
             var roomId = HashidsHelper.Decode(entryRequestDto.RoomId);
+            var userId = HashidsHelper.Decode(HttpContext.User.FindFirst("uid").Value);
             return await _chatRoomService
-                .ValidatePasswordAsync(roomId, entryRequestDto.Password);
+                .ValidatePasswordAsync(roomId, userId, entryRequestDto.Password);
         }
-
-        /// <summary>
-        /// 获取房间名
-        /// </summary>
-        /// <param name="id">房间ID</param>
-        /// <returns>表示获取房间名的任务</returns>
-        [HttpGet, Route("{id}/name")]
-        [JwtAuthorize(Roles.User, Roles.Admin, Roles.Guest)]
-        public async Task<string> GetRoomNameAsync(string id) =>
-         await _chatRoomService.GetRoomNameAsync(HashidsHelper.Decode(id));
 
         /// <summary>
         /// 申请创建房间

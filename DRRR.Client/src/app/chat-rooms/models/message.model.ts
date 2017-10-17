@@ -19,4 +19,9 @@ export interface Message {
    * 消息文本
    */
   text: string;
+
+  /**
+   * 时间戳
+   */
+  timestamp?: number;
 }

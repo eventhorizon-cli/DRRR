@@ -8,7 +8,7 @@ namespace DRRR.Server.Models
     {
         public virtual DbSet<ChatRoom> ChatRoom { get; set; }
         public virtual DbSet<Connection> Connection { get; set; }
-        public virtual DbSet<MessageHistory> MessageHistory { get; set; }
+        public virtual DbSet<ChatHistory> ChatHistory { get; set; }
         public virtual DbSet<Role> Role { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<UserStatus> UserStatus { get; set; }
@@ -97,14 +97,14 @@ namespace DRRR.Server.Models
                     .HasConstraintName("user_id");
             });
 
-            modelBuilder.Entity<MessageHistory>(entity =>
+            modelBuilder.Entity<ChatHistory>(entity =>
             {
                 entity.HasKey(e => new { e.RoomId, e.UserId, e.UnixTimeMilliseconds });
 
-                entity.ToTable("message_history");
+                entity.ToTable("chat_history");
 
                 entity.HasIndex(e => new { e.RoomId, e.UnixTimeMilliseconds })
-                    .HasName("message_history_idx");
+                    .HasName("chat_history_idx");
 
                 entity.Property(e => e.RoomId)
                     .HasColumnName("room_id")

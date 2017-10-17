@@ -10,7 +10,17 @@
       </div>
     </div>
 
-    <div class="panel-body msg-container-base" [style.height]="height">
+    <div class="panel-body msg-container-base">
+      <button class="btn btn-link btn-block"
+              (click)="showMoreChatHistory()"
+              *ngIf="!noMoreMessage">
+        <i class="fa fa-arrow-up">&nbsp;查看更多消息</i>
+      </button>
+      <p *ngIf="noMoreMessage" class="text-center">没有更多消息</p>
+      <app-chat-message
+        *ngFor="let message of chatHistory | async"
+        [message]="message">
+      </app-chat-message>
       <app-chat-message
         *ngFor="let message of messages | async"
         [message]="message">

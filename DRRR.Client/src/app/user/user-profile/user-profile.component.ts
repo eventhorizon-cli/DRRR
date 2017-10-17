@@ -91,7 +91,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
     // 设置图像显示区域的最大高度和最大宽度
     // 当前设备屏幕的一半
-    const length = screen.availHeight / 2;
+    const length = Math.min(screen.availWidth - 60, 460);
     swal({
       title: '裁剪头像',
       html: `
@@ -103,11 +103,13 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       confirmButtonText: '设置新头像',
       allowOutsideClick: false,
       onOpen() {
-        const image = <HTMLImageElement>document.querySelector('.img-container img');
+        const image = $('.img-container img')[0] as HTMLImageElement;
         cropper = new Cropper(image, {
-          aspectRatio: 1 / 1,
+          aspectRatio: 1,
           viewMode: 3,
-          dragMode: 'move'
+          dragMode: 'move',
+          minContainerWidth: length,
+          minContainerHeight: length
         });
       },
       preConfirm: () => {
@@ -129,7 +131,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
               error => reject(this.msg.getMessage('E004', '头像更新')));
         });
       },
-    }).then(_ => {
+    }).then(() => {
       swal({
         type: 'success',
         title: this.msg.getMessage('I001', '头像更新'),
@@ -139,7 +141,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       }, () => {});
       // 释放资源
       URL.revokeObjectURL(url);
-    }, _ => {
+    }, () => {
       // 取消按钮被按下
       // 释放资源
       URL.revokeObjectURL(url);

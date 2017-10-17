@@ -191,26 +191,22 @@ namespace DRRR.Server.Services
         /// <summary>
         /// 申请加入房间
         /// </summary>
-        /// <param name="userId">用户ID</param>
         /// <param name="roomId">房间ID</param>
+        /// <param name="userId">用户ID</param>
         /// <param name="userRole">用户角色</param>
         /// <returns></returns>
-        public async Task<ChatRoomEntryPermissionResponseDto> ApplyForEntryAsync(int userId, Roles userRole, int roomId)
+        public async Task<ChatRoomEntryPermissionResponseDto> ApplyForEntryAsync(int roomId, int userId, Roles userRole)
         {
-            var room = await _dbContext.ChatRoom.FindAsync(roomId);
+            var (room, error) = await CheckRoomStatusAsync(roomId, userId);
+
             var res = new ChatRoomEntryPermissionResponseDto
             {
                 AllowGuest = room?.AllowGuest.Value ?? false
             };
-            if (room == null)
+            if (!string.IsNullOrEmpty(error))
             {
-                // 该房间已经不存在
-                res.Error = _systemMessagesService.GetServerSystemMessage("E005");
-            }
-            else if (room.CurrentUsers == room.MaxUsers)
-            {
-                // 该房间成员数已满
-                res.Error = _systemMessagesService.GetServerSystemMessage("E006");
+                // 该房间已经不存在或成员已满
+                res.Error = error;
             }
             else if (room.IsEncrypted.Value)
             {
@@ -234,24 +230,19 @@ namespace DRRR.Server.Services
         /// 验证房间密码
         /// </summary>
         /// <param name="roomId">房间ID</param>
+        /// <param name="userId">用户ID</param>
         /// <param name="password">密码</param>
         /// <returns>表示验证房间密码的任务</returns>
-        public async Task<ChatRoomValidatePasswordResponseDto> ValidatePasswordAsync(int roomId, string password)
+        public async Task<ChatRoomValidatePasswordResponseDto> ValidatePasswordAsync(int roomId, int userId, string password)
         {
-            var room = await _dbContext.ChatRoom.FindAsync(roomId);
-
             var res = new ChatRoomValidatePasswordResponseDto();
 
-            if (room == null)
+            var (room, error) = await CheckRoomStatusAsync(roomId, userId);
+
+            if (!string.IsNullOrEmpty(error))
             {
-                // 该房间已经不存在
-                res.Error = _systemMessagesService.GetServerSystemMessage("E005");
-                res.RefreshRequired = true;
-            }
-            else if (room.CurrentUsers == room.MaxUsers)
-            {
-                // 该房间已经不存在
-                res.Error = _systemMessagesService.GetServerSystemMessage("E006");
+                // 该房间已经不存在或成员已满
+                res.Error = error;
                 res.RefreshRequired = true;
             }
             else if (!PasswordHelper.ValidatePassword(password, room.Salt, room.PasswordHash))
@@ -261,16 +252,6 @@ namespace DRRR.Server.Services
             }
             return res;
         }
-
-        /// <summary>
-        /// 获取房间名
-        /// </summary>
-        /// <param name="id">房间ID</param>
-        /// <returns>表示获取房间名的任务</returns>
-        public async Task<string> GetRoomNameAsync(int id) =>
-            await _dbContext.ChatRoom.Where(room => room.Id == id)
-                .Select(room => room.Name)
-                .FirstOrDefaultAsync();
 
         /// <summary>
         /// 申请创建房间
@@ -287,6 +268,32 @@ namespace DRRR.Server.Services
                 return _systemMessagesService.GetServerSystemMessage("E009");
             }
             return null;
+        }
+
+        /// <summary>
+        /// 检查房间状态
+        /// </summary>
+        /// <param name="roomId">房间ID</param>
+        /// <param name="userId">用户ID</param>
+        /// <returns>表示检查房间状态的任务</returns>
+        private async Task<(ChatRoom, string)> CheckRoomStatusAsync(int roomId, int userId)
+        {
+            var room = await _dbContext.ChatRoom.FindAsync(roomId);
+            var connection = await _dbContext.Connection.FindAsync(roomId, userId);
+            string error = null;
+            if (room == null)
+            {
+                // 该房间已经不存在
+                error = _systemMessagesService.GetServerSystemMessage("E005");
+            }
+            else if (room.CurrentUsers == room.MaxUsers && connection == null)
+            {
+                // 之前如果就已经在房间里了，不报错
+                // 该房间人数已满
+                error = _systemMessagesService.GetServerSystemMessage("E006");
+            }
+
+            return (room, error);
         }
     }
 }

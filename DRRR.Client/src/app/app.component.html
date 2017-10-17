@@ -27,7 +27,7 @@
         <li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
           <a routerLink="./register">注册</a>
         </li>
-        <li *ngIf="!['/rooms', '/login', '/register'].includes(currentPath)">
+        <li *ngIf="isInTheRoom">
           <a (click)="backToLobby()">返回大厅</a>
         </li>
       </ul>
@@ -50,7 +50,7 @@
   <router-outlet></router-outlet>
 </div>
 <!-- 底部区域 -->
-<div class="footer">
+<div class="footer" *ngIf="!isInTheRoom">
   <div class="container">
     <div class="row">
       <p>

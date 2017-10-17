@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DRRR.Server.Models
 {
-    public partial class MessageHistory
+    public partial class ChatHistory
     {
         public int RoomId { get; set; }
         public int UserId { get; set; }

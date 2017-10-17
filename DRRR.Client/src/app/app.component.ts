@@ -17,9 +17,20 @@ import { Observable } from 'rxjs/Observable';
 })
 export class AppComponent implements OnInit {
 
+  /**
+   * 该用户是否已登录
+   */
   isLoggedIn: boolean;
 
+  /**
+   * 当前路由
+   */
   currentPath: string;
+
+  /**
+   * 是否在房间里
+   */
+  isInTheRoom: boolean;
 
   constructor(private router: Router,
     private auth: AuthService,
@@ -34,6 +45,12 @@ export class AppComponent implements OnInit {
         this.currentPath = path;
         // 如果是在没有选择记住登录状态的情况下回到登录界面界面，则依旧显示登录和注册按钮
         this.isLoggedIn = !['/login', '/register'].includes(path) && this.auth.isLoggedIn;
+        this.isInTheRoom = /rooms\/(\w+)/.test(path);
+        if (this.isInTheRoom) {
+          $('html').css('padding-bottom', 0);
+        } else {
+          $('html').css('padding-bottom', 50);
+        }
       });
   }
 
@@ -53,7 +70,7 @@ export class AppComponent implements OnInit {
    */
   logout() {
     let additionalSettings: SweetAlertOptions;
-    if (/rooms\/(\w+)/.test(this.currentPath)) {
+    if (this.isInTheRoom) {
       // 如果在一个房间内
       additionalSettings = {
         input: 'checkbox',
