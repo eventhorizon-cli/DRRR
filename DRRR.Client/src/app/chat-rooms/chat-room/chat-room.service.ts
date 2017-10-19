@@ -166,12 +166,9 @@ export class ChatRoomService {
         .then((history: ChatHistoryDto[]) => {
         this.startIndex += history.length;
 
-          if (!this.lastHistoryTimeStamp && history[0]) {
-            this.lastHistoryTimeStamp = history[0].timestamp;
-          }
           history.forEach(msg => {
             let timestamp: number;
-            if (this.lastHistoryTimeStamp === msg.timestamp
+            if (!this.lastHistoryTimeStamp
                 || (this.lastHistoryTimeStamp - msg.timestamp) > 60000) {
               // 超过一分钟以上显示时间
               this.lastHistoryTimeStamp = msg.timestamp;

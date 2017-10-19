@@ -233,7 +233,7 @@ namespace DRRR.Server.Hubs
                      Timestamp = msg.UnixTimeMilliseconds
                  })
                  .Skip(startIndex)
-                 .Take(50).ToListAsync();
+                 .Take(20).ToListAsync();
 
             return history;
         }

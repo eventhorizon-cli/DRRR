@@ -37,3 +37,6 @@
 .panel-default {
   margin-bottom: 15px;
 }
+.msg-container-base div:nth-of-type(1){
+  height: 35px;
+}

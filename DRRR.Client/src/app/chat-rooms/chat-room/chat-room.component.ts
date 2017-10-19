@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
+import { FromEventObservable } from 'rxjs/observable/FromEventObservable';
 import 'rxjs/add/operator/scan';
 
 import { ChatRoomService } from './chat-room.service';
@@ -26,6 +27,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
   private msgSubscription: Subscription;
 
+  private resizeSubscription: Subscription;
+
   constructor(
     private route: ActivatedRoute,
     private chatRoomService: ChatRoomService
@@ -36,10 +39,11 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     // 一开始的高度
     this.setHeight();
     // 重新设置窗口大小后
-    window.addEventListener('resize', () => {
-      this.setHeight();
-      this.scrollToBottom();
-    });
+    this.resizeSubscription = FromEventObservable.create<Event>(window , 'resize')
+      .subscribe(() => {
+        this.setHeight();
+        this.scrollToBottom();
+      });
 
     this.messages = this.chatRoomService.message
       .scan((messages: Message[], message: Message) =>
@@ -50,7 +54,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       .scan((messages: Message[], message: Message) =>
         [message].concat(messages), []);
 
-    this.msgSubscription = this.messages.subscribe(_ => {
+    this.msgSubscription = this.messages.subscribe(() => {
       // 消息窗口滚至下方
       setTimeout(() => {
         this.scrollToBottom();
@@ -60,7 +64,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     this.chatRoomService.onReconnect = () => {
       this.chatRoomService.getChatHistory()
         .then(count => {
-          this.noMoreMessage = count < 50;
+          this.noMoreMessage = count < 20;
           setTimeout(() => {
             this.scrollToBottom();
           });
@@ -73,8 +77,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // 取消订阅以避免异常，避免离开后在scrollToBottom方法中找不到元素而导致异常
     this.msgSubscription.unsubscribe();
+    this.resizeSubscription.unsubscribe();
     // 离开房间时关闭连接
     this.chatRoomService.disconnect();
   }
@@ -84,7 +88,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
    * @param {HTMLInputElement} message 消息框输入控件
    * @returns {boolean} 返回false避免事件冒泡
    */
-  sendMessage(message: HTMLInputElement): boolean | undefined{
+  sendMessage(message: HTMLInputElement): boolean | undefined {
     if (message.value && message.value.length <= 200) {
       this.chatRoomService.sendMessage(message);
       // 防止事件冒泡关闭提示框
@@ -97,9 +101,14 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
    * 显示更多历史消息
    */
   showMoreChatHistory() {
+    const scrollPanel = $('.msg-container-base');
+    const height = scrollPanel[0].scrollHeight;
     this.chatRoomService.getChatHistory()
       .then(count => {
-        this.noMoreMessage = count < 50;
+        this.noMoreMessage = count < 20;
+        setTimeout(() => {
+          scrollPanel.scrollTop(scrollPanel[0].scrollHeight - height);
+        });
       });
   }
 
@@ -107,11 +116,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
    * 将消息框内容滚动至最下方
    */
   private scrollToBottom() {
-    const scrollPane = $('.msg-container-base');
-    // 避免某些情况下离开房间时导致的异常
-    if (scrollPane.length) {
-      scrollPane.animate({scrollTop: scrollPane[0].scrollHeight});
-    }
+    const scrollPanel = $('.msg-container-base');
+    scrollPanel.animate({scrollTop: scrollPanel[0].scrollHeight});
   }
 
   /**
@@ -121,14 +127,11 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     const panelHeading = $('.panel-heading');
     const panelFooter = $('.panel-footer');
 
-    // 避免某些情况下离开房间时导致的异常
-    if (panelHeading.length && panelFooter.length) {
-      const height = window.innerHeight
-        - (+panelHeading[0].offsetTop)
-        - (+panelHeading[0].clientHeight)
-        - (+panelFooter[0].clientHeight) - 50;
+    const height = window.innerHeight
+      - (+panelHeading[0].offsetTop)
+      - (+panelHeading[0].clientHeight)
+      - (+panelFooter[0].clientHeight) - 50;
 
-      $('.msg-container-base').height(height);
-    }
+    $('.msg-container-base').height(height);
   }
 }
