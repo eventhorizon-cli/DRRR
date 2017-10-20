@@ -16,6 +16,33 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `chat_history`
+--
+
+DROP TABLE IF EXISTS `chat_history`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `chat_history` (
+  `room_id` int(10) unsigned zerofill NOT NULL COMMENT '房间ID',
+  `user_id` int(10) unsigned zerofill NOT NULL COMMENT '用户ID',
+  `unix_time_milliseconds` bigint(20) NOT NULL COMMENT '创建时间',
+  `username` varchar(10) NOT NULL,
+  `message` varchar(200) DEFAULT NULL COMMENT '消息',
+  PRIMARY KEY (`room_id`,`user_id`,`unix_time_milliseconds`),
+  KEY `chat_history_idx` (`room_id`,`unix_time_milliseconds`) COMMENT '由房间ID和创建时间组成的索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='历史聊天记录';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `chat_history`
+--
+
+LOCK TABLES `chat_history` WRITE;
+/*!40000 ALTER TABLE `chat_history` DISABLE KEYS */;
+/*!40000 ALTER TABLE `chat_history` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `chat_room`
 --
 
@@ -63,7 +90,7 @@ DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `drrr`.`chat_room_AFTER_DELETE` AFTER DELETE ON `chat_room` FOR EACH ROW
 BEGIN
 DELETE FROM `connection` WHERE `connection`.`room_id` = old.`id`;
-DELETE FROM `message_history` WHERE `message_history`.`room_id` = old.`id`;
+DELETE FROM `chat_history` WHERE `chat_history`.`room_id` = old.`id`;
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -135,33 +162,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-
---
--- Table structure for table `message_history`
---
-
-DROP TABLE IF EXISTS `message_history`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `message_history` (
-  `room_id` int(10) unsigned zerofill NOT NULL COMMENT '房间ID',
-  `user_id` int(10) unsigned zerofill NOT NULL COMMENT '用户ID',
-  `unix_time_milliseconds` bigint(20) NOT NULL COMMENT '创建时间',
-  `username` varchar(10) NOT NULL,
-  `message` varchar(200) DEFAULT NULL COMMENT '消息',
-  PRIMARY KEY (`room_id`,`user_id`,`unix_time_milliseconds`),
-  KEY `message_history_idx` (`room_id`,`unix_time_milliseconds`) COMMENT '由房间ID和创建时间组成的索引'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='消息历史记录';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `message_history`
---
-
-LOCK TABLES `message_history` WRITE;
-/*!40000 ALTER TABLE `message_history` DISABLE KEYS */;
-/*!40000 ALTER TABLE `message_history` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `role`
@@ -256,4 +256,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-10-15 15:21:07
+-- Dump completed on 2017-10-20 19:21:54
