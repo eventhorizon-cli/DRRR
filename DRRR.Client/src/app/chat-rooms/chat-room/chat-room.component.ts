@@ -113,6 +113,13 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * 失去焦点后调节高度（针对移动端）
+   */
+  onLostFocus() {
+    setTimeout(this.setHeight);
+  }
+
+  /**
    * 将消息框内容滚动至最下方
    */
   private scrollToBottom() {

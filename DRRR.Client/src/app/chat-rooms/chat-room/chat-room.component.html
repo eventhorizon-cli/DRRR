@@ -34,6 +34,7 @@
              type="text" #msg
              maxlength="200"
              placeholder="按Enter键发送消息"
+             (focus)="onLostFocus()"
              (keydown.enter)="sendMessage(msg)">
     </div>
 

@@ -204,7 +204,20 @@ namespace DRRR.Server.Hubs
 
             // 删除房间
             _dbContext.ChatRoom.Remove(room);
-            // MySQL触发器负责删除所有连接信息和消息记录
+
+            // 删除所有连接信息和消息记录
+            var connections = await _dbContext.Connection
+                .Where(conn => conn.RoomId == roomId)
+                .ToArrayAsync().ConfigureAwait(false);
+
+            var history = await _dbContext.ChatHistory
+                .Where(msg => msg.RoomId == roomId)
+                .ToArrayAsync().ConfigureAwait(false);
+
+            _dbContext.Connection.RemoveRange(connections);
+
+            _dbContext.ChatHistory.RemoveRange(history);
+
             await _dbContext.SaveChangesAsync();
 
             await Clients.Group(roomHashid).InvokeAsync("onRoomDeleted",
