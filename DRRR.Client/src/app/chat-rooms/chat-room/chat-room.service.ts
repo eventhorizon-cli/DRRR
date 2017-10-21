@@ -175,13 +175,14 @@ export class ChatRoomService {
               timestamp = msg.timestamp;
             }
 
-            const message = {
+            const message: Message = {
               userId: msg.userId,
               username: msg.username,
               isSystemMessage: false,
               incoming: (msg.userId !== this.userInfo.uid),
               text: msg.message,
-              timestamp
+              timestamp,
+              isChatHistory: true
             };
 
             this.chatHistory.next(message);

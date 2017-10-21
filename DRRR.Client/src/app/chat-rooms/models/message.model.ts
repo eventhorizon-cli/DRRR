@@ -24,4 +24,9 @@ export interface Message {
    * 时间戳
    */
   timestamp?: number;
+
+  /**
+   * 是否为聊天记录
+   */
+  isChatHistory?: boolean;
 }

@@ -29,6 +29,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
   private resizeSubscription: Subscription;
 
+  private domNodeInsertedSubscription: Subscription;
+
   constructor(
     private route: ActivatedRoute,
     private chatRoomService: ChatRoomService
@@ -39,7 +41,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     // 一开始的高度
     this.setHeight();
     // 重新设置窗口大小后
-    this.resizeSubscription = FromEventObservable.create<Event>(window , 'resize')
+    this.resizeSubscription = FromEventObservable.create(window, 'resize')
       .subscribe(() => {
         this.setHeight();
         this.scrollToBottom();
@@ -54,20 +56,28 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       .scan((messages: Message[], message: Message) =>
         [message].concat(messages), []);
 
+    // 避免增加历史信息时将下方内容顶下去，
+    const scrollPanel = $('.msg-container-base')[0];
+    this.domNodeInsertedSubscription = FromEventObservable.create<MutationEvent>(scrollPanel, 'DOMNodeInserted')
+      .filter(evt => evt.relatedNode instanceof HTMLDivElement
+        && evt.relatedNode.classList.contains('history'))
+      .scan((hAndHDiff: number[]) => {
+        const height = scrollPanel.scrollHeight;
+        return [height, height - hAndHDiff[0]];
+      }, [scrollPanel.scrollHeight, 0])
+      .map(hAndHDiff => hAndHDiff[1])
+      .subscribe(hDiff => scrollPanel.scrollTop += hDiff);
+
     this.msgSubscription = this.messages.subscribe(() => {
       // 消息窗口滚至下方
-      setTimeout(() => {
-        this.scrollToBottom();
-      });
+      this.scrollToBottom();
     });
 
     this.chatRoomService.onReconnect = () => {
       this.chatRoomService.getChatHistory()
         .then(count => {
           this.noMoreMessage = count < 20;
-          setTimeout(() => {
-            this.scrollToBottom();
-          });
+          this.scrollToBottom();
         });
     };
 
@@ -79,6 +89,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.msgSubscription.unsubscribe();
     this.resizeSubscription.unsubscribe();
+    this.domNodeInsertedSubscription.unsubscribe();
     // 离开房间时关闭连接
     this.chatRoomService.disconnect();
   }
@@ -106,9 +117,6 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     this.chatRoomService.getChatHistory()
       .then(count => {
         this.noMoreMessage = count < 20;
-        setTimeout(() => {
-          scrollPanel.scrollTop(scrollPanel[0].scrollHeight - height);
-        });
       });
   }
 
@@ -123,8 +131,10 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
    * 将消息框内容滚动至最下方
    */
   private scrollToBottom() {
-    const scrollPanel = $('.msg-container-base');
-    scrollPanel.animate({scrollTop: scrollPanel[0].scrollHeight});
+    setTimeout(() => {
+      const scrollPanel = $('.msg-container-base');
+      scrollPanel.animate({ scrollTop: scrollPanel[0].scrollHeight });
+    });
   }
 
   /**

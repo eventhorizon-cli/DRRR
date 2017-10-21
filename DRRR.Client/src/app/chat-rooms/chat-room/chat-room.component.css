@@ -1,7 +1,7 @@
 .panel-heading, .panel-footer {
   background: #ffffff;
 }
-.panel-container{
+.panel-container {
   max-width: 800px;
   margin: 0 auto;
 }
@@ -11,22 +11,28 @@
   padding-left: 5px;
   overflow-x: hidden;
 }
+.msg-container-base:hover, .msg-container-base:focus {
+  padding-right: 3px;
+}
 @media (min-width: 768px) {
-  .msg-container-base{
+  .msg-container-base {
     padding-right: 10px!important;
     padding-left: 10px!important;
   }
+  .msg-container-base:hover, .msg-container-base:focus {
+    padding-right: 8px!important;
+  }
 }
-.msg-container-base::-webkit-scrollbar-track
-{
+.msg-container-base::-webkit-scrollbar-track {
   background-color: rgb(255, 255, 255);
 }
-.msg-container-base::-webkit-scrollbar
-{
+.msg-container-base:hover::-webkit-scrollbar {
   width: 2px;
 }
-.msg-container-base::-webkit-scrollbar-thumb
-{
+.msg-container-base::-webkit-scrollbar {
+  width: 0px;
+}
+.msg-container-base::-webkit-scrollbar-thumb {
   border-radius: 1px;
   background-color: #aeadaa;
   opacity: 0.5;
