@@ -50,7 +50,7 @@ namespace DRRR.Server
             services.AddDbContext<DrrrDbContext>(options =>
                 options.UseMySql(Configuration.GetConnectionString("DrrrDatabase")));
 
-            // 添加Jwt认证配置
+            #region Jwt认证配置
             // 参考资料 https://github.com/mrsheepuk/ASPNETSelfCreatedTokenAuthExample
             TokenAuthOptions.Audience = Configuration["Token:Audience"];
             TokenAuthOptions.Issuer = Configuration["Token:Issuer"];
@@ -88,8 +88,9 @@ namespace DRRR.Server
                     ClockSkew = TimeSpan.FromMinutes(0)
                 };
             });
+            #endregion
 
-            // 添加自定义的服务
+            #region 添加自定义的服务
             foreach (var type in Assembly.GetEntryAssembly().GetTypes())
             {
                 if (type.Name.EndsWith("Service"))
@@ -106,8 +107,9 @@ namespace DRRR.Server
                     }
                 }
             }
+            #endregion
 
-            // 存放头像的目录
+            #region 存放头像的目录配置
             var destAvatarsDir = Configuration["Resources:Avatars"];
             UserProfileService.AvatarsDirectory = destAvatarsDir;
             var destAvatarsDirInfo = new DirectoryInfo(destAvatarsDir);
@@ -122,6 +124,8 @@ namespace DRRR.Server
                         Path.Combine(destAvatarsDir, dirName, "default.jpg"));
                 }
             }
+            #endregion
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -129,7 +133,9 @@ namespace DRRR.Server
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+            loggerFactory.AddFile(Configuration.GetSection("Serilog"));
 
+            #region SignalR配置
             // SignalR通过查询字符串携带Token
             // 参考资料 http://infozone.se/en/authenticate-against-signalr-2/
             app.Use(async (context, next) =>
@@ -153,8 +159,9 @@ namespace DRRR.Server
             {
                 routes.MapHub<ChatHub>("chat");
             });
+            #endregion
 
-            // pushstate路由问题解决方案
+            #region pushstate路由问题解决方案
             // 参考资料 https://stackoverflow.com/questions/38531904/angular-2-routing-with-asp-net-core-non-mvc
             DefaultFilesOptions options = new DefaultFilesOptions();
             options.DefaultFileNames.Clear();
@@ -170,9 +177,10 @@ namespace DRRR.Server
                     context.Request.Path = "/index.html";
                     await next();
                 }
-            })
-            .UseDefaultFiles(options)
-            .UseAuthentication()
+            }).UseDefaultFiles(options);
+            #endregion
+
+            app.UseAuthentication()
             .UseResponseCompression()
             .UseMvc()
             .UseStaticFiles();

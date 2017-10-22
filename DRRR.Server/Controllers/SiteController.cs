@@ -8,6 +8,9 @@ using DRRR.Server.Dtos;
 
 namespace DRRR.Server.Controllers
 {
+    /// <summary>
+    /// 网站信息控制器
+    /// </summary>
     [Route("api/[controller]")]
     public class SiteController : Controller
     {
