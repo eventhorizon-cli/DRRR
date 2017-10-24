@@ -6,6 +6,7 @@ import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
 import { FromEventObservable } from 'rxjs/observable/FromEventObservable';
 import 'rxjs/add/operator/scan';
+import 'rxjs/add/operator/delay'
 
 import { ChatRoomService } from './chat-room.service';
 import { Message } from '../models/message.model';
@@ -53,12 +54,14 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
     // 聊天历史记录
     this.chatHistory = this.chatRoomService.chatHistory
+      .delay(0) // 这一步很重要，等下面的高度判断结束了再发射下一条
       .scan((messages: Message[], message: Message) =>
         [message].concat(messages), []);
 
     // 避免增加历史信息时将下方内容顶下去，
     const scrollPanel = $('.msg-container-base')[0];
-    this.domNodeInsertedSubscription = FromEventObservable.create<MutationEvent>(scrollPanel, 'DOMNodeInserted')
+    this.domNodeInsertedSubscription
+      = FromEventObservable.create<MutationEvent>(scrollPanel, 'DOMNodeInserted')
       .filter(evt => evt.relatedNode instanceof HTMLDivElement
         && evt.relatedNode.classList.contains('history'))
       .scan((hAndHDiff: number[]) => {
@@ -66,7 +69,9 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
         return [height, height - hAndHDiff[0]];
       }, [scrollPanel.scrollHeight, 0])
       .map(hAndHDiff => hAndHDiff[1])
-      .subscribe(hDiff => scrollPanel.scrollTop += hDiff);
+      .subscribe(hDiff => {
+        scrollPanel.scrollTop += hDiff;
+      });
 
     this.msgSubscription = this.messages.subscribe(() => {
       // 消息窗口滚至下方

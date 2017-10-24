@@ -90,6 +90,16 @@ namespace DRRR.Server.Services
         /// <returns>表示异步创建房间的任务，如果创建失败则返回错误信息</returns>
         public async Task<ChatRoomCreateResponseDto> CreateRoomAsync(int uid, ChatRoomDto roomDto)
         {
+            // 防止用户打开多个窗口创建房间
+            var error = await ApplyForCreatingRoomAsync(uid);
+            if (!string.IsNullOrEmpty(error))
+            {
+                return new ChatRoomCreateResponseDto
+                {
+                    Error = error,
+                    CloseModalIfError = true
+                };
+            }
             try
             {
                 var room = new ChatRoom
@@ -124,7 +134,8 @@ namespace DRRR.Server.Services
                 // 房间名重复
                 return new ChatRoomCreateResponseDto
                 {
-                    Error = _systemMessagesService.GetServerSystemMessage("E003", "房间名")
+                    Error = _systemMessagesService.GetServerSystemMessage("E003", "房间名"),
+                    CloseModalIfError = false
                 };
             }
         }

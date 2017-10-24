@@ -54,7 +54,7 @@ pre {
   border: 0;
   font-size: 14px;
   padding: 9px 13px!important;
-  height: 40px;
+  min-height: 40px;
 }
 .right pre{
   color: #ffffff;

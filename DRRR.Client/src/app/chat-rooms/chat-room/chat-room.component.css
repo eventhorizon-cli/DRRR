@@ -16,11 +16,11 @@
 }
 @media (min-width: 768px) {
   .msg-container-base {
-    padding-right: 10px!important;
-    padding-left: 10px!important;
+    padding-right: 10px;
+    padding-left: 10px;
   }
   .msg-container-base:hover, .msg-container-base:focus {
-    padding-right: 8px!important;
+    padding-right: 8px;
   }
 }
 .msg-container-base::-webkit-scrollbar-track {
@@ -37,7 +37,20 @@
   background-color: #aeadaa;
   opacity: 0.5;
 }
-.btn.btn-block:focus{
+
+/*火狐浏览器*/
+@-moz-document url-prefix() {
+  .msg-container-base:hover, .msg-container-base:focus {
+    padding-right: 5px!important;
+  }
+  @media (min-width: 768px) {
+    .msg-container-base:hover, .msg-container-base:focus {
+      padding-right: 10px!important;
+    }
+  }
+}
+
+  .btn.btn-block:focus{
   outline:none
 }
 .panel-default {

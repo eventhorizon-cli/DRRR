@@ -157,9 +157,15 @@ export class ChatRoomCreateComponent implements OnInit, OnDestroy {
         .subscribe(res => {
           this.msg.closeLoadingMessage();
           if (res.error) {
-            // 多线程导致的房间名重复
-            this.formErrorMessages['name'] = res.error;
-            this.form.controls['name'].setErrors({ illegal: true });
+            // 该用户试图创建权限允许范围外的房间
+            if (res.closeModalIfError) {
+              this.bsModalRef.hide();
+              this.msg.showAutoCloseMessage('error', 'E000', res.error);
+            } else {
+              // 多线程导致的房间名重复
+              this.formErrorMessages['name'] = res.error;
+              this.form.controls['name'].setErrors({ illegal: true });
+            }
           } else {
             this.bsModalRef.hide();
             swal(this.msg.getMessage('I001', '房间创建'), '', 'success')

@@ -11,4 +11,9 @@ export interface ChatRoomCreateResponseDto {
    * 错误信息
    */
   error: string;
+
+  /**
+   * 是否在发生错误时关闭模态框
+   */
+  closeModalIfError: boolean;
 }

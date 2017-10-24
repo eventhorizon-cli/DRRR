@@ -19,5 +19,10 @@ namespace DRRR.Server.Dtos
         /// 错误信息
         /// </summary>
         public string Error { get; set; }
+
+        /// <summary>
+        /// 是否在发生错误时关闭模态框
+        /// </summary>
+        public bool CloseModalIfError { get; set; }
     }
 }
