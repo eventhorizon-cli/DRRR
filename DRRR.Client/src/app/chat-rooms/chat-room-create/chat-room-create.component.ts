@@ -12,7 +12,6 @@ import { SystemMessagesService } from '../../core/services/system-messages.servi
 import { FormErrorsAutoClearer } from '../../core/services/form-errors-auto-clearer.service';
 import { ChatRoomDto } from '../dtos/chat-room.dto'
 import { ChatRoomCreateService } from './chat-room-create.service';
-import set = Reflect.set;
 
 @Component({
   selector: 'app-chat-room-create',

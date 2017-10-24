@@ -8,6 +8,8 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { BsModalService } from 'ngx-bootstrap/modal';
 
+import swal from 'sweetalert2';
+
 import { ChatRoomListService } from './chat-room-list.service';
 import { ChatRoomDto } from '../dtos/chat-room.dto';
 import { PaginationDto } from '../dtos/pagination.dto';
@@ -15,7 +17,7 @@ import { ChatRoomCreateComponent } from '../chat-room-create/chat-room-create.co
 import { AuthService } from '../../core/services/auth.service';
 import { Roles } from '../../core/models/roles.enum';
 import { SystemMessagesService } from '../../core/services/system-messages.service';
-import {SiteInfoService} from "../../core/services/site-info.service";
+import { SiteInfoService } from '../../core/services/site-info.service';
 
 @Component({
   selector: 'app-chat-room-list',
@@ -95,8 +97,8 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
     if (role === Roles.guest) {
       this.msg.showConfirmMessage('question',
         this.msg.getMessage('I009'), {
-        text: this.msg.getMessage('I010')
-      }).then(() => {
+          text: this.msg.getMessage('I010')
+        }).then(() => {
         this.router.navigate(['/register']);
       }, () => {});
       return;
@@ -122,11 +124,16 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
    * 刷新列表
    */
   refresh(page?: number) {
+    // 刚进入房间时，不显示加载信息
+    if (!swal.isVisible()) {
+      this.msg.showLoadingMessage('I005', '数据请求');
+    }
     page = page || +this.route.snapshot.params['page'] || 1;
     this.chatRoomListService.getList(this.keyword, page)
       .subscribe(data => {
         this.roomList = data.chatRoomList;
         this.pagination = data.pagination;
+        this.msg.closeLoadingMessage();
       });
     this.siteInfoService.refreshSiteStatus();
   }

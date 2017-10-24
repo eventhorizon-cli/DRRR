@@ -23,7 +23,7 @@ export class SiteInfoService {
    * @return {Observable<SiteStatusDto>}
    */
   refreshSiteStatus() {
-    return this.auth.http
+    this.auth.http
       .get<SiteStatusDto>('/api/site/status')
       .subscribe(status => this.siteStatus.next(status));
   }
