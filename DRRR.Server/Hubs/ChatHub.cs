@@ -156,26 +156,34 @@ namespace DRRR.Server.Hubs
             // 如果该房间已经被删除，这里得到的id为0
             if (roomId != 0)
             {
-                // // 通知同一房间里其他人该用户已经离线的ID
-                string msgId = "I002";
+                var connenction = await _dbContext
+                    .Connection.Where(conn => conn.ConnectionId == Context.ConnectionId)
+                    .FirstOrDefaultAsync().ConfigureAwait(false);
+
+                // 消息ID
+                string msgId;
                 Roles userRole = (Roles)Convert.ToInt32(Context.User.FindFirst(ClaimTypes.Role).Value);
                 // 如果是游客，直接删除链接信息
                 if (userRole == Roles.Guest)
                 {
                     // 游客直接通知离开房间
                     msgId = "I004";
-                    var connenction = await _dbContext
-                        .Connection.Where(conn => conn.ConnectionId == Context.ConnectionId)
-                        .FirstOrDefaultAsync().ConfigureAwait(false);
                     _dbContext.Connection.Remove(connenction);
-                    await _dbContext.SaveChangesAsync();
                 }
+                else
+                {
+                    // 通知同一房间里其他人该用户已经离线的ID
+                    msgId = "I002";
+                    connenction.IsOnline = false;
+                    _dbContext.Update(connenction);
+                }
+                await _dbContext.SaveChangesAsync();
 
-                // 通知同一房间里其他人该用户已经离线
+                // 通知同一房间里其他人该用户已经离线或游客离开房间
                 await Clients.Group(HashidsHelper.Encode(roomId)).InvokeAsync(
-                   "broadcastSystemMessage",
-                   _systemMessagesService.GetServerSystemMessage(msgId,
-                   HttpUtility.UrlDecode(Context.User.Identity.Name)));
+                    "broadcastSystemMessage",
+                    _systemMessagesService.GetServerSystemMessage(msgId,
+                    HttpUtility.UrlDecode(Context.User.Identity.Name)));
             }
             await base.OnDisconnectedAsync(exception);
 

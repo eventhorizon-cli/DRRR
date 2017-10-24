@@ -31,10 +31,10 @@ namespace DRRR.Server.Services
             var registeredUsers = await _dbContext.User.CountAsync();
 
             var onlineRegisteredUsers = await _dbContext.Connection
-                .Where(conn => !conn.IsGuest.Value).CountAsync();
+                .Where(conn => !conn.IsGuest.Value && conn.IsOnline.Value).CountAsync();
 
             var onlineGuests = await _dbContext.Connection
-                .Where(conn => conn.IsGuest.Value).CountAsync();
+                .Where(conn => conn.IsGuest.Value && conn.IsOnline.Value).CountAsync();
 
             return new SiteStatusDto
             {
