@@ -1,7 +1,7 @@
 # DRRR （取名自动漫《无头骑士异闻录 DuRaRaRa!!》）
 
 ## 简介
-使用 Angular 4 和 ASP.NET Core 实现的即时聊天网站系统
+使用 Angular 4 和 ASP.NET Core 实现的即时聊天网站系统。本项目出于个人学习目的，若有不妥之处，请联系最下方标注的邮箱。
 
 ## 项目文件夹构成
 - 前台：DRRR.Client（Angular 4）
@@ -30,3 +30,6 @@ DRRR.Server/appsettings.json
 3. 将第一步得到的 dist 文件夹中的文件复制到第二步得到的文件夹中的wwwroot文件夹中。
 4. 部署 .net core 至生产环境，请参见[官方说明](https://docs.microsoft.com/zh-cn/dotnet/core/deploying/index)。
 linux平台以后台方式运行,请执行 `nohup dotnet DRRR.Server.dll &`，或配置Supervisor。可通过命令行参数指定后台端口，如 `dotnet DRRR.Server.dll 4000`。
+
+## 联系方式
+邮箱：blurhkh@hotmail.com
