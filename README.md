@@ -23,6 +23,7 @@ DRRR.Server/appsettings.json
 ## 如何运行
 1. DRRR.Client 目录下执行 `npm start` 命令。
 2. vs2017 用户直接打开 DRRR.Server 解决方案以控制台程序运行，vs code用户请直接用vs code打开DRRR根目录直接运行，其他用户 DRRR.Server 目录下 运行 `dotnet run` 命令。
+3. 浏览器打开localhost:3000。
 
 ## 如何发布
 1. DRRR.Client 目录下执行 `ng build --prod` 命令，编译结果位于 DRRR.Client/dist 目录。

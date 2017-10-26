@@ -24,42 +24,7 @@ export class AuthService {
     private msg: SystemMessagesService,
     private router: Router
   ) {
-    this.http = new Proxy(httpWithoutAuth, {
-      get: (target: HttpClient, propKey: string) => {
-        // 被调用的对应的Http方法
-        const httpFunc: Function = target[propKey];
-
-        return (...args: any[]): Observable<any> => {
-          // 对传入的参数进行编辑
-          const getArgs = (): any[] => {
-            const headers = this.getAuthorizationHeader('access_token');
-
-            // 如果最后一个参数即options被传入，则进行合并
-            if (httpFunc.length === args.length) {
-              args[args.length - 1] = { headers, ...args[args.length - 1] };
-            } else {
-              args.push({ headers });
-            }
-            return args;
-          };
-
-          const payload = this.getPayloadFromToken('access_token');
-
-          // 如果剩余有效时间小于10分钟，则刷新访问令牌
-          if ((payload.exp - Math.floor(Date.now() / 1000)) < 600) {
-            return Observable.create((observer: Observer<object>) => {
-              this.refreshToken(() => {
-                httpFunc.apply(target, getArgs())
-                  .subscribe(data => observer.next(data),
-                  error => observer.error(error));
-              })
-            })
-          }
-
-          return httpFunc.apply(target, getArgs());
-        };
-      }
-    });
+    this.http = this.createWrappedHttpClient();
   }
 
   /**
@@ -209,5 +174,62 @@ export class AuthService {
   private getAuthorizationHeader(tokenName: 'access_token' | 'refresh_token'): HttpHeaders {
     return new HttpHeaders()
       .set('Authorization', `Bearer ${this.storage.getItem(tokenName)}`);
+  }
+
+  /**
+   * 创建包装过的HttpClient对象
+   * @return {HttpClient} 包装过的HttpClient对象
+   */
+  private createWrappedHttpClient(): HttpClient {
+    const get: (target: HttpClient, p: PropertyKey) => (...args: any[]) => Observable<any>
+      = (target, propKey) => {
+        // 被调用的对应的Http方法
+        const httpFunc: Function = target[propKey];
+
+        return (...args: any[]): Observable<any> => {
+          // 对传入的参数进行编辑
+          const getArgs = (): any[] => {
+            const headers = this.getAuthorizationHeader('access_token');
+
+            // 如果最后一个参数即options被传入，则进行合并
+            if (httpFunc.length === args.length) {
+              args[args.length - 1] = { headers, ...args[args.length - 1] };
+            } else {
+              args.push({ headers });
+            }
+            return args;
+          };
+
+          const payload = this.getPayloadFromToken('access_token');
+
+          // 如果剩余有效时间小于10分钟，则刷新访问令牌
+          if ((payload.exp - Math.floor(Date.now() / 1000)) < 600) {
+            return Observable.create((observer: Observer<object>) => {
+              this.refreshToken(() => {
+                httpFunc.apply(target, getArgs())
+                  .subscribe(data => observer.next(data),
+                  error => observer.error(error));
+              })
+            })
+          }
+
+          return httpFunc.apply(target, getArgs());
+        };
+      };
+
+    // 支持Proxy则直接返回Proxy对象
+    if (Proxy) {
+      return new Proxy(this.httpWithoutAuth, { get })
+    } else {
+      const wrappedHttpClient: HttpClient = Object.create(this.httpWithoutAuth);
+      for (const [propKey, prop] of Object.entries(Object.getPrototypeOf(this.httpWithoutAuth))) {
+        if (!(prop instanceof Function)) {
+          continue;
+        }
+
+        wrappedHttpClient[propKey] = get(this.httpWithoutAuth, propKey);
+      }
+      return wrappedHttpClient;
+    }
   }
 }

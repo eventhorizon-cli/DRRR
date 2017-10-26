@@ -117,8 +117,6 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
    * 显示更多历史消息
    */
   showMoreChatHistory() {
-    const scrollPanel = $('.msg-container-base');
-    const height = scrollPanel[0].scrollHeight;
     this.chatRoomService.getChatHistory()
       .then(count => {
         this.noMoreMessage = count < 20;
@@ -155,5 +153,15 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       - (+panelFooter[0].clientHeight) - 50;
 
     $('.msg-container-base').height(height);
+  }
+
+  setPaddingRight () {
+    const scrollPanel = $('.msg-container-base');
+    // 未出现滚动条
+    if (scrollPanel[0].scrollHeight === scrollPanel[0].clientHeight) {
+      scrollPanel.css('padding-right',  scrollPanel.css('padding-left'));
+    } else {
+      scrollPanel.css('padding-right', '');
+    }
   }
 }
