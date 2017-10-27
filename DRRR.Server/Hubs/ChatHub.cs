@@ -198,17 +198,19 @@ namespace DRRR.Server.Hubs
         public async Task DeleteRoomAsync(string roomHashid)
         {
             var roomId = HashidsHelper.Decode(roomHashid);
-            Roles userRole = (Roles)Convert.ToInt32(Context.User.FindFirst(ClaimTypes.Role).Value);
-            int userId = HashidsHelper.Decode(Context.User.FindFirst("uid").Value);
 
             var room = await _dbContext.ChatRoom.FindAsync(roomId).ConfigureAwait(false);
 
+            // 当前房间已经被删除则不做处理
+            if (room == null) return;
+
+            Roles userRole = (Roles)Convert.ToInt32(
+                Context.User.FindFirst(ClaimTypes.Role).Value);
+            int userId = HashidsHelper.Decode(Context.User.FindFirst("uid").Value);
+
             // 为了安全做一次判断
             // 如果不是房主或者管理员则无权进行删除处理
-            if (userId != room.OwnerId && userRole != Roles.Admin)
-            {
-                return;
-            }
+            if (userId != room.OwnerId && userRole != Roles.Admin) return;
 
             // 删除房间
             _dbContext.ChatRoom.Remove(room);
