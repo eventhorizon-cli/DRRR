@@ -155,6 +155,9 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     $('.msg-container-base').height(height);
   }
 
+  /**
+   * 配合css一起调节消息容器右边填充
+   */
   setPaddingRight () {
     const scrollPanel = $('.msg-container-base');
     // 未出现滚动条

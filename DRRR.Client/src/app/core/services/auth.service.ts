@@ -218,7 +218,7 @@ export class AuthService {
       };
 
     // 支持Proxy则直接返回Proxy对象
-    if (Proxy) {
+    if (window['Proxy']) {
       return new Proxy(this.httpWithoutAuth, { get })
     } else {
       const wrappedHttpClient: HttpClient = Object.create(this.httpWithoutAuth);

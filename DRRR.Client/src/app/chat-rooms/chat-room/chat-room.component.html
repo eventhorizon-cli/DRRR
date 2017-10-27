@@ -10,7 +10,9 @@
       </div>
     </div>
 
-    <div class="panel-body msg-container-base" (mouseenter)="setPaddingRight()">
+    <div class="panel-body msg-container-base"
+         (mouseenter)="setPaddingRight()"
+         (focus)="setPaddingRight()">
       <div>
         <button class="btn btn-link btn-block"
                 (click)="showMoreChatHistory()"
