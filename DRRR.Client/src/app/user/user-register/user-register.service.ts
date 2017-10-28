@@ -18,7 +18,7 @@ export class UserRegisterService {
    */
   validateUsername(username: string): Observable<{error: string}> {
     return this.http
-      .get<{error: string}>(`/api/user/username-validation?username=${username.trim()}`);
+      .get<{error: string}>(`/api/user/username-validation?username=${encodeURIComponent(username.trim())}`);
   }
 
   /**

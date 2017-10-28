@@ -20,7 +20,7 @@ export class ChatRoomCreateService {
    */
   validateRoomName(name: string): Observable<{error: string}> {
     return this.auth.http
-      .get<{error: string}>(`api/rooms/room-name-validation?name=${name}`);
+      .get<{error: string}>(`api/rooms/room-name-validation?name=${encodeURIComponent(name)}`);
   }
 
   /**
