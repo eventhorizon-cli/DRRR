@@ -57,7 +57,6 @@ export class ChatRoomService {
     this.message = new Subject<Message>();
     this.chatHistory = new Subject<Message>();
     this.roomName = new Subject<string>();
-    this.userInfo = auth.getPayloadFromToken('access_token');
   }
 
   /**
@@ -74,6 +73,10 @@ export class ChatRoomService {
 
       // 打开连接
       this.connection.start().then(() => {
+
+        // 每次连接后都重新获取，避免更换身份登陆后出现问题
+        this.userInfo = this.auth.getPayloadFromToken('access_token');
+
         this.connection.invoke('JoinRoomAsync', roomId)
           .then((res: ChatRoomInitialDisplayDto) => {
             this.roomName.next(res.roomName);
@@ -90,23 +93,23 @@ export class ChatRoomService {
       // 聊天消息
       this.connection.on('broadcastMessage',
         (userId: string, username: string, message: string) => {
-        this.message.next({
-          userId,
-          username,
-          isSystemMessage: false,
-          incoming: (this.userInfo.uid !== userId),
-          text: message
+          this.message.next({
+            userId,
+            username,
+            isSystemMessage: false,
+            incoming: (this.userInfo.uid !== userId),
+            text: message
+          });
         });
-      });
 
       // 系统消息
       this.connection.on('broadcastSystemMessage',
         (message: string) => {
-        this.message.next({
-          isSystemMessage: true,
-          text: message
+          this.message.next({
+            isSystemMessage: true,
+            text: message
+          });
         });
-      });
 
       // 连接被异常切断
       this.connection.onclose(this.onClose.bind(this));
@@ -117,7 +120,10 @@ export class ChatRoomService {
           .then(() => {
             // 返回大厅
             this.router.navigateByUrl('/rooms');
-          }, () => {});
+          }, () => {
+            // 返回大厅
+            this.router.navigateByUrl('/rooms');
+          });
       })
     });
   }
@@ -134,8 +140,8 @@ export class ChatRoomService {
           // 消息发送成功，清空输入框
           message.value = '';
         }).catch(() => {
-        this.reconnect(this.msg.getMessage('E004', '消息发送'));
-      });
+          this.reconnect(this.msg.getMessage('E004', '消息发送'));
+        });
     } else {
       this.reconnect(this.msg.getMessage('E004', '消息发送'));
     }
@@ -164,12 +170,12 @@ export class ChatRoomService {
     return new Promise<number>(((resolve, reject) => {
       this.connection.invoke('GetChatHistoryAsync', this.roomId, this.entryTime, this.startIndex)
         .then((history: ChatHistoryDto[]) => {
-        this.startIndex += history.length;
+          this.startIndex += history.length;
 
           history.forEach(msg => {
             let timestamp: number;
             if (!this.lastHistoryTimeStamp
-                || (this.lastHistoryTimeStamp - msg.timestamp) > 60000) {
+              || (this.lastHistoryTimeStamp - msg.timestamp) > 60000) {
               // 超过一分钟以上显示时间
               this.lastHistoryTimeStamp = msg.timestamp;
               timestamp = msg.timestamp;
@@ -223,6 +229,6 @@ export class ChatRoomService {
         } catch (e) {
           this.reconnect(this.msg.getMessage('E008'));
         }
-      }, () => {});
+      }, () => { });
   }
 }

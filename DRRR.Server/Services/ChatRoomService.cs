@@ -173,27 +173,40 @@ namespace DRRR.Server.Services
         /// <returns>表示获取用户上一次登录时所在的房间ID的任务</returns>
         public async Task<string> GetPreviousRoomIdAsync(int uid)
         {
-            var roomId = await _dbContext.Connection
-                      .Where(conn => conn.UserId == uid)
-                      .Select(conn => conn.RoomId)
+            var connection = await _dbContext.Connection
+                      .Where(conn => conn.UserId == uid && !conn.IsDeleted.Value)
                       .FirstOrDefaultAsync()
                       .ConfigureAwait(false);
-            // 房间ID为0则说明没找到
-            if (roomId == 0) return null;
-            return HashidsHelper.Encode(roomId);
+
+
+            // 连接信息没找到
+            if (connection == null) return null;
+
+            var room = await _dbContext.ChatRoom.FindAsync(connection.RoomId);
+            if (room == null)
+            {
+                // 如果房间没找到，但连接信息却找到了，说明之前的数据有问题
+                // 删除连接信息
+                _dbContext.Remove(connection);
+                await _dbContext.SaveChangesAsync();
+                return null;
+            }
+            return HashidsHelper.Encode(connection.RoomId);
         }
 
         /// <summary>
-        /// 删除连接信息
+        /// 软删除连接信息
         /// </summary>
         /// <param name="roomId">房间ID</param>
         /// <param name="userId">用户ID</param>
-        /// <returns>表示删除连接的任务</returns>
-        public async Task<string> DeleteConnectionAsync(int roomId, int userId)
+        /// <returns>表示软删除连接的任务</returns>
+        public async Task<string> PerformSoftDeleteOfConnectionAsync(int roomId, int userId)
         {
             var connection = await _dbContext.Connection.FindAsync(roomId, userId);
+            // 如果用户打开了两个窗口，这里会出问题
             if (connection == null) return string.Empty;
-            _dbContext.Remove(connection);
+            connection.IsDeleted = true;
+            _dbContext.Update(connection);
             await _dbContext.SaveChangesAsync();
             // 返回空字符串避免前台出错
             return string.Empty;

@@ -62,16 +62,16 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     const scrollPanel = $('.msg-container-base')[0];
     this.domNodeInsertedSubscription
       = FromEventObservable.create<MutationEvent>(scrollPanel, 'DOMNodeInserted')
-      .filter(evt => evt.relatedNode instanceof HTMLDivElement
-        && evt.relatedNode.classList.contains('history'))
-      .scan((hAndHDiff: number[]) => {
-        const height = scrollPanel.scrollHeight;
-        return [height, height - hAndHDiff[0]];
-      }, [scrollPanel.scrollHeight, 0])
-      .map(hAndHDiff => hAndHDiff[1])
-      .subscribe(hDiff => {
-        scrollPanel.scrollTop += hDiff;
-      });
+        .filter(evt => evt.relatedNode instanceof HTMLDivElement
+          && evt.relatedNode.classList.contains('history'))
+        .scan((hAndHDiff: number[]) => {
+          const height = scrollPanel.scrollHeight;
+          return [height, height - hAndHDiff[0]];
+        }, [scrollPanel.scrollHeight, 0])
+        .map(hAndHDiff => hAndHDiff[1])
+        .subscribe(hDiff => {
+          scrollPanel.scrollTop += hDiff;
+        });
 
     this.msgSubscription = this.messages.subscribe(() => {
       // 消息窗口滚至下方

@@ -80,8 +80,8 @@ export class AppComponent implements OnInit {
             if (result) {
               resolve()
             } else {
-              this.deleteConnection().subscribe(
-                _ => resolve());
+              this.performSoftDeleteOfConnection().subscribe(
+                () => resolve());
             }
           }),
         onOpen: () => {
@@ -122,23 +122,24 @@ export class AppComponent implements OnInit {
     if (/rooms\/(\w+)/.test(this.currentPath)) {
       this.msg.showConfirmMessage('warning', this.msg.getMessage('I003', '离开房间'))
         .then(() =>
-            this.deleteConnection()
-              .subscribe(() =>
-                this.router.navigateByUrl('/rooms')),
-          _ => {
-          });
+            this.performSoftDeleteOfConnection()
+              .subscribe(() => {
+                this.router.navigateByUrl('/rooms');
+              }),
+          () => { });
     } else {
-      this.router.navigateByUrl('/rooms')
+      this.router.navigateByUrl('/rooms');
     }
   }
 
   /**
-   * 删除连接信息
+   * 软删除连接信息
    * @returns {Observable<string>} 返回值（空字符串，如果没有返回值，angular会报错）
    */
-  private deleteConnection(): Observable<string> {
+  private performSoftDeleteOfConnection(): Observable<string> {
     const roomId = /rooms\/(\w+)/.exec(this.currentPath)[1];
-    const userId = this.auth.getPayloadFromToken('access_token').uid;
-    return this.auth.http.delete(`/api/rooms/${roomId}/connections/${userId}`, { responseType: 'text' })
+    return this.auth.http
+      .post(`/api/rooms/connection-soft-delete`,
+        { roomId }, { responseType: 'text' });
   }
 }

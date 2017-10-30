@@ -71,18 +71,18 @@ namespace DRRR.Server.Controllers
         }
 
         /// <summary>
-        /// 删除连接信息
+        /// 软删除连接信息
         /// </summary>
         /// <param name="roomHashid">房间哈希ID</param>
         /// <param name="userHashid">用户哈希ID</param>
         /// <returns>表示删除连接的任务</returns>
-        [HttpDelete, Route("{roomHashid}/connections/{userHashid}")]
+        [HttpPost, Route("connection-soft-delete")]
         [JwtAuthorize(Roles.User, Roles.Admin, Roles.Guest)]
-        public async Task<string> DeleteConnectionAsync(string roomHashid, string userHashid)
+        public async Task<string> PerformSoftDeleteOfConnectionAsync([FromBody] ConnectionSoftDeleteRequestDto requestDto)
         {
-            var roomId = HashidsHelper.Decode(roomHashid);
-            var userId = HashidsHelper.Decode(userHashid);
-            return await _chatRoomService.DeleteConnectionAsync(roomId, userId);
+            var userId = HashidsHelper.Decode(HttpContext.User.FindFirst("uid").Value);
+            return await _chatRoomService
+                .PerformSoftDeleteOfConnectionAsync(HashidsHelper.Decode(requestDto.RoomId), userId);
         }
 
         /// <summary>

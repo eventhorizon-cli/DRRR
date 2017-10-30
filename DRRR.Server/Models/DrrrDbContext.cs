@@ -145,6 +145,9 @@ namespace DRRR.Server.Models
                     .HasColumnName("user_id")
                     .HasColumnType("int(10) unsigned zerofill");
 
+                entity.Property(e => e.Username)
+                    .HasColumnName("username");
+
                 entity.Property(e => e.ConnectionId)
                     .HasColumnName("connection_id");
 
@@ -155,6 +158,11 @@ namespace DRRR.Server.Models
 
                 entity.Property(e => e.IsGuest)
                     .HasColumnName("is_guest")
+                    .HasColumnType("tinyint(1) unsigned")
+                    .HasDefaultValueSql("0");
+
+                entity.Property(e => e.IsDeleted)
+                    .HasColumnName("is_deleted")
                     .HasColumnType("tinyint(1) unsigned")
                     .HasDefaultValueSql("0");
 
