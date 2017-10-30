@@ -1,8 +1,8 @@
 -- MySQL dump 10.13  Distrib 5.7.17, for Win64 (x86_64)
 --
--- Host: localhost    Database: drrr
+-- Host: 127.0.0.1    Database: drrr
 -- ------------------------------------------------------
--- Server version	5.7.18-log
+-- Server version	5.7.20-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -26,21 +26,12 @@ CREATE TABLE `chat_history` (
   `room_id` int(10) unsigned zerofill NOT NULL COMMENT '房间ID',
   `user_id` int(10) unsigned zerofill NOT NULL COMMENT '用户ID',
   `unix_time_milliseconds` bigint(20) NOT NULL COMMENT '创建时间',
-  `username` varchar(10) NOT NULL,
+  `username` varchar(10) NOT NULL COMMENT '用户名',
   `message` varchar(200) DEFAULT NULL COMMENT '消息',
   PRIMARY KEY (`room_id`,`user_id`,`unix_time_milliseconds`),
   KEY `chat_history_idx` (`room_id`,`unix_time_milliseconds`) COMMENT '由房间ID和创建时间组成的索引'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='历史聊天记录';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `chat_history`
---
-
-LOCK TABLES `chat_history` WRITE;
-/*!40000 ALTER TABLE `chat_history` DISABLE KEYS */;
-/*!40000 ALTER TABLE `chat_history` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `chat_room`
@@ -71,15 +62,6 @@ CREATE TABLE `chat_room` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `chat_room`
---
-
-LOCK TABLES `chat_room` WRITE;
-/*!40000 ALTER TABLE `chat_room` DISABLE KEYS */;
-/*!40000 ALTER TABLE `chat_room` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `connection`
 --
 
@@ -89,24 +71,17 @@ DROP TABLE IF EXISTS `connection`;
 CREATE TABLE `connection` (
   `room_id` int(10) unsigned zerofill NOT NULL COMMENT '房间ID',
   `user_id` int(10) unsigned zerofill NOT NULL COMMENT '用户ID',
+  `username` varchar(10) NOT NULL COMMENT '用户名',
   `connection_id` varchar(36) NOT NULL COMMENT '连接ID',
   `is_online` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '是否在线',
   `is_guest` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否为游客',
+  `is_deleted` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否被标记为删除',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`room_id`,`user_id`),
   KEY `connection_idx` (`room_id`,`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='websocket连接';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `connection`
---
-
-LOCK TABLES `connection` WRITE;
-/*!40000 ALTER TABLE `connection` DISABLE KEYS */;
-/*!40000 ALTER TABLE `connection` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -196,15 +171,6 @@ CREATE TABLE `user` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `user`
---
-
-LOCK TABLES `user` WRITE;
-/*!40000 ALTER TABLE `user` DISABLE KEYS */;
-/*!40000 ALTER TABLE `user` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `user_status`
 --
 
@@ -237,4 +203,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-10-20 19:21:54
+-- Dump completed on 2017-10-30  0:16:48
