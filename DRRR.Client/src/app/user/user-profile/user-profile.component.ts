@@ -91,7 +91,9 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
     // 设置图像显示区域的最大高度和最大宽度
     // 当前设备屏幕的一半
-    const length = Math.min(screen.availWidth - 60, 460);
+    // 不应该用screen.availWidth，在safari上判断会失败
+    // 因为在html上设置过width=device-width，所以可以用width=device-width得到准确数据
+    const length = Math.min(window.innerWidth - 60, 460);
     swal({
       title: '裁剪头像',
       html: `
