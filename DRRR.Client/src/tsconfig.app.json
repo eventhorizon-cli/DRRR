@@ -2,8 +2,8 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "outDir": "../out-tsc/app",
-    "module": "es2017",
-    "baseUrl": "",
+    "baseUrl": "./",
+    "module": "es2015",
     "types": ["jquery"]
   },
   "exclude": [
