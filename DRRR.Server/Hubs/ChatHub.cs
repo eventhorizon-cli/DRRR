@@ -92,6 +92,7 @@ namespace DRRR.Server.Hubs
                 }
                 // 重连的情况下
                 msgId = "I003";
+                connection.IsOnline = true;
                 connection.ConnectionId = Context.ConnectionId;
                 // 只保留一条记录
                 _dbContext.Update(connection);
@@ -195,7 +196,6 @@ namespace DRRR.Server.Hubs
             {
                 // 删除连接信息
                 _dbContext.Connection.Remove(connenction);
-                await _dbContext.SaveChangesAsync();
             }
             else
             {
@@ -218,14 +218,14 @@ namespace DRRR.Server.Hubs
                     connenction.IsOnline = false;
                     _dbContext.Update(connenction);
                 }
-                await _dbContext.SaveChangesAsync();
-
                 // 通知同一房间里其他人该用户已经离线或游客离开房间
                 await Clients.Group(roomHashid).InvokeAsync(
                     "broadcastSystemMessage",
                     _systemMessagesService.GetServerSystemMessage(msgId,
                     HttpUtility.UrlDecode(Context.User.Identity.Name)));
             }
+
+            await _dbContext.SaveChangesAsync();
 
             // 从分组中删除当前连接
             // 注意 移除必须是在最后做，否则会报错
@@ -256,20 +256,34 @@ namespace DRRR.Server.Hubs
             // 如果不是房主或者管理员则无权进行删除处理
             if (userId != room.OwnerId && userRole != Roles.Admin) return;
 
-            // 删除房间
-            _dbContext.ChatRoom.Remove(room);
+            using (var tran = await _dbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // 删除房间
+                    _dbContext.ChatRoom.Remove(room);
 
-            // 删除消息记录
-            var history = await _dbContext.ChatHistory
-                .Where(msg => msg.RoomId == roomId)
-                .ToArrayAsync().ConfigureAwait(false);
+                    await _dbContext.SaveChangesAsync();
 
-            _dbContext.ChatHistory.RemoveRange(history);
+                    // 删除历史聊天信息
+                    await _dbContext.Database.ExecuteSqlCommandAsync(
+                        $"delete from chat_history where room_id = {room.Id}");
 
-            await _dbContext.SaveChangesAsync();
+                    // 删除已经离线的用户的连接信息
+                    await _dbContext.Database.ExecuteSqlCommandAsync(
+                        $"delete from connection where room_id = {room.Id} and is_online = false");
 
-            await Clients.Group(roomHashid).InvokeAsync("onRoomDeleted",
-                _systemMessagesService.GetServerSystemMessage("E008"));
+                    tran.Commit();
+
+                    await Clients.Group(roomHashid).InvokeAsync("onRoomDeleted",
+                        _systemMessagesService.GetServerSystemMessage("E008"));
+                }
+                catch
+                {
+
+                    tran.Rollback();
+                }
+            }
         }
 
         /// <summary>
