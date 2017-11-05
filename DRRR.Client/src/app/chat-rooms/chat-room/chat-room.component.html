@@ -4,13 +4,20 @@
     <div class="panel-heading">
       <div class="panel-title-container">
         <h3 class="panel-title">
-          <span class="fa fa-comments-o"></span>
-          &nbsp;{{roomName | async}}
+          <i class="fa fa-comments-o"></i>
+          &nbsp;{{(initialDto | async)?.roomName}}
+          <p class="pull-right" (click)="showOrHideMemberList()">
+            {{onlineUsers}}/{{(memberList | async)?.length}} 人在线&nbsp;
+            <i class="fa fa-chevron-{{ isMemberListVisible ? 'up' : 'down' }}"></i>
+          </p>
         </h3>
       </div>
     </div>
 
     <div class="panel-body msg-container-base">
+      <app-chat-room-member-list
+        [list]="memberList | async">
+      </app-chat-room-member-list>
       <div>
         <button class="btn btn-link btn-block"
                 (click)="showMoreChatHistory()"

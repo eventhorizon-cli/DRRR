@@ -1,0 +1,9 @@
+<div class="member-list">
+  <ul class="list-inline">
+    <li *ngFor="let item of list">
+      <app-chat-room-member-list-item
+        [memberInfo]="item">
+      </app-chat-room-member-list-item>
+    </li>
+  </ul>
+</div>

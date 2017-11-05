@@ -6,10 +6,12 @@ import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
 import { FromEventObservable } from 'rxjs/observable/FromEventObservable';
 import 'rxjs/add/operator/scan';
-import 'rxjs/add/operator/delay'
+import 'rxjs/add/operator/delay';
 
 import { ChatRoomService } from './chat-room.service';
 import { Message } from '../models/message.model';
+import { ChatRoomInitialDisplayDto } from '../dtos/chat-room-initial-display.dto';
+import { ChatRoomMemberDto } from '../dtos/chat-room-member.dto';
 
 @Component({
   selector: 'app-chat-room',
@@ -22,9 +24,15 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
   chatHistory: Observable<Message[]>;
 
-  roomName: Subject<string>;
+  initialDto: Subject<ChatRoomInitialDisplayDto>;
 
   noMoreMessage: boolean;
+
+  memberList: Subject<ChatRoomMemberDto[]>;
+
+  isMemberListVisible: boolean;
+
+  onlineUsers: number;
 
   private msgSubscription: Subscription;
 
@@ -35,7 +43,10 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private chatRoomService: ChatRoomService
-  ) { }
+  ) {
+    // 默认不显示用户列表
+    this.isMemberListVisible = false;
+  }
 
   ngOnInit() {
     // 聊天界面窗口高度
@@ -62,16 +73,16 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     const scrollPanel = $('.msg-container-base')[0];
     this.domNodeInsertedSubscription
       = FromEventObservable.create<MutationEvent>(scrollPanel, 'DOMNodeInserted')
-        .filter(evt => evt.relatedNode instanceof HTMLDivElement
-          && evt.relatedNode.classList.contains('history'))
-        .scan((hAndHDiff: number[]) => {
-          const height = scrollPanel.scrollHeight;
-          return [height, height - hAndHDiff[0]];
-        }, [scrollPanel.scrollHeight, 0])
-        .map(hAndHDiff => hAndHDiff[1])
-        .subscribe(hDiff => {
-          scrollPanel.scrollTop += hDiff;
-        });
+      .filter(evt => evt.relatedNode instanceof HTMLDivElement
+        && evt.relatedNode.classList.contains('history'))
+      .scan((hAndHDiff: number[]) => {
+        const height = scrollPanel.scrollHeight;
+        return [height, height - hAndHDiff[0]];
+      }, [scrollPanel.scrollHeight, 0])
+      .map(hAndHDiff => hAndHDiff[1])
+      .subscribe(hDiff => {
+        scrollPanel.scrollTop += hDiff;
+      });
 
     this.msgSubscription = this.messages.subscribe(() => {
       // 消息窗口滚至下方
@@ -79,6 +90,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     });
 
     this.chatRoomService.onReconnect = () => {
+      // 显示用户列表
+      this.isMemberListVisible = true;
       this.chatRoomService.getChatHistory()
         .then(count => {
           this.noMoreMessage = count < 20;
@@ -88,7 +101,11 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
     const roomId = this.route.snapshot.params['id'];
     this.chatRoomService.connect(roomId);
-    this.roomName = this.chatRoomService.roomName;
+    this.initialDto = this.chatRoomService.initialDto;
+    this.memberList = this.chatRoomService.memberList;
+    this.memberList.subscribe(list => {
+      this.onlineUsers = list.filter(x => x.isOnline).length;
+    });
   }
 
   ngOnDestroy() {
@@ -131,12 +148,20 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * 显示或者隐藏成员列表
+   */
+  showOrHideMemberList() {
+    this.isMemberListVisible = !this.isMemberListVisible;
+    $('.member-list').toggle();
+  }
+
+  /**
    * 将消息框内容滚动至最下方
    */
   private scrollToBottom() {
     setTimeout(() => {
       const scrollPanel = $('.msg-container-base');
-      scrollPanel.animate({ scrollTop: scrollPanel[0].scrollHeight });
+      scrollPanel.animate({ scrollTop: scrollPanel[0].scrollHeight , speed: 'fast'});
     });
   }
 

@@ -19,6 +19,8 @@ import { ChatRoomAuthGuard } from './chat-room-auth.guard';
 import { ChatMessageComponent } from './chat-message/chat-message.component';
 import { ChatRoomService } from './chat-room/chat-room.service';
 import { ChatRoomListItemService } from './chat-room-list-item/chat-room-list-item.service';
+import { ChatRoomMemberListComponent } from './chat-room-member-list/chat-room-member-list.component';
+import { ChatRoomMemberListItemComponent } from './chat-room-member-list-item/chat-room-member-list-item.component';
 
 @NgModule({
   imports: [
@@ -43,6 +45,8 @@ import { ChatRoomListItemService } from './chat-room-list-item/chat-room-list-it
     ProgressBarComponent,
     ChatRoomComponent,
     ChatMessageComponent,
+    ChatRoomMemberListComponent,
+    ChatRoomMemberListItemComponent,
     ChatRoomCreateComponent],
   entryComponents: [
     ChatRoomCreateComponent

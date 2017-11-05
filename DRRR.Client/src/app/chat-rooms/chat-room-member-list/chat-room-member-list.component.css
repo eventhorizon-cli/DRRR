@@ -1,0 +1,16 @@
+ul{
+  margin-bottom: 0;
+  margin-left: 0;
+  overflow: scroll;
+  white-space: nowrap;
+  overflow-y: hidden;
+  overflow-x: auto;
+}
+.member-list{
+  position: fixed;
+  background-color: white;
+  z-index: 10;
+  margin-top: -15px;
+  padding-top: 10px;
+  border-bottom: 1px solid #eee;
+}

@@ -117,9 +117,12 @@ namespace DRRR.Server.Hubs
                 await Groups.RemoveAsync(connIdToBeRemoved, roomHashid);
             }
 
+            // 显示用户列表
+            await RefreshMemberListAsync(roomHashid, roomId);
+
             var room = await _dbContext.ChatRoom
                 .Where(r => r.Id == roomId)
-                .Select(r => new { r.OwnerId, r.Name })
+                .Select(r => new { r.Name, r.MaxUsers })
                 .FirstOrDefaultAsync().ConfigureAwait(false);
 
             return new ChatRoomInitialDisplayDto
@@ -227,6 +230,9 @@ namespace DRRR.Server.Hubs
 
             await _dbContext.SaveChangesAsync();
 
+            // 刷新用户列表
+            await RefreshMemberListAsync(roomHashid, connenction.RoomId);
+
             // 从分组中删除当前连接
             // 注意 移除必须是在最后做，否则会报错
             await Groups.RemoveAsync(Context.ConnectionId, roomHashid);
@@ -311,6 +317,35 @@ namespace DRRR.Server.Hubs
                  .Take(20).ToListAsync();
 
             return history;
+        }
+
+        /// <summary>
+        /// 刷新房间成员列表信息
+        /// </summary>
+        /// <param name="roomHashid">房间哈希ID</param>
+        /// <param name="roomId">房间ID</param>
+        /// <returns>表示刷新房间成员列表信息的任务</returns>
+        private async Task RefreshMemberListAsync(string roomHashid, int roomId)
+        {
+            var ownerId = await _dbContext.ChatRoom
+                .Where(room => room.Id == roomId)
+                .Select(room => room.OwnerId).FirstOrDefaultAsync();
+
+            var list = await _dbContext.Connection
+                .Where(conn => conn.RoomId == roomId)
+                .OrderBy(conn => conn.CreateTime)
+                .Select(conn => new ChatRoomMemberDto
+                {
+                    UserId = HashidsHelper.Encode(conn.UserId),
+                    Username = conn.Username,
+                    IsOnline = conn.IsOnline.Value,
+                    IsOwner = conn.UserId == ownerId
+                })
+                .OrderByDescending(x => x.IsOwner)
+                .ThenByDescending(x => x.IsOnline)
+                .ToListAsync();
+
+            await Clients.Group(roomHashid).InvokeAsync("refreshMemberList", list);
         }
     }
 }

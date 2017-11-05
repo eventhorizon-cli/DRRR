@@ -16,6 +16,7 @@ import { Message } from '../models/message.model';
 import { Payload } from '../../core/models/payload.model';
 import { ChatRoomInitialDisplayDto } from '../dtos/chat-room-initial-display.dto';
 import { ChatHistoryDto } from '../dtos/chat-history.dto';
+import { ChatRoomMemberDto } from '../dtos/chat-room-member.dto';
 
 @Injectable()
 export class ChatRoomService {
@@ -24,7 +25,9 @@ export class ChatRoomService {
 
   chatHistory: Subject<Message>;
 
-  roomName: Subject<string>;
+  initialDto: Subject<ChatRoomInitialDisplayDto>;
+
+  memberList: Subject<ChatRoomMemberDto[]>;
 
   /**
    * 当重连的时候触发的回调函数
@@ -56,7 +59,8 @@ export class ChatRoomService {
   ) {
     this.message = new Subject<Message>();
     this.chatHistory = new Subject<Message>();
-    this.roomName = new Subject<string>();
+    this.initialDto = new Subject<ChatRoomInitialDisplayDto>();
+    this.memberList = new Subject<ChatRoomMemberDto[]>();
   }
 
   /**
@@ -79,7 +83,7 @@ export class ChatRoomService {
 
         this.connection.invoke('JoinRoomAsync', roomId)
           .then((res: ChatRoomInitialDisplayDto) => {
-            this.roomName.next(res.roomName);
+            this.initialDto.next(res);
             this.entryTime = res.entryTime;
             // 初期显示或者是重新连接
             // 失去连接期间未收到的消息作为历史信息被显示
@@ -111,6 +115,11 @@ export class ChatRoomService {
           });
         });
 
+      this.connection.on('refreshMemberList',
+        (list) => {
+          this.memberList.next(list);
+        });
+
       // 连接被异常切断
       this.connection.onclose(this.onClose.bind(this));
 
@@ -124,7 +133,7 @@ export class ChatRoomService {
             // 返回大厅
             this.router.navigateByUrl('/rooms');
           });
-      })
+      });
     });
   }
 
