@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { Observable } from 'rxjs/Observable'
+import { Observable } from 'rxjs/Observable';
 
 import { AuthService } from '../../core/services/auth.service';
 import { ChatRoomDto } from '../dtos/chat-room.dto';

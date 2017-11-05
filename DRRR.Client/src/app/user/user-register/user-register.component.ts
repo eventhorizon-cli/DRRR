@@ -142,15 +142,16 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
             this.auth.saveRefreshToken(res.refreshToken);
             swal(this.msg.getMessage('I001', '注册'), '', 'success')
               .then(() => {
-                this.router.navigate(['/rooms']);
-                this.msg.showAutoCloseMessage('success', 'I001', '登录');
+                this.router.navigate(['/rooms']).then(() => {
+                  this.msg.showAutoCloseMessage('success', 'I001', '登录');
+                });
               });
           } else {
             // 多线程导致的用户名重复
             this.formErrorMessages['username'] = res.error;
             this.registerForm.controls['username'].setErrors({illegal: true});
           }
-        }, error => {
+        }, () => {
           swal(this.msg.getMessage('E004', '注册'),
             this.msg.getMessage('E010'), 'error')
             .then(() => {}, () => {});

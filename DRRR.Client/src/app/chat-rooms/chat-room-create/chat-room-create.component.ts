@@ -4,13 +4,13 @@ import { Router } from '@angular/router';
 
 import swal from 'sweetalert2';
 
-import { Subscription } from 'rxjs/Subscription'
+import { Subscription } from 'rxjs/Subscription';
 
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 import { SystemMessagesService } from '../../core/services/system-messages.service';
 import { FormErrorsAutoClearer } from '../../core/services/form-errors-auto-clearer.service';
-import { ChatRoomDto } from '../dtos/chat-room.dto'
+import { ChatRoomDto } from '../dtos/chat-room.dto';
 import { ChatRoomCreateService } from './chat-room-create.service';
 
 @Component({

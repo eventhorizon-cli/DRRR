@@ -47,6 +47,6 @@ export class ChatRoomsAuthGuard implements CanActivate {
           return false;
         }
         return true;
-      })
+      });
   }
 }

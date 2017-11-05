@@ -209,8 +209,8 @@ export class AuthService {
                 httpFunc.apply(target, getArgs())
                   .subscribe(data => observer.next(data),
                   error => observer.error(error));
-              })
-            })
+              });
+            });
           }
 
           return httpFunc.apply(target, getArgs());
@@ -219,7 +219,7 @@ export class AuthService {
 
     // 支持Proxy则直接返回Proxy对象
     if (window['Proxy']) {
-      return new Proxy(this.httpWithoutAuth, { get })
+      return new Proxy(this.httpWithoutAuth, { get });
     } else {
       const wrappedHttpClient: HttpClient = Object.create(this.httpWithoutAuth);
       for (const [propKey, prop] of Object.entries(Object.getPrototypeOf(this.httpWithoutAuth))) {

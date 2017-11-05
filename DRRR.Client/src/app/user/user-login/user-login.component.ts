@@ -50,7 +50,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
     };
     this.controlsValueChanges = this.autoClearer.register(this.loginForm, this.formErrorMessages);
     // 不管是改了用户名还是密码，都会把用户名或密码错误的报错信息清除
-    this.formValueChanges = this.loginForm.valueChanges.subscribe(_ => {
+    this.formValueChanges = this.loginForm.valueChanges.subscribe(() => {
       if (this.loginForm.valid) {
         this.formErrorMessages['username'] = '';
       }
@@ -64,8 +64,9 @@ export class UserLoginComponent implements OnInit, OnDestroy {
         // 如果存在登录信息，则通过能够刷新令牌来判断登录信息是否已经过期
         this.auth.refreshToken(() => {
           // 登录信息未过期则直接跳转
-          this.router.navigate(['/rooms', { page: 1 }]);
-          this.msg.showAutoCloseMessage('success', 'I002', payload.unique_name);
+          this.router.navigate(['/rooms', { page: 1 }]).then(() => {
+            this.msg.showAutoCloseMessage('success', 'I002', payload.unique_name);
+          });
         });
       } else {
         // 不存在登录信息则将记住登录设为false
@@ -99,10 +100,11 @@ export class UserLoginComponent implements OnInit, OnDestroy {
           this.auth.rememberLoginState = loginInfo.rememberMe;
           this.auth.saveAccessToken(res.accessToken);
           this.auth.saveRefreshToken(res.refreshToken);
-          this.router.navigate(['/rooms']);
-          this.msg.showAutoCloseMessage('success', 'I001', '登录');
+          this.router.navigate(['/rooms']).then(() => {
+            this.msg.showAutoCloseMessage('success', 'I001', '登录');
+          });
         }
-      }, error => {
+      }, () => {
         swal(this.msg.getMessage('E004', '登录'),
           this.msg.getMessage('E010'), 'error')
           .then(() => { }, () => { });
