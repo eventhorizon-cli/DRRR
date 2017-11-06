@@ -10,3 +10,12 @@ p{
   font-size: 10px;
   margin-bottom: 0;
 }
+.owner{
+  color: #009bdb;
+}
+.online{
+  color: #70ed3a;
+}
+.offline{
+  color: #bbbbbb;
+}

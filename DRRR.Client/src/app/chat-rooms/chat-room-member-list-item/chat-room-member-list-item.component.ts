@@ -17,13 +17,13 @@ export class ChatRoomMemberListItemComponent implements OnInit {
   ngOnInit() {
     let status: string;
     if (!this.memberInfo.isOnline) {
-      status = 'muted';
+      status = 'offline';
     } else if (this.memberInfo.isOwner) {
-      status = 'primary';
+      status = 'owner';
     } else {
-      status = 'success';
+      status = 'online';
     }
-    this.status = [`text-${status}`];
+    this.status = [status];
   }
 
 }
