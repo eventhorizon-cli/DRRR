@@ -19,3 +19,12 @@ p{
 .offline{
   color: #bbbbbb;
 }
+.dropdown-menu {
+  border: medium none;
+  border-radius: 3px;
+  box-shadow: 0 0 3px rgba(86, 96, 117, 0.7);
+  padding: 0;
+}
+.dropdown-menu > li > a {
+  margin: 4px;
+}
