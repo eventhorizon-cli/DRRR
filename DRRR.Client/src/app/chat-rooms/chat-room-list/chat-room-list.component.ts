@@ -55,7 +55,8 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
         this.refresh(page);
       });
 
-    this.keyup = FromEventObservable.create<Event>(document.querySelector('[name=keyword]'), 'keyup')
+    this.keyup = FromEventObservable
+      .create<Event>(document.querySelector('[name=keyword]'), 'keyup')
       .debounceTime(250)
       .subscribe(this.search.bind(this));
   }
@@ -125,7 +126,8 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
    */
   refresh(page?: number) {
     // 刚进入房间时，不显示加载信息
-    if (!swal.isVisible()) {
+    const showLoading = !swal.isVisible();
+    if (showLoading) {
       this.msg.showLoadingMessage('I005', '数据请求');
     }
     page = page || +this.route.snapshot.params['page'] || 1;
@@ -133,7 +135,9 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
       .subscribe(data => {
         this.roomList = data.chatRoomList;
         this.pagination = data.pagination;
-        this.msg.closeLoadingMessage();
+        if (showLoading) {
+          this.msg.closeLoadingMessage();
+        }
       });
     this.siteInfoService.refreshSiteStatus();
   }
