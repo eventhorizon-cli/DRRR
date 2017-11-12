@@ -1,5 +1,6 @@
-import {Component, Input, OnInit} from '@angular/core';
+import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
 import { ChatRoomMemberDto } from '../dtos/chat-room-member.dto';
+import { SystemMessagesService } from '../../core/services/system-messages.service';
 
 @Component({
   selector: 'app-chat-room-member-list-item',
@@ -8,11 +9,17 @@ import { ChatRoomMemberDto } from '../dtos/chat-room-member.dto';
 })
 export class ChatRoomMemberListItemComponent implements OnInit {
 
-  status: string[];
-
   @Input() memberInfo: ChatRoomMemberDto;
 
-  constructor() { }
+  @Input() showDropDownMenu: boolean;
+
+  @Output() remove: EventEmitter<string>;
+
+  status: string[];
+
+  constructor(private msg: SystemMessagesService) {
+    this.remove = new EventEmitter();
+  }
 
   ngOnInit() {
     let status: string;
@@ -26,4 +33,15 @@ export class ChatRoomMemberListItemComponent implements OnInit {
     this.status = [status];
   }
 
+  onRemove() {
+    this.msg.showConfirmMessage('warning',
+      this.msg.getMessage('I012', this.memberInfo.username))
+      .then(res => {
+        if (res) {
+          this.remove.emit(this.memberInfo.userId);
+        }
+      }, () => {});
+    // 阻止a标签默认行为
+    return false;
+  }
 }

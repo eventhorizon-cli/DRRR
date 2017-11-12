@@ -16,7 +16,9 @@
 
     <div class="panel-body msg-container-base">
       <app-chat-room-member-list
-        [list]="memberList | async">
+        [list]="memberList | async"
+        [ownerId]="(initialDto | async)?.ownerId"
+        (memberRemoved)="onMemberRemoved($event)">
       </app-chat-room-member-list>
       <div>
         <button class="btn btn-link btn-block"

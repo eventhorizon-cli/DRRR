@@ -2,7 +2,9 @@
   <ul class="list-inline">
     <li *ngFor="let item of list">
       <app-chat-room-member-list-item
-        [memberInfo]="item">
+        [memberInfo]="item"
+        [showDropDownMenu]="currentUserId === ownerId"
+        (remove)="onRemove($event)">
       </app-chat-room-member-list-item>
     </li>
   </ul>

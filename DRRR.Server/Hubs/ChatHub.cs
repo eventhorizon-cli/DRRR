@@ -122,11 +122,12 @@ namespace DRRR.Server.Hubs
 
             var room = await _dbContext.ChatRoom
                 .Where(r => r.Id == roomId)
-                .Select(r => new { r.Name, r.MaxUsers })
+                .Select(r => new { r.Name, r.OwnerId })
                 .FirstOrDefaultAsync().ConfigureAwait(false);
 
             return new ChatRoomInitialDisplayDto
             {
+                OwnerId = HashidsHelper.Encode(room.OwnerId),
                 RoomName = room.Name,
                 EntryTime = unixTimeMilliseconds
             };
@@ -150,6 +151,7 @@ namespace DRRR.Server.Hubs
                 .ConfigureAwait(false);
 
             // 如果用户开了多个窗口的话，这边可能会出问题
+            // 或者用户被移出房间
             if (count == 0) return;
 
             // 通知同一房间里其他人该用户已经离开房间
@@ -183,6 +185,7 @@ namespace DRRR.Server.Hubs
                 .FirstOrDefaultAsync().ConfigureAwait(false);
 
             // 如果用户开了多个窗口的话，这边可能会出问题
+            // 或者用户被移出房间
             if (connenction == null) return;
 
             var roomHashid = HashidsHelper.Encode(connenction.RoomId);
@@ -293,6 +296,50 @@ namespace DRRR.Server.Hubs
         }
 
         /// <summary>
+        /// 将选中的成员移出房间
+        /// </summary>
+        /// <param name="roomHashid">房间ID</param>
+        /// <param name="memberHashid">成员用户ID</param>
+        /// <returns>表示将成员移出房间的任务</returns>
+        [JwtAuthorize(Roles.User, Roles.Admin)]
+        public async Task RemoveMemberAsync(string roomHashid, string memberHashid)
+        {
+            int roomId = HashidsHelper.Decode(roomHashid);
+            int userId = HashidsHelper.Decode(Context.User.FindFirst("uid").Value);
+
+            // 判断用户是否为房主，只有房主才有删除成员的权限
+            var count = await _dbContext.ChatRoom
+                .CountAsync(room => room.Id == roomId && room.OwnerId == userId);
+
+            if (count == 0) return;
+
+            int memberId = HashidsHelper.Decode(memberHashid);
+
+            var connection = await _dbContext.Connection
+                .Where(conn => conn.UserId == memberId).FirstOrDefaultAsync();
+
+            // 从数据库中删除
+            _dbContext.Remove(connection);
+
+            await _dbContext.SaveChangesAsync();
+
+            // 通知被删除的用户
+            await Clients.Client(connection.ConnectionId)
+                .InvokeAsync("onRemoved",
+                _systemMessagesService.GetServerSystemMessage("I005", "你"));
+
+            // 通知房间内其他用户
+            await Clients.Group(roomHashid)
+                .InvokeAsync("broadcastSystemMessage",
+                _systemMessagesService.GetServerSystemMessage("I005", connection.Username));
+
+            // 刷新成员列表
+            await RefreshMemberListAsync(roomHashid, roomId);
+
+            await Groups.RemoveAsync(connection.ConnectionId, roomHashid);
+        }
+
+        /// <summary>
         /// 获取历史聊天记录
         /// </summary>
         /// <param name="roomHashid">房间哈希ID</param>
@@ -331,6 +378,7 @@ namespace DRRR.Server.Hubs
                 .Where(room => room.Id == roomId)
                 .Select(room => room.OwnerId).FirstOrDefaultAsync();
 
+            // order by is_owner desc, is_online desc, create_time
             var list = await _dbContext.Connection
                 .Where(conn => conn.RoomId == roomId)
                 .OrderBy(conn => conn.CreateTime)

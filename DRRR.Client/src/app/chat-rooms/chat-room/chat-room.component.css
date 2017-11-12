@@ -37,3 +37,9 @@
 .msg-container-base div:nth-of-type(1){
   height: 35px;
 }
+.panel-title p{
+  cursor: pointer;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}

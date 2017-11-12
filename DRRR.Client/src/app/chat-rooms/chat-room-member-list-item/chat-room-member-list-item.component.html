@@ -1,7 +1,16 @@
-<div class="item text-center">
-  <img alt="image" class="img-circle" src="/api/resources/avatars/thumbnails/{{memberInfo.userId}}">
+<div class="item text-center"
+     dropdown container="body" dropdownToggle>
+  <img alt="image" class="img-circle"
+       src="/api/resources/avatars/thumbnails/{{memberInfo.userId}}" >
   <p>
     <i class="fa fa-circle" [ngClass]="status"></i>
     {{memberInfo.username}}
   </p>
+  <div *ngIf="showDropDownMenu && !memberInfo.isOwner">
+    <ul *dropdownMenu class="dropdown-menu" role="menu">
+      <li (click)="onRemove()">
+        <a><i class="fa fa-trash-o fa-fw"></i> 移出房间</a>
+      </li>
+    </ul>
+  </div>
 </div>

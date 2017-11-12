@@ -3,6 +3,10 @@
  */
 export interface ChatRoomInitialDisplayDto {
   /**
+   * 房主ID
+   */
+  ownerId: string;
+  /**
    * 房间名
    */
   roomName: string;

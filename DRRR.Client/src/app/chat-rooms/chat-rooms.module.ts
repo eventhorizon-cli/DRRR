@@ -5,6 +5,7 @@ import { ChatRoomsRoutingModule } from './chat-rooms-routing.module';
 
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
 import { ChatRoomListComponent } from './chat-room-list/chat-room-list.component';
 import { ChatRoomListItemComponent } from './chat-room-list-item/chat-room-list-item.component';
@@ -27,6 +28,7 @@ import { ChatRoomMemberListItemComponent } from './chat-room-member-list-item/ch
     // 这个问题有待解决，希望能够在AppModule只导入一次
     ModalModule.forRoot(),
     PaginationModule.forRoot(),
+    BsDropdownModule.forRoot(),
     SharedModule,
     ChatRoomsRoutingModule
   ],

@@ -24,20 +24,20 @@
   content: '';
   display: inline-block;
   box-sizing: border-box;
-  width: 0.438rem;
-  height: 0.438rem;
+  width: 6px;
+  height: 6px;
   position: absolute;
-  top: 0.938rem;
+  top: 8px;
   background-color: inherit;
   border-right-color: inherit;
   border-bottom-color: inherit;
 }
 .bubble.right:before {
-  right: -0.188rem;
+  right: -2.5px;
   transform: rotate(-45deg);
 }
 .bubble.left:before {
-  left: -0.188rem;
+  left: -2.5px;
   transform: rotate(135deg);
 }
 .bubble.right {

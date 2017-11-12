@@ -156,6 +156,14 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * 房间成员被要求删除
+   * @param {string} uid 用户ID
+   */
+  onMemberRemoved(uid: string) {
+    this.chatRoomService.removeMember(uid);
+  }
+
+  /**
    * 将消息框内容滚动至最下方
    */
   private scrollToBottom() {

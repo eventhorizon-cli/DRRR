@@ -11,6 +11,11 @@ namespace DRRR.Server.Dtos
     public class ChatRoomInitialDisplayDto
     {
         /// <summary>
+        /// 房主ID（哈希）
+        /// </summary>
+        public string OwnerId { get; set; }
+
+        /// <summary>
         /// 房间名
         /// </summary>
         public string RoomName { get; set; }

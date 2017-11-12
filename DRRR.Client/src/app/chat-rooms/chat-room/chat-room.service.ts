@@ -5,8 +5,8 @@ import { Subject } from 'rxjs/Subject';
 
 // 可能会导致编译问题
 // 参考资料：https://github.com/aspnet/SignalR/issues/983
-import { HubConnection } from '@aspnet/signalr-client/dist/browser/signalr-clientES5-1.0.0-alpha2-final.js';
-// import { HubConnection } from '@aspnet/signalr-client';
+// import { HubConnection } from '@aspnet/signalr-client/dist/browser/signalr-clientES5-1.0.0-alpha2-final.js';
+import { HubConnection } from '@aspnet/signalr-client';
 
 import swal from 'sweetalert2';
 
@@ -115,25 +115,20 @@ export class ChatRoomService {
           });
         });
 
+      // 刷新成员列表
       this.connection.on('refreshMemberList',
         (list) => {
           this.memberList.next(list);
         });
 
+      // 当前用户被房主移出房间
+      this.connection.on('onRemoved', this.backToLobby.bind(this));
+
       // 连接被异常切断
       this.connection.onclose(this.onClose.bind(this));
 
       // 当房间被关闭时
-      this.connection.on('onRoomDeleted', (msg) => {
-        swal(msg, '', 'error')
-          .then(() => {
-            // 返回大厅
-            this.router.navigateByUrl('/rooms');
-          }, () => {
-            // 返回大厅
-            this.router.navigateByUrl('/rooms');
-          });
-      });
+      this.connection.on('onRoomDeleted', this.backToLobby.bind(this));
     });
   }
 
@@ -207,6 +202,28 @@ export class ChatRoomService {
     }));
   }
 
+  /**
+   * 删除房间成员
+   * @param {string} uid 用户ID
+   */
+  removeMember(uid: string)   {
+    this.connection.send('RemoveMemberAsync', this.roomId, uid);
+  }
+
+  /**
+   * 显示提示消息并返回大厅
+   * @param {string} msg 消息
+   */
+  private backToLobby(msg: string) {
+    swal(msg, '', 'error')
+      .then(() => {
+        // 返回大厅
+        this.router.navigateByUrl('/rooms');
+      }, () => {
+        // 返回大厅
+        this.router.navigateByUrl('/rooms');
+      });
+  }
   /**
    * 被异常关闭时
    */
