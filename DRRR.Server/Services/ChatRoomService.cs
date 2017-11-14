@@ -31,17 +31,38 @@ namespace DRRR.Server.Services
         /// </summary>
         /// <param name="keyword">关键词</param>
         /// <param name="page">页码</param>
+        /// <param name="uid">用户ID</param>
+        /// <param name="role">用户角色</param>
         /// <returns>表示异步获取房间列表的任务，如果创建失败则返回错误信息</returns>
-        public async Task<ChatRoomSearchResponseDto> GetRoomList(string keyword, int page)
+        public async Task<ChatRoomSearchResponseDto> GetRoomList(string keyword, int page, int uid, Roles role)
         {
-            var query = from room in _dbContext.ChatRoom
-                        where (((string.IsNullOrEmpty(keyword) ?
-                        true : room.Name.Contains(keyword)
-                        || room.Owner.Username.Contains(keyword))
-                        && !room.IsHidden.Value)
-                        ||
-                        (room.Name == keyword && room.IsHidden.Value))
+            // 房主和管理员可以像正常房间一样检索隐藏房间
+            IQueryable<ChatRoom> query = null;
+            if (string.IsNullOrEmpty(keyword))
+            {
+                query = from room in _dbContext.ChatRoom
+                        where !room.IsHidden.Value
+                        || room.OwnerId == uid || role == Roles.Admin
                         select room;
+            }
+            else if (role == Roles.Admin)
+            {
+                query = from room in _dbContext.ChatRoom
+                        where room.Name.Contains(keyword)
+                        || room.Owner.Username.Contains(keyword)
+                        select room;
+            }
+            else
+            {
+                // 因为用三元表达式会报错，所以这里暂时这么写
+                query = from room in _dbContext.ChatRoom
+                        where
+                        ((room.IsHidden.Value && room.OwnerId != uid) && room.Name == keyword)
+                        ||
+                        ((!room.IsHidden.Value || room.OwnerId == uid)
+                        && (room.Name.Contains(keyword) || room.Owner.Username.Contains(keyword)))
+                        select room;
+            }
 
             int count = await query.CountAsync().ConfigureAwait(false);
 
@@ -68,6 +89,7 @@ namespace DRRR.Server.Services
                     CurrentUsers = room.CurrentUsers,
                     OwnerName = room.Owner.Username,
                     IsEncrypted = room.IsEncrypted.Value,
+                    IsHidden = room.IsHidden.Value,
                     AllowGuest = room.AllowGuest.Value,
                     CreateTime = new DateTimeOffset(room.CreateTime).ToUnixTimeMilliseconds()
                 }).ToListAsync().ConfigureAwait(false);

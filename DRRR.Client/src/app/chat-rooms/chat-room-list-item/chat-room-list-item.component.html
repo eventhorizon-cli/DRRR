@@ -5,13 +5,13 @@
     </h4>
     <p>
       <i class="fa fa-user" aria-hidden="true" title="房主">&nbsp;{{ room.ownerName }}</i>
-      <i class="fa fa-eye" aria-hidden="true" *ngIf="room.allowGuest">&nbsp;允许游客进入</i>
-      <i class="fa fa-eye-slash" aria-hidden="true" *ngIf="!room.allowGuest">&nbsp;不允许游客进入</i>
+      <i class="fa fa-user-secret" aria-hidden="true" *ngIf="room.allowGuest">&nbsp;允许游客进入</i>
+      <i class="fa fa-ban" aria-hidden="true" *ngIf="!room.allowGuest">&nbsp;不允许游客进入</i>
       <i class="fa fa-lock" aria-hidden="true" *ngIf="room.isEncrypted">&nbsp;需要密码</i>
+      <i class="fa fa-eye-slash" aria-hidden="true" *ngIf="room.isHidden">&nbsp;隐藏房间</i>
       <i class="fa fa-clock-o"
          aria-hidden="true"
-         title="{{ room.createTime | date:'yyyy年MM月dd日 HH:mm' }}创建">
-        &nbsp;{{ room.createTime | date:'MM-dd HH:mm' }}
+         title="{{ room.createTime | date:'yyyy年MM月dd日 HH:mm' }}创建">&nbsp;{{ room.createTime | date:'MM-dd HH:mm' }}
       </i>
       <a class="fa fa-trash-o"
          aria-hidden="true"

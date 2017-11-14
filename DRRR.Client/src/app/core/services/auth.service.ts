@@ -197,6 +197,11 @@ export class AuthService {
             } else {
               args.push({ headers });
             }
+
+            // 如果是get方法，为避免ie对get请求存在缓存的问题
+            if (propKey === 'get') {
+              args[0] += `${/\?[a-z]+=.*$/.test(args[0]) ? '&' : '?'}t=${Date.now()}`;
+            }
             return args;
           };
 

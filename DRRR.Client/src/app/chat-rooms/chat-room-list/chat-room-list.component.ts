@@ -38,6 +38,9 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
 
   private keyup: Subscription;
 
+  // 是否显示加载消息框
+  private showLoading: boolean;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -46,7 +49,10 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
     private auth: AuthService,
     private msg: SystemMessagesService,
     private siteInfoService: SiteInfoService
-  ) {}
+  ) {
+    // 默认显示加载消息框
+    this.showLoading = true;
+  }
 
   ngOnInit() {
     this.routeParams = this.route.params
@@ -58,7 +64,11 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
     this.keyup = FromEventObservable
       .create<Event>(document.querySelector('[name=keyword]'), 'keyup')
       .debounceTime(250)
-      .subscribe(this.search.bind(this));
+      .subscribe(() => {
+        // 不显示加载消息框
+        this.showLoading = false;
+        this.search();
+      });
   }
 
   ngOnDestroy() {
@@ -67,7 +77,7 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * 根据关键词进行检索
+   * 根据关键词和页码进行检索
    */
   search() {
     const page = this.currentPage || 1;
@@ -123,10 +133,13 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
 
   /**
    * 刷新列表
+   * @param {number} page 页码
    */
   refresh(page?: number) {
-    // 刚进入房间时，不显示加载信息
-    const showLoading = !swal.isVisible();
+    // 刚进入房间时或者显示了无法进入已被删除的房间的错误时，不显示加载信息
+    const showLoading = this.showLoading && !swal.isVisible();
+    // 还原成默认
+    this.showLoading = true;
     if (showLoading) {
       this.msg.showLoadingMessage('I005', '数据请求');
     }

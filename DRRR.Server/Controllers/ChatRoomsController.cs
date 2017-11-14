@@ -30,8 +30,11 @@ namespace DRRR.Server.Controllers
         [HttpGet]
         [JwtAuthorize(Roles.Guest, Roles.User, Roles.Admin)]
         public async Task<ChatRoomSearchResponseDto> GetRoomList(string keyword, int page)
-            => await _chatRoomService.GetRoomList(keyword, page);
-
+        {
+            string hashid = HttpContext.User.FindFirst("uid").Value;
+            Roles role = (Roles)Convert.ToInt32(HttpContext.User.FindFirst(ClaimTypes.Role).Value);
+            return await _chatRoomService.GetRoomList(keyword, page,HashidsHelper.Decode(hashid),role);
+        }
         /// <summary>
         /// 验证房间名
         /// </summary>
