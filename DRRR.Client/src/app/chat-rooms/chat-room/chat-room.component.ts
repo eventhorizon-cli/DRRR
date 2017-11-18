@@ -34,18 +34,27 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
   onlineUsers: number;
 
+  lastMessage: Message;
+
+  // 是否让滚动条固定在底部
+  fixedAtBottom: boolean;
+
   private msgSubscription: Subscription;
 
   private resizeSubscription: Subscription;
 
   private domNodeInsertedSubscription: Subscription;
 
+  private scrollSubscription: Subscription;
+
   constructor(
-    private route: ActivatedRoute,
-    private chatRoomService: ChatRoomService
+    private chatRoomService: ChatRoomService,
+    private route: ActivatedRoute
   ) {
     // 默认不显示用户列表
     this.isMemberListVisible = false;
+
+    this.fixedAtBottom = true;
   }
 
   ngOnInit() {
@@ -56,37 +65,51 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     this.resizeSubscription = FromEventObservable.create(window, 'resize')
       .subscribe(() => {
         this.setHeight();
-        this.scrollToBottom();
+        if (this.fixedAtBottom) {
+          this.scrollToBottom();
+        }
       });
 
     this.messages = this.chatRoomService.message
-      .scan((messages: Message[], message: Message) =>
-        messages.concat(message), []);
+      .scan((messages: Message[], message: Message) => {
+        if (!message.isSystemMessage) {
+          this.lastMessage = message;
+        }
+        return messages.concat(message);
+      }, []);
 
     // 聊天历史记录
     this.chatHistory = this.chatRoomService.chatHistory
-      .delay(0) // 这一步很重要，等下面的高度判断结束了再发射下一条
+      // .delay(0) // 这一步很重要，等高度判断结束了再发射下一条
       .scan((messages: Message[], message: Message) =>
         [message].concat(messages), []);
 
-    // 避免增加历史信息时将下方内容顶下去，
+    // 避免查看聊天信息的时候有新消息会导致被迫滚到最下面
     const scrollPanel = $('.msg-container-base')[0];
-    this.domNodeInsertedSubscription
-      = FromEventObservable.create<MutationEvent>(scrollPanel, 'DOMNodeInserted')
-      .filter(evt => evt.relatedNode instanceof HTMLDivElement
-        && evt.relatedNode.classList.contains('history'))
-      .scan((hAndHDiff: number[]) => {
-        const height = scrollPanel.scrollHeight;
-        return [height, height - hAndHDiff[0]];
-      }, [scrollPanel.scrollHeight, 0])
-      .map(hAndHDiff => hAndHDiff[1])
-      .subscribe(hDiff => {
-        scrollPanel.scrollTop += hDiff;
-      });
+    this.scrollSubscription
+      = FromEventObservable.create<Event>(scrollPanel, 'scroll')
+        .scan((topAndTopDiff: number[]) => {
+          const scrollTop = scrollPanel.scrollTop;
+          return [scrollTop, scrollTop - topAndTopDiff[0]];
+        }, [0, 0])
+        .map(topAndTopDiff => topAndTopDiff[1])
+        .subscribe(diff => {
+          if (diff < 0) {
+            // 如果用户进行了向上滚的动作
+            this.fixedAtBottom = false;
+          } else if (scrollPanel.scrollTop + scrollPanel.clientHeight >= scrollPanel.scrollHeight) {
+            // 如果滚动到底了
+            this.fixedAtBottom = true;
+            this.lastMessage = null;
+          }
+        });
 
     this.msgSubscription = this.messages.subscribe(() => {
-      // 消息窗口滚至下方
-      this.scrollToBottom();
+      if (this.fixedAtBottom) {
+        this.lastMessage = null;
+        // 消息窗口滚至下方
+        this.scrollToBottom();
+      }
     });
 
     this.chatRoomService.onReconnect = () => {
@@ -112,6 +135,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     this.msgSubscription.unsubscribe();
     this.resizeSubscription.unsubscribe();
     this.domNodeInsertedSubscription.unsubscribe();
+    this.scrollSubscription.unsubscribe();
     // 离开房间时关闭连接
     this.chatRoomService.disconnect();
   }
@@ -122,6 +146,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
    * @returns {boolean} 返回false避免事件冒泡
    */
   sendMessage(message: HTMLInputElement): boolean | undefined {
+    this.fixedAtBottom = true;
+    this.scrollToBottom();
     if (message.value && message.value.length <= 200) {
       this.chatRoomService.sendMessage(message);
       // 防止事件冒泡关闭提示框
@@ -134,6 +160,23 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
    * 显示更多历史消息
    */
   showMoreChatHistory() {
+    // 避免增加历史信息时将下方内容顶下去，
+    const scrollPanel = $('.msg-container-base')[0];
+    if (this.domNodeInsertedSubscription) {
+      this.domNodeInsertedSubscription.unsubscribe();
+    }
+    this.domNodeInsertedSubscription
+      = FromEventObservable.create<MutationEvent>(scrollPanel, 'DOMNodeInserted')
+      .filter(evt => evt.relatedNode instanceof HTMLDivElement
+          && evt.relatedNode.classList.contains('history'))
+      .scan((hAndHDiff: number[]) => {
+        const height = scrollPanel.scrollHeight;
+        return [height, height - hAndHDiff[0]];
+      }, [scrollPanel.scrollHeight, 0])
+      .map(hAndHDiff => hAndHDiff[1])
+      .subscribe(hDiff => {
+        scrollPanel.scrollTop += hDiff;
+      });
     this.chatRoomService.getChatHistory()
       .then(count => {
         this.noMoreMessage = count < 20;
@@ -169,7 +212,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   private scrollToBottom() {
     setTimeout(() => {
       const scrollPanel = $('.msg-container-base');
-      scrollPanel.animate({ scrollTop: scrollPanel[0].scrollHeight , speed: 'fast'});
+      scrollPanel.animate({ scrollTop: scrollPanel[0].scrollHeight, speed: 'fast' });
     });
   }
 

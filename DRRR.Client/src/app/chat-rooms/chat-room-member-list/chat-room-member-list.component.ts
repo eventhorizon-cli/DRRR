@@ -44,8 +44,7 @@ export class ChatRoomMemberListComponent implements OnInit, OnDestroy {
   }
 
   setWidth() {
-    const memberList = $('.member-list');
-    memberList.width($('.msg-container-base').width());
+    $('.member-list').width($('.msg-container-base').width());
   }
 
   onRemove(uid: string) {

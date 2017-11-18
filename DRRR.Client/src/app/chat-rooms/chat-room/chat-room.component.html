@@ -36,6 +36,10 @@
         *ngFor="let message of messages | async"
         [message]="message">
       </app-chat-message>
+      <app-chat-preview-message
+        *ngIf="lastMessage && !fixedAtBottom"
+        [message]="lastMessage">
+      </app-chat-preview-message>
     </div>
 
     <div class="panel-footer">

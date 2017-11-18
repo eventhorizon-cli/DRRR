@@ -1,0 +1,29 @@
+.preview-message {
+  position: fixed;
+  bottom: 73px;
+  cursor: pointer;
+  background-color: white;
+  border-top: 1px solid #eee;
+  padding:4px 0;
+  margin-left: -5px;
+}
+p {
+  margin-left: 5px;
+  text-overflow: clip;
+}
+@media (min-width: 768px) {
+  p {
+    margin-left: 10px;
+  }
+  .preview-message {
+    margin-left: -10px;
+  }
+}
+.preview-message p {
+  height: 22px;
+  color: #4f4f4f;
+  overflow: hidden;/*内容超出后隐藏*/
+  text-overflow: ellipsis;/* 超出内容显示为省略号*/
+  white-space: nowrap;/*文本不进行换行*/
+  margin-bottom: 0;
+}

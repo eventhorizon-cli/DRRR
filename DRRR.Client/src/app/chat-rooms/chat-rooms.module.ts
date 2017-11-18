@@ -22,6 +22,7 @@ import { ChatRoomService } from './chat-room/chat-room.service';
 import { ChatRoomListItemService } from './chat-room-list-item/chat-room-list-item.service';
 import { ChatRoomMemberListComponent } from './chat-room-member-list/chat-room-member-list.component';
 import { ChatRoomMemberListItemComponent } from './chat-room-member-list-item/chat-room-member-list-item.component';
+import { ChatPreviewMessageComponent } from './chat-preview-message/chat-preview-message.component';
 
 @NgModule({
   imports: [
@@ -49,6 +50,7 @@ import { ChatRoomMemberListItemComponent } from './chat-room-member-list-item/ch
     ChatMessageComponent,
     ChatRoomMemberListComponent,
     ChatRoomMemberListItemComponent,
+    ChatPreviewMessageComponent,
     ChatRoomCreateComponent],
   entryComponents: [
     ChatRoomCreateComponent
