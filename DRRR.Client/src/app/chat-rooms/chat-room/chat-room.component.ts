@@ -134,7 +134,9 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.msgSubscription.unsubscribe();
     this.resizeSubscription.unsubscribe();
-    this.domNodeInsertedSubscription.unsubscribe();
+    if (this.domNodeInsertedSubscription) {
+      this.domNodeInsertedSubscription.unsubscribe();
+    }
     this.scrollSubscription.unsubscribe();
     // 离开房间时关闭连接
     this.chatRoomService.disconnect();
