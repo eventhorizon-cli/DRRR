@@ -4,8 +4,8 @@ using DRRR.Server.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,7 +20,7 @@ namespace DRRR.Server.Services
         /// <summary>
         /// 存放头像的目录
         /// </summary>
-        public static string AvatarsDirectory { private get; set; }
+        private string _avatarsDirectory;
 
         private DrrrDbContext _dbContext;
 
@@ -31,11 +31,13 @@ namespace DRRR.Server.Services
         public UserProfileService(
             DrrrDbContext dbContext,
             SystemMessagesService systemMessagesService,
-            TokenAuthService tokenAuthService)
+            TokenAuthService tokenAuthService,
+            IConfiguration configuration)
         {
             _dbContext = dbContext;
             _systemMessagesService = systemMessagesService;
             _tokenAuthService = tokenAuthService;
+            _avatarsDirectory = configuration["Resources:Avatars"];
         }
 
         /// <summary>
@@ -48,11 +50,11 @@ namespace DRRR.Server.Services
         {
             return await Task.Run<FileResult>(() =>
             {
-                string path = Path.Combine(AvatarsDirectory, type, $"{uid}.jpg");
+                string path = Path.Combine(_avatarsDirectory, type, $"{uid}.jpg");
 
                 if (!File.Exists(path))
                 {
-                    path = Path.Combine(AvatarsDirectory, type, "default.jpg");
+                    path = Path.Combine(_avatarsDirectory, type, "default.jpg");
                 }
 
                 return new FileStreamResult(new MemoryStream(File.ReadAllBytes(path)), "application/x-img");
@@ -67,8 +69,8 @@ namespace DRRR.Server.Services
         /// <returns>表示异步更新头像的任务,成功返回true,失败返回false</returns>
         public async Task<bool> UpdateAvatarAsync(int uid, IFormFileCollection avatars)
         {
-            string pathOriginal = Path.Combine(AvatarsDirectory, "originals", $"{uid}.jpg");
-            string pathThumbnail = Path.Combine(AvatarsDirectory, "thumbnails", $"{uid}.jpg");
+            string pathOriginal = Path.Combine(_avatarsDirectory, "originals", $"{uid}.jpg");
+            string pathThumbnail = Path.Combine(_avatarsDirectory, "thumbnails", $"{uid}.jpg");
             FileStream fsOriginal = null;
             FileStream fsThumbnail = null;
             try

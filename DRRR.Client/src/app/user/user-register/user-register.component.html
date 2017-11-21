@@ -9,7 +9,7 @@
            maxlength="10"
            autocomplete="off"
            appTextTrim
-           [formControl]="registerForm.controls['username']"
+           formControlName="username"
            (blur)="validateUsername(registerForm.controls['username'])"
            (blur)="validateRequired('username')"
            (keydown.enter)="registerByPressingEnter($event)">
@@ -23,7 +23,7 @@
            maxlength="128"
            autocomplete="off"
            appTextTrim
-           [formControl]="registerForm.controls['password']"
+           formControlName="password"
            (blur)="validatePassword(registerForm.controls['password'])"
            (blur)="validateRequired('password')"
            (keydown.enter)="registerByPressingEnter($event)">
@@ -37,7 +37,7 @@
            maxlength="128"
            autocomplete="off"
            appTextTrim
-           [formControl]="registerForm.controls['confirmPassword']"
+           formControlName="confirmPassword"
            (blur)="validateRequired('confirmPassword')"
            (keydown.enter)="registerByPressingEnter($event)">
     <span *ngIf="formErrorMessages['confirmPassword']" class="help-block">

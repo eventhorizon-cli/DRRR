@@ -8,7 +8,7 @@
            placeholder="用户名"
            maxlength="10"
            appTextTrim
-           [formControl]="loginForm.controls['username']"
+           formControlName="username"
            (keydown.enter)="loginAsRegisteredUser(loginForm.value)">
     <span *ngIf="formErrorMessages['username']" class="help-block">
       {{ formErrorMessages['username'] }}
@@ -21,7 +21,7 @@
             placeholder="密码"
             maxlength="128"
             appTextTrim
-            [formControl]="loginForm.controls['password']"
+            formControlName="password"
             (keydown.enter)="loginAsRegisteredUser(loginForm.value)">
     <span *ngIf="formErrorMessages['password']" class="help-block">
       {{ formErrorMessages['password'] }}
@@ -30,7 +30,7 @@
   <div class="checkbox">
     <input type="checkbox"
            id="rememberMe"
-           [formControl]="loginForm.controls['rememberMe']">
+           formControlName="rememberMe">
     <label for="rememberMe">记住我</label>
   </div>
   <input type="button"

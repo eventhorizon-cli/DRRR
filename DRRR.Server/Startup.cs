@@ -20,21 +20,16 @@ namespace DRRR.Server
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
-        {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
-            Configuration = builder.Build();
-        }
+        public Startup(IConfiguration configuration) => Configuration = configuration;
 
-        public IConfigurationRoot Configuration { get; }
+        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // 便于系统配置读取
+            services.AddSingleton(Configuration);
+
             // 添加SignalRCore服务
             services.AddSignalR();
 
@@ -111,7 +106,6 @@ namespace DRRR.Server
 
             #region 存放头像的目录配置
             var destAvatarsDir = Configuration["Resources:Avatars"];
-            UserProfileService.AvatarsDirectory = destAvatarsDir;
             var destAvatarsDirInfo = new DirectoryInfo(destAvatarsDir);
             // 创建对应的文件夹
             if (!destAvatarsDirInfo.Exists || destAvatarsDirInfo.GetDirectories().Count() != 2)

@@ -14,7 +14,7 @@
              id="name"
              appTextTrim
              maxlength="20"
-             [formControl]="form.controls['name']"
+             formControlName="name"
              (blur)="validateRoomName(form.controls['name'])"
              (blur)="validateRequired('name')"
              (keydown.enter)="createByPressingEnter($event)">
@@ -28,7 +28,7 @@
              id="maxUsers"
              appTextTrim
              maxlength="4"
-             [formControl]="form.controls['maxUsers']"
+             formControlName="maxUsers"
              (blur)="validateMaxUsers(form.controls['maxUsers'])"
              (blur)="validateRequired('maxUsers')"
              (keydown.enter)="createByPressingEnter($event)">
@@ -42,26 +42,26 @@
              id="password"
              appTextTrim
              maxlength="128"
-             [formControl]="form.controls['password']"
+             formControlName="password"
              (blur)="validatePassword(form.controls['password'])"
              (blur)="validateRequired('password')"
              (keydown.enter)="createByPressingEnter($event)">
       <span class="help-block">{{ formErrorMessages['password'] || "不少于 6 位" }}</span>
     </div>
     <div class="checkbox" >
-      <input type="checkbox" [formControl]="form.controls['isEncrypted']" id="isEncrypted">
+      <input type="checkbox" formControlName="isEncrypted" id="isEncrypted">
       <label for="isEncrypted">加密房（除房主及管理员外需输入密码才可进入）</label>
     </div>
     <div class="checkbox">
-      <input type="checkbox" [formControl]="form.controls['isPermanent']" id="isPermanent">
+      <input type="checkbox" formControlName="isPermanent" id="isPermanent">
       <label for="isPermanent">永久房（房主退出后不会自动解散）</label>
     </div>
     <div class="checkbox">
-        <input type="checkbox" [formControl]="form.controls['isHidden']" id="isHidden">
+        <input type="checkbox" formControlName="isHidden" id="isHidden">
         <label for="isHidden">隐藏房（除房主及管理员外只能通过输入完整房间名查询找到）</label>
     </div>
     <div class="checkbox">
-      <input type="checkbox" [formControl]="form.controls['allowGuest']" id="allowGuest">
+      <input type="checkbox" formControlName="allowGuest" id="allowGuest">
       <label for="allowGuest">允许游客进入</label>
     </div>
   </form>
