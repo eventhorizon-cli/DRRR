@@ -4,15 +4,18 @@
       <img alt="image" class="img-circle" src="/api/resources/avatars/thumbnails/{{message.userId}}">
     </div>
     <p *ngIf="message.incoming" class="author-name">{{ message.username }}</p>
-    <div class="bubble" [ngClass]="[position]">
+    <div *ngIf="!message.isPicture" class="bubble" [ngClass]="[position]">
       <div class="bubble-content">
-        <pre>{{ message.text }}</pre>
+        <pre>{{ message.data }}</pre>
       </div>
+    </div>
+    <div *ngIf="message.isPicture" class="picture">
+      <img src="data:image/jpeg;base64,{{ message.data }}">
     </div>
   </div>
   <div *ngIf="message.isSystemMessage"
        class="system-message">
-    <pre>{{ message.text }}</pre>
+    <pre>{{ message.data }}</pre>
   </div>
   <div *ngIf="message.timestamp"
        class="time">

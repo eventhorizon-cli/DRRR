@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using DRRR.Server.Dtos;
 using System.Collections.Generic;
+using System.IO;
+using Microsoft.Extensions.Configuration;
 
 namespace DRRR.Server.Hubs
 {
@@ -20,12 +22,16 @@ namespace DRRR.Server.Hubs
 
         private SystemMessagesService _systemMessagesService;
 
+        private string _picturesDirectory;
+
         public ChatHub(
             SystemMessagesService systemMessagesService,
-            DrrrDbContext dbContext)
+            DrrrDbContext dbContext,
+            IConfiguration configuration)
         {
             _systemMessagesService = systemMessagesService;
             _dbContext = dbContext;
+            _picturesDirectory = configuration["Resources:Pictures"];
         }
 
         /// <summary>
@@ -33,13 +39,13 @@ namespace DRRR.Server.Hubs
         /// </summary>
         /// <param name="roomHashid">房间哈希ID</param>
         /// <param name="message">消息</param>
-        /// <returns></returns>
-        public async Task SendMessage(string roomHashid, string message)
+        /// <returns>表示发送消息的任务</returns>
+        public async Task SendMessageAsync(string roomHashid, string message)
         {
             var userHashId = Context.User.FindFirst("uid").Value;
             var username = HttpUtility.UrlDecode(Context.User.Identity.Name);
             await Clients.Group(roomHashid)
-                .InvokeAsync("broadcastMessage", userHashId, username, message)
+                .InvokeAsync("broadcastMessage", userHashId, username, message, false)
                 .ConfigureAwait(false);
             // 将消息保存到数据库
             var history = new ChatHistory
@@ -49,6 +55,42 @@ namespace DRRR.Server.Hubs
                 UnixTimeMilliseconds = new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds(),
                 Username = username,
                 Message = message
+            };
+            _dbContext.ChatHistory.Add(history);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// 发送图片
+        /// </summary>
+        /// <param name="roomHashid">房间哈希ID</param>
+        /// <param name="base64String">图片数据对应的base64String字符串</param>
+        /// <returns>表示发送图片的任务</returns>
+        public async Task SendPictureAsync(string roomHashid, string base64String)
+        {
+            var roomId = HashidsHelper.Decode(roomHashid);
+            var userHashId = Context.User.FindFirst("uid").Value;
+            var userId = HashidsHelper.Decode(userHashId);
+            var username = HttpUtility.UrlDecode(Context.User.Identity.Name);
+            var unixTimeMilliseconds = new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds();
+
+            var dir = Path.Combine(_picturesDirectory, roomId.ToString());
+            Directory.CreateDirectory(dir);
+            var path = Path.Combine(dir, $"{userId}_{unixTimeMilliseconds}.jpg");
+            // 保存图片
+            await File.WriteAllBytesAsync(path, Convert.FromBase64String(base64String));
+
+            await Clients.Group(roomHashid)
+                .InvokeAsync("broadcastMessage", userHashId, username, base64String, true)
+                .ConfigureAwait(false);
+            // 将消息保存到数据库
+            var history = new ChatHistory
+            {
+                RoomId = roomId,
+                UserId = userId,
+                UnixTimeMilliseconds = unixTimeMilliseconds,
+                Username = username,
+                IsPicture = true
             };
             _dbContext.ChatHistory.Add(history);
             await _dbContext.SaveChangesAsync();
@@ -282,6 +324,9 @@ namespace DRRR.Server.Hubs
                     await _dbContext.Database.ExecuteSqlCommandAsync(
                         $"delete from connection where room_id = {room.Id} and is_online = false");
 
+                    // 删除存放聊天图片的文件夹
+                    Directory.Delete(Path.Combine(_picturesDirectory, roomId.ToString()), true);
+
                     tran.Commit();
 
                     await Clients.Group(roomHashid).InvokeAsync("onRoomDeleted",
@@ -289,7 +334,6 @@ namespace DRRR.Server.Hubs
                 }
                 catch
                 {
-
                     tran.Rollback();
                 }
             }
@@ -349,20 +393,34 @@ namespace DRRR.Server.Hubs
         public async Task<List<ChatHistoryDto>> GetChatHistoryAsync(string roomHashid, long entryTime, int startIndex)
         {
             var roomId = HashidsHelper.Decode(roomHashid);
-            var history = await _dbContext.ChatHistory
+            var query = await _dbContext.ChatHistory
                  .Where(msg => msg.RoomId == roomId
                  && msg.UnixTimeMilliseconds < entryTime)
                  .OrderByDescending(msg => msg.UnixTimeMilliseconds)
-                 .Select(msg => new ChatHistoryDto
-                 {
-                     UserId = HashidsHelper.Encode(msg.UserId),
-                     Username = msg.Username,
-                     Message = msg.Message,
-                     Timestamp = msg.UnixTimeMilliseconds
-                 })
                  .Skip(startIndex)
-                 .Take(20).ToListAsync();
+                 .Take(20)
+                 .ToListAsync();
 
+            var history = new List<ChatHistoryDto>();
+
+            foreach (var msg in query)
+            {
+                var data = msg.Message;
+                if (msg.IsPicture.Value)
+                {
+                    var path = Path.Combine(_picturesDirectory, msg.RoomId.ToString(),
+                        $"{msg.UserId}_{msg.UnixTimeMilliseconds}.jpg");
+                    data = Convert.ToBase64String(await File.ReadAllBytesAsync(path));
+                }
+                history.Add(new ChatHistoryDto
+                {
+                    UserId = HashidsHelper.Encode(msg.UserId),
+                    Username = msg.Username,
+                    Data = data,
+                    Timestamp = msg.UnixTimeMilliseconds,
+                    IsPicture = msg.IsPicture.Value
+                });
+            }
             return history;
         }
 

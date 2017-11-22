@@ -10,5 +10,6 @@ namespace DRRR.Server.Models
         public long UnixTimeMilliseconds { get; set; }
         public string Username { get; set; }
         public string Message { get; set; }
+        public bool? IsPicture { get; set; }
     }
 }

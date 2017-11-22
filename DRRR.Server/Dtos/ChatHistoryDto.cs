@@ -21,13 +21,18 @@ namespace DRRR.Server.Dtos
         public string Username { get; set; }
 
         /// <summary>
-        /// 消息
+        /// 消息数据（文本或者图片）
         /// </summary>
-        public string Message { get; set; }
+        public string Data { get; set; }
 
         /// <summary>
         /// 时间戳
         /// </summary>
         public long Timestamp { get; set; }
+
+        /// <summary>
+        /// 是否为图片
+        /// </summary>
+        public bool IsPicture { get; set; }
     }
 }

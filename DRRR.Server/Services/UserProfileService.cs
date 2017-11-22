@@ -81,7 +81,7 @@ namespace DRRR.Server.Services
                     avatars[1].CopyToAsync(fsThumbnail));
                 return true;
             }
-            catch (Exception)
+            catch
             {
                 return false;
             }

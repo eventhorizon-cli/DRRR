@@ -126,6 +126,11 @@ namespace DRRR.Server.Models
                     .IsRequired()
                     .HasColumnName("username")
                     .HasMaxLength(10);
+
+                entity.Property(e => e.IsPicture)
+                    .HasColumnName("is_picture") 
+                    .HasColumnType("tinyint(1) unsigned")
+                    .HasDefaultValueSql("0");
             });
 
             modelBuilder.Entity<Connection>(entity =>

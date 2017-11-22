@@ -20,7 +20,7 @@
   text-align: left;
   border-radius: 8px;
 }
-.bubble:before {
+.bubble::before {
   content: '';
   display: inline-block;
   box-sizing: border-box;
@@ -32,7 +32,7 @@
   border-right-color: inherit;
   border-bottom-color: inherit;
 }
-.bubble.right:before {
+.bubble.right::before {
   right: -2.5px;
   transform: rotate(-45deg);
 }
@@ -89,4 +89,7 @@ pre {
 }
 .time{
   height: 21px;
+}
+.picture img{
+  max-width: calc(100% - 100px);
 }

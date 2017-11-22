@@ -96,13 +96,14 @@ export class ChatRoomService {
       // 创建回调函数
       // 聊天消息
       this.connection.on('broadcastMessage',
-        (userId: string, username: string, message: string) => {
+        (userId: string, username: string, message: string, isPicture: boolean) => {
           this.message.next({
             userId,
             username,
             isSystemMessage: false,
             incoming: (this.userInfo.uid !== userId),
-            text: message
+            data: message,
+            isPicture
           });
         });
 
@@ -110,8 +111,9 @@ export class ChatRoomService {
       this.connection.on('broadcastSystemMessage',
         (message: string) => {
           this.message.next({
+            username: '系统消息',
             isSystemMessage: true,
-            text: message
+            data: message
           });
         });
 
@@ -139,7 +141,7 @@ export class ChatRoomService {
   sendMessage(message: HTMLInputElement) {
     // 如果连接被关闭，会被设为null
     if (this.connection) {
-      this.connection.send('SendMessage', this.roomId, message.value)
+      this.connection.send('SendMessageAsync', this.roomId, message.value)
         .then(() => {
           // 消息发送成功，清空输入框
           message.value = '';
@@ -149,6 +151,15 @@ export class ChatRoomService {
     } else {
       this.reconnect(this.msg.getMessage('E004', '消息发送'));
     }
+  }
+
+  /**
+   * 发送图片
+   * @param {string} base64String 图片数据对应的base64String字符串
+   * @returns {Promise<void>} Promise对象
+   */
+  sendPicture(base64String: string): Promise<void> {
+    return this.connection.send('SendPictureAsync', this.roomId, base64String);
   }
 
   /**
@@ -190,8 +201,9 @@ export class ChatRoomService {
               username: msg.username,
               isSystemMessage: false,
               incoming: (msg.userId !== this.userInfo.uid),
-              text: msg.message,
+              data: msg.data,
               timestamp,
+              isPicture: msg.isPicture,
               isChatHistory: true
             };
 

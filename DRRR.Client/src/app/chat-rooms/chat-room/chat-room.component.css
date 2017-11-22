@@ -43,3 +43,6 @@
   -webkit-user-select: none;
   -moz-user-select: none;
 }
+input[type=file]{
+  display: none;
+}

@@ -13,12 +13,17 @@ export interface ChatHistoryDto {
   username: string;
 
   /**
-   * 消息
+   * 消息数据（文本或者图片）
    */
-  message: string;
+  data: string;
 
   /**
    * 时间戳
    */
   timestamp: number;
+
+  /**
+   * 是否为图片
+   */
+  isPicture: boolean;
 }

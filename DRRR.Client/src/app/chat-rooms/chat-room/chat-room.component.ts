@@ -1,6 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
+import * as Cropper from 'cropperjs';
+
+import swal from 'sweetalert2';
+
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { Subscription } from 'rxjs/Subscription';
@@ -12,6 +16,7 @@ import { ChatRoomService } from './chat-room.service';
 import { Message } from '../models/message.model';
 import { ChatRoomInitialDisplayDto } from '../dtos/chat-room-initial-display.dto';
 import { ChatRoomMemberDto } from '../dtos/chat-room-member.dto';
+import { SystemMessagesService } from '../../core/services/system-messages.service';
 
 @Component({
   selector: 'app-chat-room',
@@ -49,7 +54,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
   constructor(
     private chatRoomService: ChatRoomService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private msg: SystemMessagesService
   ) {
     // 默认不显示用户列表
     this.isMemberListVisible = false;
@@ -72,9 +78,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
     this.messages = this.chatRoomService.message
       .scan((messages: Message[], message: Message) => {
-        if (!message.isSystemMessage) {
-          this.lastMessage = message;
-        }
+        this.lastMessage = message;
         return messages.concat(message);
       }, []);
 
@@ -169,16 +173,16 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     }
     this.domNodeInsertedSubscription
       = FromEventObservable.create<MutationEvent>(scrollPanel, 'DOMNodeInserted')
-      .filter(evt => evt.relatedNode instanceof HTMLDivElement
+        .filter(evt => evt.relatedNode instanceof HTMLDivElement
           && evt.relatedNode.classList.contains('history'))
-      .scan((hAndHDiff: number[]) => {
-        const height = scrollPanel.scrollHeight;
-        return [height, height - hAndHDiff[0]];
-      }, [scrollPanel.scrollHeight, 0])
-      .map(hAndHDiff => hAndHDiff[1])
-      .subscribe(hDiff => {
-        scrollPanel.scrollTop += hDiff;
-      });
+        .scan((hAndHDiff: number[]) => {
+          const height = scrollPanel.scrollHeight;
+          return [height, height - hAndHDiff[0]];
+        }, [scrollPanel.scrollHeight, 0])
+        .map(hAndHDiff => hAndHDiff[1])
+        .subscribe(hDiff => {
+          scrollPanel.scrollTop += hDiff;
+        });
     this.chatRoomService.getChatHistory()
       .then(count => {
         this.noMoreMessage = count < 20;
@@ -206,6 +210,76 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
    */
   onMemberRemoved(uid: string) {
     this.chatRoomService.removeMember(uid);
+  }
+
+  /**
+   * 发送图片
+   * @param {HTMLInputElement} file input的dom对象
+   */
+  sendPicture(file: HTMLInputElement) {
+    this.fixedAtBottom = true;
+
+    let cropper: Cropper;
+
+    let image: HTMLImageElement;
+
+    const url = URL.createObjectURL(file.files[0]);
+    // 清空value值,避免两次选中同样的文件时不触发change事件
+    file.value = '';
+
+    // 设置图像显示区域的最大高度和最大宽度
+    // 当前设备屏幕的一半
+    // 不应该用screen.availWidth，在safari上判断会失败
+    // 因为在html上设置过width=device-width，所以可以用width=device-width得到准确数据
+    const length = Math.min(window.innerWidth - 60, 460);
+    swal({
+      title: '发送图片',
+      html: `
+        <div class="img-container">
+          <img src="${url}" style="max-height: ${length}px;max-width: ${length}px">
+        </div>`,
+      showCloseButton: true,
+      showCancelButton: true,
+      showLoaderOnConfirm: true,
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      allowOutsideClick: false,
+      onOpen() {
+        image = $('.img-container img')[0] as HTMLImageElement;
+        cropper = new Cropper(image, {
+          viewMode: 2,
+          dragMode: 'move',
+          minContainerWidth: length,
+          minContainerHeight: length
+        });
+      },
+      preConfirm: () => {
+        return new Promise((resolve, reject) => {
+          // 图片最大高度为180，最大宽度为320
+          const { height: croppedHeight, width: croppedWidth } = cropper.getCropBoxData();
+          let height = Math.min(croppedHeight, image.naturalHeight, 180);
+          let width = croppedWidth / croppedHeight * height;
+          const widthTmp = Math.min(croppedWidth, image.naturalWidth, 320);
+          if (width > widthTmp) {
+            width = widthTmp;
+            height = croppedHeight / croppedWidth * widthTmp;
+          }
+          const dataURL = cropper
+            .getCroppedCanvas({ height, width })
+            .toDataURL('image/jpeg', 0.9);
+          this.chatRoomService.sendPicture(dataURL.split(',')[1])
+            .then(() => resolve())
+            .catch(error => reject(this.msg.getMessage('E004', '图片发送')));
+        });
+      },
+    }).then(() => {
+      // 释放资源
+      URL.revokeObjectURL(url);
+    }, () => {
+      // 取消按钮被按下
+      // 释放资源
+      URL.revokeObjectURL(url);
+    });
   }
 
   /**
