@@ -17,6 +17,7 @@
 DRRR.Server/appsettings.json
 - 数据库连接字符串：ConnectionStrings:DrrrDatabase
 - 用户头像保存位置：Resources:Avatars
+- 聊天记录保存位置：Resources:Pictures
 - JWT配置：Token
 - 异常LOG文件名格式及保存位置：Serilog （具体介绍请关注 [Serilog项目](https://github.com/serilog/serilog-extensions-logging-file)）
 
