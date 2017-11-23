@@ -28,6 +28,7 @@ CREATE TABLE `chat_history` (
   `unix_time_milliseconds` bigint(20) NOT NULL COMMENT '创建时间',
   `username` varchar(10) NOT NULL COMMENT '用户名',
   `message` varchar(200) CHARACTER SET utf8mb4 DEFAULT NULL COMMENT '消息',
+  `is_picture` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否为图片',
   PRIMARY KEY (`room_id`,`user_id`,`unix_time_milliseconds`),
   KEY `chat_history_idx` (`room_id`,`unix_time_milliseconds`) COMMENT '由房间ID和创建时间组成的索引'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='历史聊天记录';
@@ -203,4 +204,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-11-06 20:57:30
+-- Dump completed on 2017-11-23 22:46:19

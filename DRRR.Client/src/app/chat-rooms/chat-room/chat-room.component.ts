@@ -249,6 +249,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
         cropper = new Cropper(image, {
           viewMode: 2,
           dragMode: 'move',
+          autoCropArea: 1,
           minContainerWidth: length,
           minContainerHeight: length
         });

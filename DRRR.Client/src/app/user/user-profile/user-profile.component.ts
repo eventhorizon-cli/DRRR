@@ -40,7 +40,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private msg: SystemMessagesService,
     private autoClearer: FormErrorsAutoClearer
-) { }
+  ) { }
 
   ngOnInit() {
     this.profileForm = this.fb.group({
@@ -66,7 +66,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     };
 
     // 获取注册时间
-    this.registrationTime = this.profileService.getRegistrationTime()
+    this.registrationTime = this.profileService.getRegistrationTime();
   }
 
   ngOnDestroy () {
@@ -110,6 +110,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           aspectRatio: 1,
           viewMode: 3,
           dragMode: 'move',
+          autoCropArea: 1,
           minContainerWidth: length,
           minContainerHeight: length
         });
@@ -185,7 +186,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         .subscribe(res => {
           this.msg.showAutoCloseMessage('success', 'I001', '密码更新');
           this.auth.saveRefreshToken(res.refreshToken);
-          this.auth.saveAccessToken(res.accessToken)
+          this.auth.saveAccessToken(res.accessToken);
         },  error =>
           swal(this.msg.getMessage('E004', '密码更新'),
             this.msg.getMessage('E010'), 'error')
@@ -203,6 +204,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       target.focus();
       this.updatePassword(this.profileForm.value);
-    })
+    });
   }
 }
