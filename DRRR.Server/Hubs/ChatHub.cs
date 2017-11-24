@@ -325,7 +325,11 @@ namespace DRRR.Server.Hubs
                         $"delete from connection where room_id = {room.Id} and is_online = false");
 
                     // 删除存放聊天图片的文件夹
-                    Directory.Delete(Path.Combine(_picturesDirectory, roomId.ToString()), true);
+                    var path = Path.Combine(_picturesDirectory, roomId.ToString());
+                    if (Directory.Exists(path))
+                    {
+                        Directory.Delete(path, true);
+                    }
 
                     tran.Commit();
 
