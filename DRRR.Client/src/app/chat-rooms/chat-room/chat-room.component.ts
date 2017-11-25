@@ -168,6 +168,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   showMoreChatHistory() {
     // 避免增加历史信息时将下方内容顶下去，
     const scrollPanel = $('.msg-container-base')[0];
+    const div = $('.history:first-child')[0];
     if (this.domNodeInsertedSubscription) {
       this.domNodeInsertedSubscription.unsubscribe();
     }
@@ -175,13 +176,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       = FromEventObservable.create<MutationEvent>(scrollPanel, 'DOMNodeInserted')
         .filter(evt => evt.relatedNode instanceof HTMLDivElement
           && evt.relatedNode.classList.contains('history'))
-        .scan((hAndHDiff: number[]) => {
-          const height = scrollPanel.scrollHeight;
-          return [height, height - hAndHDiff[0]];
-        }, [scrollPanel.scrollHeight, 0])
-        .map(hAndHDiff => hAndHDiff[1])
-        .subscribe(hDiff => {
-          scrollPanel.scrollTop += hDiff;
+        .subscribe(() => {
+          div.scrollIntoView();
         });
     this.chatRoomService.getChatHistory()
       .then(count => {
