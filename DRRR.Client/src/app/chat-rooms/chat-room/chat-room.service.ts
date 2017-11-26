@@ -182,7 +182,7 @@ export class ChatRoomService {
    * @return {Promise<number>} Promise对象,返回此次获取到的消息数
    */
   getChatHistory(): Promise<number> {
-    return new Promise<number>(((resolve, reject) => {
+    return new Promise<number>(((resolve) => {
       this.connection.invoke('GetChatHistoryAsync', this.roomId, this.entryTime, this.startIndex)
         .then((history: ChatHistoryDto[]) => {
           this.startIndex += history.length;
