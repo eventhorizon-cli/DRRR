@@ -76,18 +76,6 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.messages = this.chatRoomService.message
-      .scan((messages: Message[], message: Message) => {
-        this.lastMessage = message;
-        return messages.concat(message);
-      }, []);
-
-    // 聊天历史记录
-    this.chatHistory = this.chatRoomService.chatHistory
-      // .delay(0) // 这一步很重要，等高度判断结束了再发射下一条
-      .scan((messages: Message[], message: Message) =>
-        [message].concat(messages), []);
-
     // 避免查看聊天信息的时候有新消息会导致被迫滚到最下面
     const scrollPanel = $('.msg-container-base')[0];
     this.scrollSubscription
@@ -108,17 +96,29 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
           }
         });
 
-    this.msgSubscription = this.messages.subscribe(() => {
-      if (this.fixedAtBottom) {
-        this.lastMessage = null;
-        // 消息窗口滚至下方
-        this.scrollToBottom();
-      }
-    });
-
     this.chatRoomService.onReconnect = () => {
       // 显示用户列表
       this.isMemberListVisible = true;
+
+      this.messages = this.chatRoomService.message
+        .scan((messages: Message[], message: Message) => {
+          this.lastMessage = message;
+          return messages.concat(message);
+        }, []);
+
+      // 聊天历史记录
+      this.chatHistory = this.chatRoomService.chatHistory
+        .scan((messages: Message[], message: Message) =>
+          [message].concat(messages), []);
+
+      this.msgSubscription = this.messages.subscribe(() => {
+        if (this.fixedAtBottom) {
+          this.lastMessage = null;
+          // 消息窗口滚至下方
+          this.scrollToBottom();
+        }
+      });
+
       this.chatRoomService.getChatHistory()
         .then(count => {
           this.noMoreMessage = count < 20;

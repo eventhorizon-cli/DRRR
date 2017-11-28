@@ -141,13 +141,15 @@ export class ChatRoomService {
   sendMessage(message: HTMLInputElement) {
     // 如果连接被关闭，会被设为null
     if (this.connection) {
-      this.connection.send('SendMessageAsync', this.roomId, message.value)
-        .then(() => {
-          // 消息发送成功，清空输入框
-          message.value = '';
-        }).catch(() => {
-          this.reconnect(this.msg.getMessage('E004', '消息发送'));
-        });
+      try {
+        this.connection.send('SendMessageAsync', this.roomId, message.value)
+          .then(() => {
+            // 消息发送成功，清空输入框
+            message.value = '';
+          });
+      } catch (e) {
+        this.reconnect(this.msg.getMessage('E004', '消息发送'));
+      }
     } else {
       this.reconnect(this.msg.getMessage('E004', '消息发送'));
     }
