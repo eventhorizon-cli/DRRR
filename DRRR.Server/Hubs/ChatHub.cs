@@ -140,10 +140,10 @@ namespace DRRR.Server.Hubs
                 _dbContext.Update(connection);
             }
 
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync().ConfigureAwait(false);
 
             // 将用户添加到分组
-            await Groups.AddAsync(Context.ConnectionId, roomHashid);
+            await Groups.AddAsync(Context.ConnectionId, roomHashid).ConfigureAwait(false);
 
             // 只加载加入房间前的消息，避免消息重复显示
             long unixTimeMilliseconds = new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds();
@@ -151,11 +151,14 @@ namespace DRRR.Server.Hubs
             // 显示欢迎用户加入房间的消息
             await Clients.Group(roomHashid).InvokeAsync(
                 "broadcastSystemMessage",
-                _systemMessagesService.GetServerSystemMessage(msgId, username));
+                _systemMessagesService.GetServerSystemMessage(msgId, username))
+                .ConfigureAwait(false);
 
-            // TODO 应该在前一个登陆窗口显示消息，告知账号已经在其他地方登陆
             if (!string.IsNullOrEmpty(connIdToBeRemoved))
             {
+                // 前一个窗口显示消息，告知账号已经在其他地方登陆
+                await Clients.Client(connIdToBeRemoved)
+                    .InvokeAsync("onDuplicateLogin");
                 await Groups.RemoveAsync(connIdToBeRemoved, roomHashid);
             }
 
@@ -403,7 +406,8 @@ namespace DRRR.Server.Hubs
                  .OrderByDescending(msg => msg.UnixTimeMilliseconds)
                  .Skip(startIndex)
                  .Take(20)
-                 .ToListAsync();
+                 .ToListAsync()
+                 .ConfigureAwait(false);
 
             var history = new List<ChatHistoryDto>();
 

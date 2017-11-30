@@ -131,6 +131,17 @@ export class ChatRoomService {
 
       // 当房间被关闭时
       this.connection.on('onRoomDeleted', this.backToLobby.bind(this));
+
+      // 重复登录同一个聊天室时
+      this.connection.on('onDuplicateLogin', () => {
+        this.auth.clearTokens();
+        swal(this.msg.getMessage('I013'), '', 'warning')
+          .then(() => {
+            this.router.navigateByUrl('/login');
+          }, () => {
+            this.router.navigateByUrl('/login');
+          });
+      });
     });
   }
 
