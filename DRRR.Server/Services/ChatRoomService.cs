@@ -245,6 +245,18 @@ namespace DRRR.Server.Services
         {
             var (room, error) = await CheckRoomStatusAsync(roomId, userId);
 
+            if (string.IsNullOrEmpty(error))
+            {
+                // 检查该用户是否已经在其他房间里面
+                var connection = await _dbContext.Connection
+                    .Where(conn => conn.RoomId != roomId && conn.UserId == userId)
+                    .FirstOrDefaultAsync().ConfigureAwait(false);
+                if (connection !=null)
+                {
+                    error = _systemMessagesService.GetServerSystemMessage("E010");
+                }
+            }
+
             var res = new ChatRoomEntryPermissionResponseDto
             {
                 AllowGuest = room?.AllowGuest.Value ?? false
@@ -252,6 +264,7 @@ namespace DRRR.Server.Services
             if (!string.IsNullOrEmpty(error))
             {
                 // 该房间已经不存在或成员已满
+                // 或者该用户已经在其他房间里
                 res.Error = error;
             }
             else if (room.IsEncrypted.Value)

@@ -107,8 +107,10 @@ namespace DRRR.Server.Hubs
             var userId = HashidsHelper.Decode(Context.User.FindFirst("uid").Value);
             var username = HttpUtility.UrlDecode(Context.User.Identity.Name);
 
+            // 因为用户可能会尝试用一个账号同时登陆两个房间
+            // 这里查询条件不加上房间ID，前一个房间内的用户会被提示在别处登录
             var connection = await _dbContext.Connection
-                .Where(x => x.RoomId == roomId && x.UserId == userId).FirstOrDefaultAsync()
+                .Where(x => x.UserId == userId).FirstOrDefaultAsync()
                 .ConfigureAwait(false);
 
             string msgId = null;
