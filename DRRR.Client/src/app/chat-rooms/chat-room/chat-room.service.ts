@@ -231,7 +231,7 @@ export class ChatRoomService {
    * 删除房间成员
    * @param {string} uid 用户ID
    */
-  removeMember(uid: string)   {
+  removeMember(uid: string) {
     this.connection.send('RemoveMemberAsync', this.roomId, uid);
   }
 
@@ -270,16 +270,12 @@ export class ChatRoomService {
       this.msg.getMessage('E009'), 'error')
       .then(() => {
         // 尝试重新连接
-        try {
-          this.connect(this.roomId);
-          // 重置消息显示
-          this.message.unsubscribe();
-          this.chatHistory.unsubscribe();
-          this.message = new Subject<Message>();
-          this.chatHistory = new Subject<Message>();
-        } catch (e) {
-          this.reconnect(this.msg.getMessage('E008'));
-        }
+        this.connect(this.roomId);
+        // 重置消息显示
+        this.message.unsubscribe();
+        this.chatHistory.unsubscribe();
+        this.message = new Subject<Message>();
+        this.chatHistory = new Subject<Message>();
       }, () => { });
   }
 }

@@ -149,13 +149,15 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   /**
    * 发送消息
    * @param {HTMLInputElement} message 消息框输入控件
+   * @returns {boolean} 返回false避免事件冒泡
    */
-  sendMessage(message: HTMLInputElement) {
+  sendMessage(message: HTMLInputElement): boolean {
     this.fixedAtBottom = true;
     this.scrollToBottom();
     if (message.value && message.value.length <= 200) {
       this.chatRoomService.sendMessage(message);
     }
+    return false;
   }
 
   /**
