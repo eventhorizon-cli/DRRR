@@ -131,6 +131,17 @@ export class ChatRoomService {
 
       // 当房间被关闭时
       this.connection.on('onRoomDeleted', this.backToLobby.bind(this));
+
+      // 重复登录同一个聊天室时
+      this.connection.on('onDuplicateLogin', () => {
+        this.auth.clearTokens();
+        swal(this.msg.getMessage('I013'), '', 'warning')
+          .then(() => {
+            this.router.navigateByUrl('/login');
+          }, () => {
+            this.router.navigateByUrl('/login');
+          });
+      });
     });
   }
 
@@ -220,7 +231,7 @@ export class ChatRoomService {
    * 删除房间成员
    * @param {string} uid 用户ID
    */
-  removeMember(uid: string)   {
+  removeMember(uid: string) {
     this.connection.send('RemoveMemberAsync', this.roomId, uid);
   }
 
@@ -259,16 +270,12 @@ export class ChatRoomService {
       this.msg.getMessage('E009'), 'error')
       .then(() => {
         // 尝试重新连接
-        try {
-          this.connect(this.roomId);
-          // 重置消息显示
-          this.message.unsubscribe();
-          this.chatHistory.unsubscribe();
-          this.message = new Subject<Message>();
-          this.chatHistory = new Subject<Message>();
-        } catch (e) {
-          this.reconnect(this.msg.getMessage('E008'));
-        }
+        this.connect(this.roomId);
+        // 重置消息显示
+        this.message.unsubscribe();
+        this.chatHistory.unsubscribe();
+        this.message = new Subject<Message>();
+        this.chatHistory = new Subject<Message>();
       }, () => { });
   }
 }
