@@ -11,9 +11,14 @@ const ChatRoomsRouts: Routes = [
   {
     path: '',
     component: ChatRoomsComponent,
+    pathMatch: 'full',
     canActivate: [ChatRoomsAuthGuard],
     children: [
-      { path: '', component: ChatRoomListComponent },
+      {
+        path: '',
+        component: ChatRoomListComponent,
+        pathMatch: 'full'
+      },
     ]
   },
   {
