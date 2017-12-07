@@ -34,4 +34,4 @@ DRRR.Server/appsettings.json
 linux平台以后台方式运行,请执行 `nohup dotnet DRRR.Server.dll &`，或配置Supervisor。可通过命令行参数指定后台运行端口，如 `dotnet DRRR.Server.dll 4000`。
 
 ## 联系方式
-邮箱：blurhkh@hotmail.com
+邮箱：772552754@qq.com
