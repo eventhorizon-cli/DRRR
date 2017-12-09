@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using DRRR.Server.Services;
 using DRRR.Server.Security;
-using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
+using System;
 
 namespace DRRR.Server.Controllers
 {
@@ -28,10 +28,15 @@ namespace DRRR.Server.Controllers
         /// <summary>
         /// 获取客户端的系统通知信息配置
         /// </summary>
-        /// <returns>客户端的系统通知信息配置</returns>
+        /// <returns>表示获取客户端的系统通知信息配置的任务</returns>
         [HttpGet, Route("system-messages")]
-        public JsonResult GetSystemMessageSettings()
-            => _systemMessagesService.ClientSystemMessageSettings;
+        public async Task<JsonResult> GetSystemMessageSettingsAsync()
+        {
+            return await Task.Run(() =>
+              new JsonResult(JObject.Parse(System.IO.File.ReadAllText(
+                  System.IO.Path.Combine(AppContext.BaseDirectory,
+                  "Resources", "system-messages.client.json")))));
+        }
 
         /// <summary>
         /// 获取用户头像资源
