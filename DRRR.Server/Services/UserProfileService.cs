@@ -48,17 +48,15 @@ namespace DRRR.Server.Services
         /// <returns>异步获取用户头像资源的任务</returns>
         public async Task<FileResult> GetAvatarAsync(string type, int uid)
         {
-            return await Task.Run<FileResult>(() =>
+            string path = Path.Combine(_avatarsDirectory, type, $"{uid}.jpg");
+
+            if (!File.Exists(path))
             {
-                string path = Path.Combine(_avatarsDirectory, type, $"{uid}.jpg");
+                path = Path.Combine(_avatarsDirectory, type, "default.jpg");
+            }
 
-                if (!File.Exists(path))
-                {
-                    path = Path.Combine(_avatarsDirectory, type, "default.jpg");
-                }
-
-                return new FileStreamResult(new MemoryStream(File.ReadAllBytes(path)), "application/x-img");
-            });
+            return new FileStreamResult(
+                new MemoryStream(await File.ReadAllBytesAsync(path)), "application/x-img");
         }
 
         /// <summary>

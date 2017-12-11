@@ -32,10 +32,11 @@ namespace DRRR.Server.Controllers
         [HttpGet, Route("system-messages")]
         public async Task<JsonResult> GetSystemMessageSettingsAsync()
         {
-            return await Task.Run(() =>
-              new JsonResult(JObject.Parse(System.IO.File.ReadAllText(
-                  System.IO.Path.Combine(AppContext.BaseDirectory,
-                  "Resources", "system-messages.client.json")))));
+            var json = await System.IO.File.ReadAllTextAsync(
+                System.IO.Path.Combine(AppContext.BaseDirectory,
+                "Resources", "system-messages.client.json"))
+                .ConfigureAwait(false);
+            return new JsonResult(JObject.Parse(json));
         }
 
         /// <summary>
