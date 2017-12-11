@@ -33,14 +33,18 @@ export class ChatRoomMemberListItemComponent implements OnInit {
     this.status = [status];
   }
 
-  onRemove() {
+  /**
+   * 用户移除按钮点击事件
+   * @returns {boolean} 返回false阻止a标签的默认行为
+   */
+  onRemove(): boolean {
     this.msg.showConfirmMessage('warning',
       this.msg.getMessage('I012', this.memberInfo.username))
-      .then(res => {
-        if (res) {
+      .then(result => {
+        if (result.value) {
           this.remove.emit(this.memberInfo.userId);
         }
-      }, () => {});
+      });
     // 阻止a标签默认行为
     return false;
   }

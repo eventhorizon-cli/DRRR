@@ -33,9 +33,11 @@ export class ChatRoomAuthGuard implements CanActivate {
             this.msg.showConfirmMessage('question',
               this.msg.getMessage('I009'), {
                 text: this.msg.getMessage('I011')
-              }).then(() => {
-              this.router.navigate(['/register']);
-            }, () => {});
+              }).then(result => {
+                if (result.value) {
+                  this.router.navigate(['/register']);
+                }
+            });
           } else if (res.error) {
             // 被item组件的catch捕获到，通知list组件刷新数据
             reject('refresh');
@@ -52,7 +54,7 @@ export class ChatRoomAuthGuard implements CanActivate {
               cancelButtonText: '取消',
               showLoaderOnConfirm: true,
               preConfirm: (password) => {
-                return new Promise((innerResolve, innerReject) => {
+                return new Promise((innerResolve) => {
                   this.auth.http
                     .post<ChatRoomValidatePasswordResponseDto>('/api/rooms/password-validation', {
                     roomId: next.params['id'],
@@ -64,19 +66,20 @@ export class ChatRoomAuthGuard implements CanActivate {
                         innerResolve(true);
                       } else {
                         if (!innerRes.refreshRequired) {
-                          innerReject(innerRes.error);
+                          swal.showValidationError(innerRes.error);
                         } else {
                           // 通知列表组件刷新数据
                           // 显示错误信息
                           this.msg.showAutoCloseMessage('error', 'E000', innerRes.error);
                           reject('refresh');
                         }
+                        innerResolve(false);
                       }
-                    })
-                })
+                    });
+                });
               },
               allowOutsideClick: false
-            }).then(() => resolve(true), () => resolve(false));
+            }).then(result => resolve(result.value));
           } else {
             // 房间状态正常，不需要密码或者当前用户之前进入过该房间或者当前用户为管理员或者为房主
             resolve(true);

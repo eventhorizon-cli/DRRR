@@ -109,9 +109,11 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
       this.msg.showConfirmMessage('question',
         this.msg.getMessage('I009'), {
           text: this.msg.getMessage('I010')
-        }).then(() => {
-        this.router.navigate(['/register']);
-      }, () => {});
+        }).then(result => {
+          if (result.value) {
+            this.router.navigate(['/register']);
+          }
+      });
       return;
     }
 

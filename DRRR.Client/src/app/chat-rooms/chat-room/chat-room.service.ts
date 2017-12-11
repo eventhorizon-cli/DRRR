@@ -136,11 +136,7 @@ export class ChatRoomService {
       this.connection.on('onDuplicateLogin', () => {
         this.auth.clearTokens();
         swal(this.msg.getMessage('I013'), '', 'warning')
-          .then(() => {
-            this.router.navigateByUrl('/login');
-          }, () => {
-            this.router.navigateByUrl('/login');
-          });
+          .then(() => this.router.navigateByUrl('/login'));
       });
     });
   }
@@ -244,9 +240,6 @@ export class ChatRoomService {
       .then(() => {
         // 返回大厅
         this.router.navigateByUrl('/rooms');
-      }, () => {
-        // 返回大厅
-        this.router.navigateByUrl('/rooms');
       });
   }
   /**
@@ -276,6 +269,6 @@ export class ChatRoomService {
         this.chatHistory.unsubscribe();
         this.message = new Subject<Message>();
         this.chatHistory = new Subject<Message>();
-      }, () => { });
+      });
   }
 }

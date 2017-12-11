@@ -170,15 +170,11 @@ export class ChatRoomCreateComponent implements OnInit, OnDestroy {
             swal(this.msg.getMessage('I001', '房间创建'), '', 'success')
               .then(() => {
                 this.router.navigate(['/rooms', res.roomId]);
-              }, () => {
-                // 避免用户按ESC
-                this.router.navigate(['/rooms', res.roomId]);
               });
           }
         }, error => {
           swal(this.msg.getMessage('E004', '房间创建'),
-            this.msg.getMessage('E010'), 'error')
-            .then(() => { }, () => { });
+            this.msg.getMessage('E010'), 'error');
         });
     }
   }

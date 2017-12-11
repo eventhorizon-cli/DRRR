@@ -75,13 +75,13 @@ export class AppComponent implements OnInit {
       additionalSettings = {
         input: 'checkbox',
         inputValue: 1,
-        inputValidator: (result) =>
-          new Promise<void>((resolve) => {
+        inputValidator: result =>
+          new Promise<string>((resolve) => {
             if (result) {
-              resolve()
+              resolve();
             } else {
-              this.performSoftDeleteOfConnection().subscribe(
-                () => resolve());
+              this.performSoftDeleteOfConnection()
+                .subscribe(() => resolve());
             }
           }),
         onOpen: () => {
@@ -100,18 +100,19 @@ export class AppComponent implements OnInit {
           div.appendChild(newCheckbox);
           div.appendChild(lblMsg);
           container.insertBefore(div, label);
-          newCheckbox.addEventListener('click', function () {
-            oldCheckbox.value = this.value;
-          })
+          newCheckbox.addEventListener('click', () => {
+            oldCheckbox.click();
+          });
         }
-      }
+      };
     }
     this.msg.showConfirmMessage('warning', this.msg.getMessage('I003', '退出'),
       { text: this.msg.getMessage('I004'), ...additionalSettings })
-      .then(_ => {
-        this.auth.clearTokens();
-        this.router.navigateByUrl('/login');
-      }, _ => {
+      .then(result => {
+        if (!result.dismiss) {
+          this.auth.clearTokens();
+          this.router.navigateByUrl('/login');
+        }
       });
   }
 
@@ -121,12 +122,12 @@ export class AppComponent implements OnInit {
   backToLobby() {
     if (/rooms\/(\w+)/.test(this.currentPath)) {
       this.msg.showConfirmMessage('warning', this.msg.getMessage('I003', '离开房间'))
-        .then(() =>
+        .then(result => {
+          if (result.value) {
             this.performSoftDeleteOfConnection()
-              .subscribe(() => {
-                this.router.navigateByUrl('/rooms');
-              }),
-          () => { });
+              .subscribe(() => this.router.navigateByUrl('/rooms'));
+          }
+          });
     } else {
       this.router.navigateByUrl('/rooms');
     }

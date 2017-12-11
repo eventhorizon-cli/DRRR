@@ -153,8 +153,7 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
           }
         }, () => {
           swal(this.msg.getMessage('E004', '注册'),
-            this.msg.getMessage('E010'), 'error')
-            .then(() => {}, () => {});
+            this.msg.getMessage('E010'), 'error');
         });
     }
   }

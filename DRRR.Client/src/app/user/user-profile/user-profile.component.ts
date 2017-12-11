@@ -134,18 +134,20 @@ export class UserProfileComponent implements OnInit, OnDestroy {
               error => reject(this.msg.getMessage('E004', '头像更新')));
         });
       },
-    }).then(() => {
-      swal({
-        type: 'success',
-        title: this.msg.getMessage('I001', '头像更新'),
-      }).then(() => {
-        // 更新本地头像显示
-        this.avatarURL = dataURLOriginal;
-      }, () => {});
+    }).then(result => {
+      if (result.value) {
+        swal({
+          type: 'success',
+          title: this.msg.getMessage('I001', '头像更新'),
+        }).then(() => {
+          // 更新本地头像显示
+          this.avatarURL = dataURLOriginal;
+        });
+      }
       // 释放资源
       URL.revokeObjectURL(url);
-    }, () => {
-      // 取消按钮被按下
+    }, error => {
+      swal('', error, 'error');
       // 释放资源
       URL.revokeObjectURL(url);
     });
@@ -187,10 +189,9 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           this.msg.showAutoCloseMessage('success', 'I001', '密码更新');
           this.auth.saveRefreshToken(res.refreshToken);
           this.auth.saveAccessToken(res.accessToken);
-        },  error =>
+        }, () =>
           swal(this.msg.getMessage('E004', '密码更新'),
-            this.msg.getMessage('E010'), 'error')
-            .then(() => {}, () => {}));
+            this.msg.getMessage('E010'), 'error'));
     }
   }
 

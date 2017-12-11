@@ -65,13 +65,15 @@ export class ChatRoomListItemComponent implements OnInit {
    */
   deleteRoom() {
     this.msg.showConfirmMessage('warning', this.msg.getMessage('I008'))
-      .then(() => {
-        this.chatRoomListItemService.deleteRoom(this.room.id)
-          .then(() => {
-            // 通知列表刷新
-            this.failedToJoinTheRoom.next();
-            this.failedToJoinTheRoom.unsubscribe();
-          });
-      }, () => {});
+      .then(result => {
+        if (result.value) {
+          this.chatRoomListItemService.deleteRoom(this.room.id)
+            .then(() => {
+              // 通知列表刷新
+              this.failedToJoinTheRoom.next();
+              this.failedToJoinTheRoom.unsubscribe();
+            });
+        }
+      });
   }
 }

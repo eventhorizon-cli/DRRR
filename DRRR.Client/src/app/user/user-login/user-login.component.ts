@@ -106,8 +106,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
         }
       }, () => {
         swal(this.msg.getMessage('E004', '登录'),
-          this.msg.getMessage('E010'), 'error')
-          .then(() => { }, () => { });
+          this.msg.getMessage('E010'), 'error');
       });
   }
 

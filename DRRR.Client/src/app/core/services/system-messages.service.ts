@@ -44,7 +44,7 @@ export class SystemMessagesService {
       type,
       showConfirmButton: false,
       timer: 2000 // 2秒后自动关闭
-    }).then(() => { }, () => { });
+    });
   }
 
   /**
@@ -60,16 +60,19 @@ export class SystemMessagesService {
       onOpen: function () {
         swal.showLoading();
       }
-    }).then(() => { }, () => { });
+    });
   }
 
   /**
    * 显示确认消息窗口
-   * @param {string} type 消息类型
+   * @param {"warning" | "question"} type 消息类型
    * @param {string} title 标题
    * @param {SweetAlertOptions} additionalSettings 附加设置
+   * @returns {Promise<{value: boolean}>} 包含选择结果的Promise对象
    */
-  showConfirmMessage(type: 'warning' | 'question', title: string, additionalSettings?: SweetAlertOptions): Promise<any> {
+  showConfirmMessage(type: 'warning' | 'question',
+                     title: string,
+                     additionalSettings?: SweetAlertOptions): Promise<{value: boolean, dismiss?: string}> {
     return swal({
       title,
       type,
