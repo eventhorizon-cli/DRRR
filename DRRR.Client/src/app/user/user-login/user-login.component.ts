@@ -62,7 +62,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
 
       if (payload) {
         // 如果存在登录信息，则通过能够刷新令牌来判断登录信息是否已经过期
-        this.auth.refreshToken(() => {
+        this.auth.refreshToken().then(() => {
           // 登录信息未过期则直接跳转
           this.router.navigate(['/rooms', { page: 1 }]).then(() => {
             this.msg.showAutoCloseMessage('success', 'I002', payload.unique_name);

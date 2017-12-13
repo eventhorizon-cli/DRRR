@@ -22,7 +22,7 @@ export class ChatRoomListItemService {
   deleteRoom(roomId: string): Promise<never> {
     return new Promise<never>((resolve) => {
       // 需要打开WebSocket通知房间内的人
-      this.auth.refreshTokenWhenNecessary(() => {
+      this.auth.refreshTokenIfNeeded().then(() => {
         const connection = new HubConnection(`/chat?authorization=${this.auth.accessToken}`);
 
         // 打开连接
@@ -33,7 +33,7 @@ export class ChatRoomListItemService {
               resolve();
             });
         });
-      });
+      }, () => {});
     });
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router} from '@angular/router';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 
 import swal from 'sweetalert2';
@@ -26,7 +26,7 @@ export class ChatRoomAuthGuard implements CanActivate {
       this.auth.http.get<ChatRoomEntryPermissionResponseDto>(
         `/api/rooms/entry-permission?id=${next.params['id']}`)
         .subscribe(res => {
-          if (!res.allowGuest
+          if (res.allowGuest === false
             && this.auth.getPayloadFromToken('access_token').role === Roles.guest) {
             resolve(false);
             // 该房间不允许游客进入并且当前用户为游客
@@ -37,12 +37,11 @@ export class ChatRoomAuthGuard implements CanActivate {
                 if (result.value) {
                   this.router.navigate(['/register']);
                 }
-            });
+              });
           } else if (res.error) {
-            // 被item组件的catch捕获到，通知list组件刷新数据
-            reject('refresh');
-            // 显示错误信息
-            this.msg.showAutoCloseMessage('error', 'E000', res.error);
+            // 会被item组件的catch捕获到，通知list组件刷新数据
+            swal(res.error, '', 'error')
+              .then(() => reject('refresh'));
             // 进入该房间需要密码且该用户是第一次进入该房间，且用户不是房主或者管理员
           } else if (res.passwordRequired) {
             // 提示用户输入密码
@@ -50,41 +49,44 @@ export class ChatRoomAuthGuard implements CanActivate {
               title: this.msg.getMessage('I007'),
               input: 'password',
               showCancelButton: true,
-              confirmButtonText: '提交密码',
+              confirmButtonText: '提交',
               cancelButtonText: '取消',
               showLoaderOnConfirm: true,
               preConfirm: (password) => {
-                return new Promise((innerResolve) => {
+                return new Promise((innerResolve, innerReject) => {
                   this.auth.http
-                    .post<ChatRoomValidatePasswordResponseDto>('/api/rooms/password-validation', {
-                    roomId: next.params['id'],
-                    password
-                  })
-                    .subscribe(innerRes => {
+                    .post<ChatRoomValidatePasswordResponseDto>(
+                    '/api/rooms/password-validation', {
+                      roomId: next.params['id'],
+                      password
+                    }).subscribe(innerRes => {
                       if (!innerRes.error) {
                         // 没有异常，直接进入
                         innerResolve(true);
                       } else {
                         if (!innerRes.refreshRequired) {
                           swal.showValidationError(innerRes.error);
+                          innerResolve(false);
                         } else {
                           // 通知列表组件刷新数据
                           // 显示错误信息
-                          this.msg.showAutoCloseMessage('error', 'E000', innerRes.error);
-                          reject('refresh');
+                          swal.close(() => {
+                            swal(innerRes.error, '', 'error')
+                              .then(() => innerReject('refresh'));
+                          });
                         }
-                        innerResolve(false);
                       }
                     });
                 });
               },
               allowOutsideClick: false
-            }).then(result => resolve(result.value));
+            }).then(result => resolve(result.value),
+                error => reject(error));
           } else {
             // 房间状态正常，不需要密码或者当前用户之前进入过该房间或者当前用户为管理员或者为房主
             resolve(true);
           }
-        });
+        }, () => resolve(false));
     });
   }
 }

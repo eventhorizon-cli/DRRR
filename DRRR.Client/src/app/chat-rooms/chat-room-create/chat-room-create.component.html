@@ -46,7 +46,7 @@
              (blur)="validatePassword(form.controls['password'])"
              (blur)="validateRequired('password')"
              (keydown.enter)="createByPressingEnter($event)">
-      <span class="help-block">{{ formErrorMessages['password'] || "不少于 6 位" }}</span>
+      <span class="help-block">{{ formErrorMessages['password'] || "不少于 4 位" }}</span>
     </div>
     <div class="checkbox" >
       <input type="checkbox" formControlName="isEncrypted" id="isEncrypted">

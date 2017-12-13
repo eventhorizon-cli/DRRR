@@ -259,7 +259,7 @@ namespace DRRR.Server.Services
 
             var res = new ChatRoomEntryPermissionResponseDto
             {
-                AllowGuest = room?.AllowGuest.Value ?? false
+                AllowGuest = room?.AllowGuest.Value
             };
             if (!string.IsNullOrEmpty(error))
             {

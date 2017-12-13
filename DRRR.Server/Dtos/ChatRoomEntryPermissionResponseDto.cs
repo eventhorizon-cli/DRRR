@@ -23,6 +23,6 @@ namespace DRRR.Server.Dtos
         /// <summary>
         /// 是否允许游客进入
         /// </summary>
-        public bool AllowGuest { get; set; }
+        public bool? AllowGuest { get; set; }
     }
 }

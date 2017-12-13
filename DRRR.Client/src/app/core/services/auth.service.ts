@@ -78,7 +78,7 @@ export class AuthService {
   /**
    * 从Token中获取信息
    * @param {"access_token" | "refresh_token"} tokenName 令牌名称
-   * @returns {Payload} Token信息
+   * @return {Payload} Token信息
    */
   getPayloadFromToken(tokenName: 'access_token' | 'refresh_token'): Payload {
     let payload: Payload;
@@ -98,54 +98,68 @@ export class AuthService {
 
   /**
    * 刷新令牌
-   * @param {Function} successCallback 刷新令牌成功时执行的回调函数
+   * @return {Promise<never>} 刷新令牌任务的Promise对象
    */
-  refreshToken(successCallback: Function) {
-    this.httpWithoutAuth.post('api/user/refresh-token',
-      null,
-      { headers: this.getAuthorizationHeader('refresh_token') })
-      .subscribe(res => {
-        // 重新保存访问令牌
-        this.saveAccessToken(res['accessToken']);
+  refreshToken(): Promise<never> {
+    return new Promise(resolve => {
+      this.httpWithoutAuth.post('api/user/refresh-token',
+        null,
+        { headers: this.getAuthorizationHeader('refresh_token') })
+        .subscribe(res => {
+          // 重新保存访问令牌
+          this.saveAccessToken(res['accessToken']);
 
-        // 执行回调函数
-        successCallback();
-      }, (err: HttpErrorResponse) => {
-        if (err.error instanceof Error) {
-          // 如果是客户端异常
-          console.log('An error occurred:', err.error.message);
-        } else {
-          // 如果请求发生异常
-          console.log(`Backend returned code ${err.status}, body was: ${err.error}`);
+          // 执行回调函数
+          resolve();
+        }, (err: HttpErrorResponse) => {
+          if (err.error instanceof Error) {
+            // 如果是客户端异常
+            console.log('An error occurred:', err.error.message);
+          } else {
+            // 如果请求发生异常
+            console.log(`Backend returned code ${err.status}, body was: ${err.error}`);
 
-          if (err.status === 401) {
-            // 如果token验证失效，则回到登录界面
-            swal(this.msg.getMessage('E006', '账号信息'),
-              this.msg.getMessage('E007', '登录'), 'error')
-              .then(() => {
-                // 返回登录界面
-                // 清空localStorage以避免问题发生
-                this.clearTokens();
-                this.router.navigateByUrl('/login');
-              });
+            if (err.status === 401) {
+              // 如果token验证失效，则回到登录界面
+              swal(this.msg.getMessage('E006', '账号信息'),
+                this.msg.getMessage('E007', '登录'), 'error')
+                .then(() => {
+                  // 返回登录界面
+                  // 清空localStorage以避免问题发生
+                  this.clearTokens();
+                  this.router.navigateByUrl('/login');
+                });
+            }
           }
-        }
-      });
+        });
+    });
   }
 
   /**
    * 当令牌即将过期时先刷新令牌，否则直接执行回调函数
-   * @param {Function} successCallback 刷新令牌成功时执行的回调函数
+   * @return {Promise<never>} 有需要时刷新令的牌任务的Promise对象
    */
-  refreshTokenWhenNecessary(successCallback: Function) {
-    const payload = this.getPayloadFromToken('access_token');
+  refreshTokenIfNeeded(): Promise<never> {
+    return new Promise((resolve, reject) => {
+      const payload = this.getPayloadFromToken('access_token');
 
-    // 如果剩余有效时间小于10分钟，则刷新访问令牌
-    if ((payload.exp - Math.floor(Date.now() / 1000)) < 600) {
-      this.refreshToken(successCallback);
-    } else {
-      successCallback();
-    }
+      if (payload) {
+        // 如果剩余有效时间小于10分钟，则刷新访问令牌
+        if ((payload.exp - Math.floor(Date.now() / 1000)) < 600) {
+          this.refreshToken().then(resolve);
+        } else {
+          resolve();
+        }
+      } else {
+        swal(this.msg.getMessage('E004', '账号信息获取'),
+          this.msg.getMessage('E007', '登录'), 'error')
+          .then(() => {
+            // 返回登录界面
+            this.router.navigateByUrl('/login');
+            reject();
+          });
+      }
+    });
   }
 
   /**
@@ -160,7 +174,7 @@ export class AuthService {
 
   /**
    * 获取存放Token的容器
-   * @returns {Storage} 存放Token的容器
+   * @return {Storage} 存放Token的容器
    */
   private get storage(): Storage {
     return this.rememberLoginState ? localStorage : sessionStorage;
@@ -169,7 +183,7 @@ export class AuthService {
   /**
    * 获得带有权限验证的请求头
    * @param {"access_token" | "refresh_token"} tokenName 令牌名称
-   * @returns {HttpHeaders} 带有权限验证的请求头
+   * @return {HttpHeaders} 带有权限验证的请求头
    */
   private getAuthorizationHeader(tokenName: 'access_token' | 'refresh_token'): HttpHeaders {
     return new HttpHeaders()
@@ -205,20 +219,13 @@ export class AuthService {
             return args;
           };
 
-          const payload = this.getPayloadFromToken('access_token');
-
-          // 如果剩余有效时间小于10分钟，则刷新访问令牌
-          if ((payload.exp - Math.floor(Date.now() / 1000)) < 600) {
-            return Observable.create((observer: Observer<object>) => {
-              this.refreshToken(() => {
+          return Observable.create((observer: Observer<object>) => {
+            this.refreshTokenIfNeeded()
+              .then(() => {
                 httpFunc.apply(target, getArgs())
-                  .subscribe(data => observer.next(data),
-                  error => observer.error(error));
-              });
-            });
-          }
-
-          return httpFunc.apply(target, getArgs());
+                  .subscribe(result => observer.next(result), error => observer.error(error));
+              }).catch(error => observer.error(error));
+          });
         };
       };
 

@@ -53,7 +53,7 @@ export class ChatRoomCreateComponent implements OnInit, OnDestroy {
         Validators.max(1000)]],
       password: ['', [
         Validators.required,
-        Validators.minLength(6),
+        Validators.minLength(4),
         Validators.maxLength(128)]],
       isEncrypted: [false],
       isPermanent: [false],
@@ -130,7 +130,7 @@ export class ChatRoomCreateComponent implements OnInit, OnDestroy {
   validatePassword(password: AbstractControl) {
     if (password.value.trim()) {
       this.formErrorMessages['password'] = password.valid ? '' :
-        this.msg.getMessage('E002', '6', '128', '密码');
+        this.msg.getMessage('E002', '4', '128', '密码');
     }
   }
 

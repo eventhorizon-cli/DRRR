@@ -68,7 +68,7 @@ export class ChatRoomService {
    * @param {string} roomId 房间ID
    */
   connect(roomId: string) {
-    this.auth.refreshTokenWhenNecessary(() => {
+    this.auth.refreshTokenIfNeeded().then(() => {
       this.roomId = roomId;
 
       this.connection = new HubConnection(`/chat?authorization=${this.auth.accessToken}`);
@@ -138,7 +138,7 @@ export class ChatRoomService {
         swal(this.msg.getMessage('I013'), '', 'warning')
           .then(() => this.router.navigateByUrl('/login'));
       });
-    });
+    }, () => {});
   }
 
   /**
