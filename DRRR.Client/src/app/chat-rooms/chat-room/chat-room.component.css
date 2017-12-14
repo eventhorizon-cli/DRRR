@@ -17,17 +17,6 @@
     padding-left: 10px;
   }
 }
-.msg-container-base::-webkit-scrollbar-track {
-  background-color: rgb(255, 255, 255);
-}
-.msg-container-base::-webkit-scrollbar {
-  width: 2px;
-}
-.msg-container-base::-webkit-scrollbar-thumb {
-  border-radius: 1px;
-  background-color: #aeadaa;
-  opacity: 0.5;
-}
 .btn.btn-block:focus{
   outline:none
 }

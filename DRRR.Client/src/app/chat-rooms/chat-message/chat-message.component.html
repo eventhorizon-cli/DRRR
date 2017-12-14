@@ -19,6 +19,7 @@
   </div>
   <div *ngIf="message.timestamp"
        class="time">
-    <P>{{ message.timestamp | date: 'yyyy/MM/dd HH:mm:ss'}}</P>
+    <P *ngIf="isToday">{{ message.timestamp | date: 'HH:mm:ss'}}</P>
+    <P *ngIf="!isToday">{{ message.timestamp | date: 'yyyy/MM/dd HH:mm:ss'}}</P>
   </div>
 </div>

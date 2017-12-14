@@ -147,7 +147,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       // 释放资源
       URL.revokeObjectURL(url);
     }, error => {
-      swal(error, '', 'error');
+      swal(error, this.msg.getMessage('E010'), 'error');
       // 释放资源
       URL.revokeObjectURL(url);
     });

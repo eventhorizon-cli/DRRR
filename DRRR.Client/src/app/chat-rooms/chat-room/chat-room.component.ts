@@ -67,6 +67,11 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     // 聊天界面窗口高度
     // 一开始的高度
     this.setHeight();
+
+    // 设置滚动条样式
+    const scrollPanel$ = $('.msg-container-base');
+    (<any>scrollPanel$).niceScroll({cursorcolor: '#d6d6d4'});
+
     // 重新设置窗口大小后
     this.resizeSubscription = FromEventObservable.create(window, 'resize')
       .subscribe(() => {
@@ -77,7 +82,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       });
 
     // 避免查看聊天信息的时候有新消息会导致被迫滚到最下面
-    const scrollPanel = $('.msg-container-base')[0];
+    const scrollPanel = scrollPanel$[0];
     this.scrollSubscription
       = FromEventObservable.create<Event>(scrollPanel, 'scroll')
         .scan((topAndTopDiff: number[]) => {
