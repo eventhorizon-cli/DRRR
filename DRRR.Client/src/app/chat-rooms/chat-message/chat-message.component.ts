@@ -31,6 +31,9 @@ export class ChatMessageComponent implements OnInit {
    * @return {string} yyyyMMdd格式的日期字符串
    */
   private formatDate(date: Date): string {
-    return `${date.getFullYear()}${date.getMonth()}${date.getDay()}`;
+    // js里月份需要加1
+    return date.getFullYear()
+      + (date.getMonth() + 1).toString().padStart(2, '0')
+      + date.getDate().toString().padStart(2, '0');
   }
 }
