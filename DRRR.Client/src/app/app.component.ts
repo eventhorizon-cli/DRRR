@@ -75,15 +75,6 @@ export class AppComponent implements OnInit {
       additionalSettings = {
         input: 'checkbox',
         inputValue: 1,
-        inputValidator: result =>
-          new Promise<string>((resolve) => {
-            if (result) {
-              resolve();
-            } else {
-              this.performSoftDeleteOfConnection()
-                .subscribe(() => resolve());
-            }
-          }),
         onOpen: () => {
           // 替换checkbox样式
           const container = document.querySelector('.swal2-modal.swal2-show');
@@ -108,10 +99,22 @@ export class AppComponent implements OnInit {
     }
     this.msg.showConfirmMessage('warning', this.msg.getMessage('I003', '退出'),
       { text: this.msg.getMessage('I004'), ...additionalSettings })
-      .then(result => {
-        if (!result.dismiss) {
-          this.auth.clearTokens();
-          this.router.navigateByUrl('/login');
+      .then(({value, dismiss}) => {
+        if (!dismiss) {
+          if (value) {
+            // 选择下次自动进去该房间
+            this.auth.clearTokens();
+            this.router.navigateByUrl('/login');
+          } else {
+            // 选择下次不自动进去该房间
+            this.msg.showLoadingMessage('I005', '离开房间');
+            this.performSoftDeleteOfConnection()
+              .subscribe(async () => {
+                this.auth.clearTokens();
+                await this.router.navigateByUrl('/login');
+                this.msg.closeLoadingMessage();
+              }, () => this.msg.showAutoCloseMessage('error', 'E004', '离开房间'));
+          }
         }
       });
   }
@@ -124,10 +127,14 @@ export class AppComponent implements OnInit {
       this.msg.showConfirmMessage('warning', this.msg.getMessage('I003', '离开房间'))
         .then(result => {
           if (result.value) {
+            this.msg.showLoadingMessage('I005', '离开房间');
             this.performSoftDeleteOfConnection()
-              .subscribe(() => this.router.navigateByUrl('/rooms'));
+              .subscribe(async () => {
+                await this.router.navigateByUrl('/rooms');
+                this.msg.closeLoadingMessage();
+              }, () => this.msg.showAutoCloseMessage('error', 'E004', '离开房间'));
           }
-          });
+        });
     } else {
       this.router.navigateByUrl('/rooms');
     }

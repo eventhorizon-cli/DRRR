@@ -118,10 +118,7 @@ export class ChatRoomService {
         });
 
       // 刷新成员列表
-      this.connection.on('refreshMemberList',
-        (list) => {
-          this.memberList.next(list);
-        });
+      this.connection.on('refreshMemberList', list => this.memberList.next(list));
 
       // 当前用户被房主移出房间
       this.connection.on('onRemoved', this.backToLobby.bind(this));
