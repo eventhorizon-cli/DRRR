@@ -13,7 +13,7 @@
            (blur)="validateUsername(registerForm.controls['username'])"
            (blur)="validateRequired('username')"
            (keydown.enter)="registerByPressingEnter($event)">
-    <span class="help-block">{{ formErrorMessages['username'] || "中英文均可，最长10个字符" }}</span>
+    <span class="help-block">{{ formErrorMessages['username'] || "中日英文均可，最长10个字符" }}</span>
   </div>
   <div class="form-group"
        [ngClass]="{ 'has-error': formErrorMessages['password'] }">
