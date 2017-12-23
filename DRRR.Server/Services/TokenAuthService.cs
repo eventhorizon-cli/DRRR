@@ -43,8 +43,7 @@ namespace DRRR.Server.Services
         /// <returns>一个新的AccessToken</returns>
         public async Task<string> RefreshTokenAsync(int uid)
         {
-            User user = await _dbContext.User.FindAsync(uid)
-                .ConfigureAwait(false);
+            User user = await _dbContext.User.FindAsync(uid);
 
             // 找不到的情况当游客处理
             if (user == null)

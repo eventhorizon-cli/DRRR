@@ -45,8 +45,7 @@ namespace DRRR.Server.Hubs
             var userHashId = Context.User.FindFirst("uid").Value;
             var username = HttpUtility.UrlDecode(Context.User.Identity.Name);
             await Clients.Group(roomHashid)
-                .InvokeAsync("broadcastMessage", userHashId, username, message, false)
-                .ConfigureAwait(false);
+                .InvokeAsync("broadcastMessage", userHashId, username, message, false);
             // 将消息保存到数据库
             var history = new ChatHistory
             {
@@ -81,8 +80,7 @@ namespace DRRR.Server.Hubs
             await File.WriteAllBytesAsync(path, Convert.FromBase64String(base64String));
 
             await Clients.Group(roomHashid)
-                .InvokeAsync("broadcastMessage", userHashId, username, base64String, true)
-                .ConfigureAwait(false);
+                .InvokeAsync("broadcastMessage", userHashId, username, base64String, true);
             // 将消息保存到数据库
             var history = new ChatHistory
             {
@@ -110,8 +108,7 @@ namespace DRRR.Server.Hubs
             // 因为用户可能会尝试用一个账号同时登陆两个房间
             // 这里查询条件不加上房间ID，前一个房间内的用户会被提示在别处登录
             var connection = await _dbContext.Connection
-                .Where(x => x.UserId == userId).FirstOrDefaultAsync()
-                .ConfigureAwait(false);
+                .Where(x => x.UserId == userId).FirstOrDefaultAsync();
 
             string msgId = null;
             string connIdToBeRemoved = null;
@@ -142,10 +139,10 @@ namespace DRRR.Server.Hubs
                 _dbContext.Update(connection);
             }
 
-            await _dbContext.SaveChangesAsync().ConfigureAwait(false);
+            await _dbContext.SaveChangesAsync();
 
             // 将用户添加到分组
-            await Groups.AddAsync(Context.ConnectionId, roomHashid).ConfigureAwait(false);
+            await Groups.AddAsync(Context.ConnectionId, roomHashid);
 
             // 只加载加入房间前的消息，避免消息重复显示
             long unixTimeMilliseconds = new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds();
@@ -153,8 +150,7 @@ namespace DRRR.Server.Hubs
             // 显示欢迎用户加入房间的消息
             await Clients.Group(roomHashid).InvokeAsync(
                 "broadcastSystemMessage",
-                _msg.GetMessage(msgId, username))
-                .ConfigureAwait(false);
+                _msg.GetMessage(msgId, username));
 
             if (!string.IsNullOrEmpty(connIdToBeRemoved))
             {
@@ -170,7 +166,7 @@ namespace DRRR.Server.Hubs
             var room = await _dbContext.ChatRoom
                 .Where(r => r.Id == roomId)
                 .Select(r => new { r.Name, r.OwnerId })
-                .FirstOrDefaultAsync().ConfigureAwait(false);
+                .FirstOrDefaultAsync();
 
             return new ChatRoomInitialDisplayDto
             {
@@ -194,8 +190,7 @@ namespace DRRR.Server.Hubs
                 .Connection
                 .CountAsync(conn => conn.RoomId == roomId
                             && conn.UserId == userId
-                            && conn.ConnectionId == Context.ConnectionId)
-                .ConfigureAwait(false);
+                            && conn.ConnectionId == Context.ConnectionId);
 
             // 如果用户开了多个窗口的话，这边可能会出问题
             // 或者用户被移出房间
@@ -208,7 +203,7 @@ namespace DRRR.Server.Hubs
                HttpUtility.UrlDecode(Context.User.Identity.Name)));
 
             var room = await _dbContext.ChatRoom.Where(x => x.Id == roomId)
-                .FirstOrDefaultAsync().ConfigureAwait(false);
+                .FirstOrDefaultAsync();
 
             // 如果该房间已经被删除的话
             if (room == null) return;
@@ -229,7 +224,7 @@ namespace DRRR.Server.Hubs
         {
             var connenction = await _dbContext
                 .Connection.Where(conn => conn.ConnectionId == Context.ConnectionId)
-                .FirstOrDefaultAsync().ConfigureAwait(false);
+                .FirstOrDefaultAsync();
 
             // 如果用户开了多个窗口的话，这边可能会出问题
             // 或者用户被移出房间
@@ -241,7 +236,7 @@ namespace DRRR.Server.Hubs
             var ownerId = await _dbContext.ChatRoom
                .Where(r => r.Id == connenction.RoomId)
                .Select(r => r.OwnerId)
-               .FirstOrDefaultAsync().ConfigureAwait(false);
+               .FirstOrDefaultAsync();
 
             // 如果当前房间已经被删除，ownerId会得到0
             // 或者该连接被标记为删除，即用户退出聊天室
@@ -299,7 +294,7 @@ namespace DRRR.Server.Hubs
         {
             var roomId = HashidsHelper.Decode(roomHashid);
 
-            var room = await _dbContext.ChatRoom.FindAsync(roomId).ConfigureAwait(false);
+            var room = await _dbContext.ChatRoom.FindAsync(roomId);
 
             // 当前房间已经被删除则不做处理
             if (room == null) return;
@@ -408,8 +403,7 @@ namespace DRRR.Server.Hubs
                  .OrderByDescending(msg => msg.UnixTimeMilliseconds)
                  .Skip(startIndex)
                  .Take(20)
-                 .ToListAsync()
-                 .ConfigureAwait(false);
+                 .ToListAsync();
 
             var history = new List<ChatHistoryDto>();
 

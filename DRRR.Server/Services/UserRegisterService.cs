@@ -47,8 +47,7 @@ namespace DRRR.Server.Services
 
             // 检测用户名是否存在
             int count = await _dbContext
-                .User.CountAsync(user => user.Username == username)
-                .ConfigureAwait(false);
+                .User.CountAsync(user => user.Username == username);
 
             if (count > 0)
             {
@@ -65,7 +64,7 @@ namespace DRRR.Server.Services
         public async Task<(AccessTokenResponseDto, Dictionary<string, string>)> RegisterAsync(UserRegisterRequestDto userDto)
         {
             // 如果用户不是通过浏览器在请求接口，失去焦点时验证用户名的动作就没意义
-            var error = await ValidateUsernameAsync(userDto.Username).ConfigureAwait(false);
+            var error = await ValidateUsernameAsync(userDto.Username);
             if (error != null)
             {
                 return (null, new Dictionary<string, string>
@@ -86,7 +85,7 @@ namespace DRRR.Server.Services
                     RoleId = (int)Roles.User
                 };
                 _dbContext.User.Add(user);
-                await _dbContext.SaveChangesAsync().ConfigureAwait(false);
+                await _dbContext.SaveChangesAsync();
 
                 var token = new AccessTokenResponseDto
                 {

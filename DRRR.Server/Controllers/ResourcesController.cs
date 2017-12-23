@@ -34,8 +34,7 @@ namespace DRRR.Server.Controllers
         {
             var json = await System.IO.File.ReadAllTextAsync(
                 System.IO.Path.Combine(AppContext.BaseDirectory,
-                "Resources", "system-messages.client.json"))
-                .ConfigureAwait(false);
+                "Resources", "system-messages.client.json"));
             return new JsonResult(JObject.Parse(json));
         }
 

@@ -42,8 +42,7 @@ namespace DRRR.Server.Services
         {
             User user = await _dbContext.User
                 .Where(u => u.Username == userDto.Username)
-                .FirstOrDefaultAsync()
-                .ConfigureAwait(false);
+                .FirstOrDefaultAsync();
 
             if (user != null
                 && ValidatePassword(userDto.Password, user.Salt, user.PasswordHash))

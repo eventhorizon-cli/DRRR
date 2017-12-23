@@ -64,7 +64,7 @@ namespace DRRR.Server.Services
                         select room;
             }
 
-            int count = await query.CountAsync().ConfigureAwait(false);
+            int count = await query.CountAsync();
 
             int totalPages = (int)Math.Ceiling(((decimal)count / 10));
             page = Math.Min(page, totalPages);
@@ -92,7 +92,7 @@ namespace DRRR.Server.Services
                     IsHidden = room.IsHidden.Value,
                     AllowGuest = room.AllowGuest.Value,
                     CreateTime = new DateTimeOffset(room.CreateTime).ToUnixTimeMilliseconds()
-                }).ToListAsync().ConfigureAwait(false);
+                }).ToListAsync();
 
             chatRoomListDto.Pagination = new PaginationDto
             {
@@ -178,8 +178,7 @@ namespace DRRR.Server.Services
 
             // 检测用户名是否存在
             int count = await _dbContext
-                .ChatRoom.CountAsync(room => room.Name == name)
-                .ConfigureAwait(false);
+                .ChatRoom.CountAsync(room => room.Name == name);
 
             if (count > 0)
             {
@@ -197,8 +196,7 @@ namespace DRRR.Server.Services
         {
             var connection = await _dbContext.Connection
                       .Where(conn => conn.UserId == uid && !conn.IsDeleted.Value)
-                      .FirstOrDefaultAsync()
-                      .ConfigureAwait(false);
+                      .FirstOrDefaultAsync();
 
 
             // 连接信息没找到
@@ -250,7 +248,7 @@ namespace DRRR.Server.Services
                 // 检查该用户是否已经在其他房间里面
                 var connection = await _dbContext.Connection
                     .Where(conn => conn.RoomId != roomId && conn.UserId == userId)
-                    .FirstOrDefaultAsync().ConfigureAwait(false);
+                    .FirstOrDefaultAsync();
                 if (connection !=null)
                 {
                     error = _msg.GetMessage("E010");
