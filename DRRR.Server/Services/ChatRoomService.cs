@@ -16,14 +16,14 @@ namespace DRRR.Server.Services
     {
         private DrrrDbContext _dbContext;
 
-        private SystemMessagesService _systemMessagesService;
+        private SystemMessagesService _msg;
 
         public ChatRoomService(
             DrrrDbContext dbContext,
             SystemMessagesService systemMessagesService)
         {
             _dbContext = dbContext;
-            _systemMessagesService = systemMessagesService;
+            _msg = systemMessagesService;
         }
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace DRRR.Server.Services
                 // 房间名重复
                 return new ChatRoomCreateResponseDto
                 {
-                    Error = _systemMessagesService.GetMessage("E003", "房间名"),
+                    Error = _msg.GetMessage("E003", "房间名"),
                     CloseModalIfError = false
                 };
             }
@@ -173,7 +173,7 @@ namespace DRRR.Server.Services
             if (!Regex.IsMatch(name, @"^[\u4e00-\u9fa5\u3040-\u309F\u30A0-\u30FFa-zA-Z_\d]+$")
             || Regex.IsMatch(name, @"^\d+$"))
             {
-                return _systemMessagesService.GetMessage("E002", "房间名");
+                return _msg.GetMessage("E002", "房间名");
             }
 
             // 检测用户名是否存在
@@ -183,7 +183,7 @@ namespace DRRR.Server.Services
 
             if (count > 0)
             {
-                return _systemMessagesService.GetMessage("E003", "房间名");
+                return _msg.GetMessage("E003", "房间名");
             }
             return null;
         }
@@ -253,7 +253,7 @@ namespace DRRR.Server.Services
                     .FirstOrDefaultAsync().ConfigureAwait(false);
                 if (connection !=null)
                 {
-                    error = _systemMessagesService.GetMessage("E010");
+                    error = _msg.GetMessage("E010");
                 }
             }
 
@@ -307,7 +307,7 @@ namespace DRRR.Server.Services
             else if (!PasswordHelper.ValidatePassword(password, room.Salt, room.PasswordHash))
             {
                 // 密码错误
-                res.Error = _systemMessagesService.GetMessage("E007", "密码");
+                res.Error = _msg.GetMessage("E007", "密码");
             }
             return res;
         }
@@ -324,7 +324,7 @@ namespace DRRR.Server.Services
                 && room.Owner.RoleId == (int)Roles.User).CountAsync();
             if (count > 0)
             {
-                return _systemMessagesService.GetMessage("E009");
+                return _msg.GetMessage("E009");
             }
             return null;
         }
@@ -343,13 +343,13 @@ namespace DRRR.Server.Services
             if (room == null)
             {
                 // 该房间已经不存在
-                error = _systemMessagesService.GetMessage("E005");
+                error = _msg.GetMessage("E005");
             }
             else if (room.CurrentUsers == room.MaxUsers && connection == null)
             {
                 // 之前如果就已经在房间里了，不报错
                 // 该房间人数已满
-                error = _systemMessagesService.GetMessage("E006");
+                error = _msg.GetMessage("E006");
             }
 
             return (room, error);

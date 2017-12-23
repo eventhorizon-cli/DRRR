@@ -147,8 +147,9 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
                 });
               });
           } else {
-            // 多线程导致的用户名重复
-            this.formErrorMessages['username'] = res.error;
+            // 验证错误
+            // 获这多线程导致的用户名重复
+            Object.assign(this.formErrorMessages, res.error);
             this.registerForm.controls['username'].setErrors({illegal: true});
           }
         }, () => {

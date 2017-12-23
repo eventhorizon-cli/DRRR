@@ -13,7 +13,7 @@ namespace DRRR.Server.Controllers
     [Route("api/[controller]")]
     public class ResourcesController : Controller
     {
-        private SystemMessagesService _systemMessagesService;
+        private SystemMessagesService _msg;
 
         private UserProfileService _userProfileService;
 
@@ -21,7 +21,7 @@ namespace DRRR.Server.Controllers
             SystemMessagesService systemMessagesService,
             UserProfileService userProfileService)
         {
-            _systemMessagesService = systemMessagesService;
+            _msg = systemMessagesService;
             _userProfileService = userProfileService;
         }
 

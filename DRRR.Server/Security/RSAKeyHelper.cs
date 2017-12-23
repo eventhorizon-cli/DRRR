@@ -14,12 +14,12 @@ namespace DRRR.Server.Security
         /// <summary>
         /// 用于签名的私钥
         /// </summary>
-        public static RsaSecurityKey RSAPrivateKey { get; private set; }
+        public static RsaSecurityKey RSAPrivateKey { get; }
 
         /// <summary>
         /// 用于验证的公钥
         /// </summary>
-        public static RsaSecurityKey RSAPublicKey { get; private set; }
+        public static RsaSecurityKey RSAPublicKey { get; }
 
         static RSAKeyHelper()
         {

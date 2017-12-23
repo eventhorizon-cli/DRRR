@@ -19,5 +19,15 @@ namespace DRRR.Server.Dtos
         /// 密码
         /// </summary>
         public string Password { get; set; }
+
+        /// <summary>
+        /// 验证码
+        /// </summary>
+        public string Captcha { get; set; }
+
+        /// <summary>
+        /// 验证码哈希值
+        /// </summary>
+        public string CaptchaHash { get; set; }
     }
 }

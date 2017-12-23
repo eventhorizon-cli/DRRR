@@ -38,15 +38,17 @@ namespace DRRR.Server.Controllers
         /// <param name="userDto">用户信息</param>
         /// <returns>异步获取Token的任务</returns>
         [HttpPost("login")]
-        public async Task<AccessTokenResponseDto> LoginAsync([FromBody]UserLoginRequestDto userDto)
+        public async Task<JsonResult> LoginAsync([FromBody]UserLoginRequestDto userDto)
         {
             if (!userDto.IsGuest)
             {
-                return await _loginService.LoginAsRegisteredUserAsync(userDto);
+                var (token, error) = await _loginService.LoginAsRegisteredUserAsync(userDto);
+                return error == null ? new JsonResult(token)
+                                     : new JsonResult(new { Error = error });
             }
             else
             {
-                return await _loginService.LoginAsGuestAsync();
+                return new JsonResult(await _loginService.LoginAsGuestAsync());
             }
         }
 
@@ -56,9 +58,18 @@ namespace DRRR.Server.Controllers
         /// <param name="userDto">用户信息</param>
         /// <returns>异步获取Token的任务</returns>
         [HttpPost, Route("register")]
-        public async Task<AccessTokenResponseDto> RegisterAsync([FromBody]UserRegisterRequestDto userDto)
+        public async Task<JsonResult> RegisterAsync([FromBody]UserRegisterRequestDto userDto)
         {
-            return await _registerService.RegisterAsync(userDto);
+            var (token, error) = await _registerService.RegisterAsync(userDto);
+
+            if (error == null)
+            {
+                return new JsonResult(token);
+            }
+            else
+            {
+                return new JsonResult(new { Error = error });              
+            }
         }
 
         /// <summary>
@@ -110,6 +121,16 @@ namespace DRRR.Server.Controllers
         {
             string hashid = HttpContext.User.FindFirst("uid").Value;
             return await _userProfileService.UpdatePasswordAsync(HashidsHelper.Decode(hashid), passwordDto.NewPassword);
+        }
+
+        /// <summary>
+        /// 获取验证码
+        /// </summary>
+        /// <returns>表示异步获取验证码的任务</returns>
+        [HttpPost, Route("captcha")]
+        public async Task<string> GetCaptchaAsync()
+        {
+            return await _registerService.GetCaptchaAsync();
         }
     }
 }

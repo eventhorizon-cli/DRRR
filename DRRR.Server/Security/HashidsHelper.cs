@@ -33,10 +33,7 @@ namespace DRRR.Server.Security
         /// </summary>
         /// <param name="id">ID</param>
         /// <returns>哈希值</returns>
-        public static string Encode(int id)
-        {
-            return _hashids.Encode(id);
-        }
+        public static string Encode(int id) => _hashids.Encode(id);
 
         /// <summary>
         /// 对ID进行解码

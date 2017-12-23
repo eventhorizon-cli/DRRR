@@ -94,7 +94,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
         this.msg.closeLoadingMessage();
         if (res.error) {
           // 在用户名输入框下方显示错误信息
-          this.formErrorMessages['username'] = res.error;
+          Object.assign(this.formErrorMessages, res.error);
         } else {
           // 保存登录信息
           this.auth.rememberLoginState = loginInfo.rememberMe;

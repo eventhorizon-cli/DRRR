@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using DRRR.Server.Security;
 using static DRRR.Server.Security.PasswordHelper;
 using System.Web;
+using System.Dynamic;
 
 namespace DRRR.Server.Services
 {
@@ -16,7 +17,7 @@ namespace DRRR.Server.Services
     /// </summary>
     public class UserLoginService
     {
-        private SystemMessagesService _systemMessagesService;
+        private SystemMessagesService _msg;
 
         private TokenAuthService _tokenAuthService;
 
@@ -27,7 +28,7 @@ namespace DRRR.Server.Services
             TokenAuthService tokenAuthService,
             DrrrDbContext dbcontext)
         {
-            _systemMessagesService = systemMessagesService;
+            _msg = systemMessagesService;
             _tokenAuthService = tokenAuthService;
             _dbContext = dbcontext;
         }
@@ -36,10 +37,9 @@ namespace DRRR.Server.Services
         /// 作为注册用户登录
         /// </summary>
         /// <param name="userDto">用户信息</param>
-        /// <returns>异步获取Token的任务</returns>
-        public async Task<AccessTokenResponseDto> LoginAsRegisteredUserAsync(UserLoginRequestDto userDto)
+        /// <returns>异步获取Token的任务，发生错误时返回错误信息</returns>
+        public async Task<(AccessTokenResponseDto, Dictionary<string, string> error)> LoginAsRegisteredUserAsync(UserLoginRequestDto userDto)
         {
-            AccessTokenResponseDto tokenDto = new AccessTokenResponseDto();
             User user = await _dbContext.User
                 .Where(u => u.Username == userDto.Username)
                 .FirstOrDefaultAsync()
@@ -48,15 +48,23 @@ namespace DRRR.Server.Services
             if (user != null
                 && ValidatePassword(userDto.Password, user.Salt, user.PasswordHash))
             {
-                tokenDto.AccessToken = await _tokenAuthService.GenerateAccessTokenAsync(user);
-                tokenDto.RefreshToken = await _tokenAuthService.GenerateRefreshTokenAsync(user);
+                AccessTokenResponseDto tokenDto = new AccessTokenResponseDto
+                {
+                    AccessToken = await _tokenAuthService.GenerateAccessTokenAsync(user),
+                    RefreshToken = await _tokenAuthService.GenerateRefreshTokenAsync(user)
+                };
+                return (tokenDto, null);
             }
             else
             {
                 // 用户名或密码错误
-                tokenDto.Error = _systemMessagesService.GetMessage("E001", "用户名或密码");
+                var error = new Dictionary<string, string>
+                {
+                    ["username"] = _msg.GetMessage("E001", "用户名或密码")
+                };
+
+                return (null, error);
             }
-            return tokenDto;
         }
 
         /// <summary>

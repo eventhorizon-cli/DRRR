@@ -24,8 +24,6 @@ namespace DRRR.Server.Services
 
         private DrrrDbContext _dbContext;
 
-        private SystemMessagesService _systemMessagesService;
-
         private TokenAuthService _tokenAuthService;
 
         public UserProfileService(
@@ -35,7 +33,6 @@ namespace DRRR.Server.Services
             IConfiguration configuration)
         {
             _dbContext = dbContext;
-            _systemMessagesService = systemMessagesService;
             _tokenAuthService = tokenAuthService;
             _avatarsDirectory = configuration["Resources:Avatars"];
         }
@@ -69,26 +66,19 @@ namespace DRRR.Server.Services
         {
             string pathOriginal = Path.Combine(_avatarsDirectory, "originals", $"{uid}.jpg");
             string pathThumbnail = Path.Combine(_avatarsDirectory, "thumbnails", $"{uid}.jpg");
-            FileStream fsOriginal = null;
-            FileStream fsThumbnail = null;
             try
             {
-                fsOriginal = File.Create(pathOriginal);
-                fsThumbnail = File.Create(pathThumbnail);
-                await Task.WhenAll(avatars[0].CopyToAsync(fsOriginal),
-                    avatars[1].CopyToAsync(fsThumbnail));
+                using (FileStream fsOriginal = File.Create(pathOriginal),
+                                  fsThumbnail = File.Create(pathThumbnail))
+                {
+                    await Task.WhenAll(avatars[0].CopyToAsync(fsOriginal),
+                                       avatars[1].CopyToAsync(fsThumbnail));
+                }
                 return true;
             }
             catch
             {
                 return false;
-            }
-            finally
-            {
-                fsOriginal?.Flush();
-                fsOriginal?.Close();
-                fsThumbnail?.Flush();
-                fsThumbnail?.Close();
             }
         }
 

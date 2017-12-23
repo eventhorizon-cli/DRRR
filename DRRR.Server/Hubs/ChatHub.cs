@@ -20,7 +20,7 @@ namespace DRRR.Server.Hubs
     {
         private DrrrDbContext _dbContext;
 
-        private SystemMessagesService _systemMessagesService;
+        private SystemMessagesService _msg;
 
         private string _picturesDirectory;
 
@@ -29,7 +29,7 @@ namespace DRRR.Server.Hubs
             DrrrDbContext dbContext,
             IConfiguration configuration)
         {
-            _systemMessagesService = systemMessagesService;
+            _msg = systemMessagesService;
             _dbContext = dbContext;
             _picturesDirectory = configuration["Resources:Pictures"];
         }
@@ -153,7 +153,7 @@ namespace DRRR.Server.Hubs
             // 显示欢迎用户加入房间的消息
             await Clients.Group(roomHashid).InvokeAsync(
                 "broadcastSystemMessage",
-                _systemMessagesService.GetMessage(msgId, username))
+                _msg.GetMessage(msgId, username))
                 .ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(connIdToBeRemoved))
@@ -204,7 +204,7 @@ namespace DRRR.Server.Hubs
             // 通知同一房间里其他人该用户已经离开房间
             await Clients.Group(roomHashid).InvokeAsync(
                "broadcastSystemMessage",
-               _systemMessagesService.GetMessage("I004",
+               _msg.GetMessage("I004",
                HttpUtility.UrlDecode(Context.User.Identity.Name)));
 
             var room = await _dbContext.ChatRoom.Where(x => x.Id == roomId)
@@ -274,7 +274,7 @@ namespace DRRR.Server.Hubs
                 // 通知同一房间里其他人该用户已经离线或游客离开房间
                 await Clients.Group(roomHashid).InvokeAsync(
                     "broadcastSystemMessage",
-                    _systemMessagesService.GetMessage(msgId,
+                    _msg.GetMessage(msgId,
                     HttpUtility.UrlDecode(Context.User.Identity.Name)));
             }
 
@@ -339,7 +339,7 @@ namespace DRRR.Server.Hubs
                     tran.Commit();
 
                     await Clients.Group(roomHashid).InvokeAsync("onRoomDeleted",
-                        _systemMessagesService.GetMessage("E008"));
+                        _msg.GetMessage("E008"));
                 }
                 catch
                 {
@@ -379,12 +379,12 @@ namespace DRRR.Server.Hubs
             // 通知被删除的用户
             await Clients.Client(connection.ConnectionId)
                 .InvokeAsync("onRemoved",
-                _systemMessagesService.GetMessage("I005", "你"));
+                _msg.GetMessage("I005", "你"));
 
             // 通知房间内其他用户
             await Clients.Group(roomHashid)
                 .InvokeAsync("broadcastSystemMessage",
-                _systemMessagesService.GetMessage("I005", connection.Username));
+                _msg.GetMessage("I005", connection.Username));
 
             // 刷新成员列表
             await RefreshMemberListAsync(roomHashid, roomId);
