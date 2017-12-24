@@ -65,11 +65,21 @@ namespace DRRR.Server.Services
         {
             // 如果用户不是通过浏览器在请求接口，失去焦点时验证用户名的动作就没意义
             var error = await ValidateUsernameAsync(userDto.Username);
-            if (error != null)
+            if (!string.IsNullOrEmpty(error))
             {
                 return (null, new Dictionary<string, string>
                 {
                     ["username"] = error
+                });
+            }
+
+            // 验证验证码
+            error = await ValidateCaptchaAsync(userDto.CaptchaId, userDto.CaptchaText);
+            if (!string.IsNullOrEmpty(error))
+            {
+                return (null, new Dictionary<string, string>
+                {
+                    ["captcha"] = error
                 });
             }
 
@@ -105,15 +115,41 @@ namespace DRRR.Server.Services
             }
         }
 
-
         /// <summary>
-        /// 异步获取验证码
+        /// 验证验证码
         /// </summary>
-        /// <returns></returns>
-        public async Task<string> GetCaptchaAsync()
+        /// <param name="captchaId">验证码ID</param>
+        /// <param name="captchaText">验证码文本</param>
+        /// <returns>表示异步验证验证码的任务，如果验证码错误，返回错误信息</returns>
+        private async Task<string> ValidateCaptchaAsync(string captchaId, string captchaText)
         {
-            var (bytes, captchaText) = await CaptchaHelper.CreateImageAsync();
-            return $"{Convert.ToBase64String(bytes)}.{captchaText}";
+            // 如果用户直接请求该接口
+            if (string.IsNullOrEmpty(captchaId) || string.IsNullOrEmpty(captchaText))
+            {
+                return _msg.GetMessage("E007", "验证码");
+            }
+
+            Captcha captcha = await _dbContext.Captcha.FindAsync(captchaId);
+
+            if (captcha == null)
+            {
+                // 验证码已失效
+                return _msg.GetMessage("E011");
+            }
+            else
+            {
+                // 及时将验证码删除
+                _dbContext.Remove(captcha);
+                await _dbContext.SaveChangesAsync();
+
+                if (captcha.Text != captchaText?.ToUpper())
+                {
+                    // 验证码错误
+                    return _msg.GetMessage("E001", "验证码");
+                }
+            }
+
+            return null;
         }
     }
 }

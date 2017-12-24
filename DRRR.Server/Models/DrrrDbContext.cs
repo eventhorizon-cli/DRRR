@@ -6,6 +6,7 @@ namespace DRRR.Server.Models
 {
     public partial class DrrrDbContext : DbContext
     {
+        public virtual DbSet<Captcha> Captcha { get; set; }
         public virtual DbSet<ChatRoom> ChatRoom { get; set; }
         public virtual DbSet<Connection> Connection { get; set; }
         public virtual DbSet<ChatHistory> ChatHistory { get; set; }
@@ -282,6 +283,25 @@ namespace DRRR.Server.Models
                     .IsRequired()
                     .HasColumnName("name")
                     .HasMaxLength(10);
+            });
+
+            modelBuilder.Entity<Captcha>(entity =>
+            {
+                entity.ToTable("captcha");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .HasMaxLength(36);
+
+                entity.Property(e => e.CreateTime)
+                    .HasColumnName("create_time")
+                    .HasColumnType("timestamp")
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.Property(e => e.Text)
+                    .IsRequired()
+                    .HasColumnName("text")
+                    .HasColumnType("char(4)");
             });
         }
     }

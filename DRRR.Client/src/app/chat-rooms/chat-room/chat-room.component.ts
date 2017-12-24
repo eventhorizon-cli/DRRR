@@ -37,7 +37,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
   isMemberListVisible: boolean;
 
-  onlineUsers: number;
+  onlineUsers: Observable<number>;
 
   lastMessage: Message;
 
@@ -51,6 +51,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   private domNodeInsertedSubscription: Subscription;
 
   private scrollSubscription: Subscription;
+
+  private isLoadingHistory: boolean;
 
   constructor(
     private chatRoomService: ChatRoomService,
@@ -76,6 +78,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     this.resizeSubscription = FromEventObservable.create(window, 'resize')
       .subscribe(() => {
         this.setHeight();
+        (<any>scrollPanel$).getNiceScroll().resize();
         if (this.fixedAtBottom) {
           this.scrollToBottom();
         }
@@ -135,12 +138,14 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     this.chatRoomService.connect(roomId);
     this.initialDto = this.chatRoomService.initialDto;
     this.memberList = this.chatRoomService.memberList;
-    this.memberList.subscribe(list => {
-      this.onlineUsers = list.filter(x => x.isOnline).length;
+    this.onlineUsers =  this.memberList.map(list => {
+      return list.filter(member => member.isOnline).length;
     });
   }
 
   ngOnDestroy() {
+    this.chatRoomService.onReconnect = null;
+
     this.msgSubscription.unsubscribe();
     this.resizeSubscription.unsubscribe();
     if (this.domNodeInsertedSubscription) {
@@ -169,6 +174,10 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
    * 显示更多历史消息
    */
   showMoreChatHistory() {
+    if (this.isLoadingHistory) {
+      return;
+    }
+    this.isLoadingHistory = true;
     // 避免增加历史信息时将下方内容顶下去，
     const scrollPanel = $('.msg-container-base')[0];
     const div = $('.history:first-child')[0];
@@ -185,6 +194,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     this.chatRoomService.getChatHistory()
       .then(count => {
         this.noMoreMessage = count < 20;
+        this.isLoadingHistory = false;
       });
   }
 

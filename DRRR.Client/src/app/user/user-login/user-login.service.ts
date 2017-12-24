@@ -17,7 +17,7 @@ export class UserLoginService {
    * @param {UserLoginRequestDto} loginInfo 验证登录用的用户信息
    * @returns {Observable<AccessTokenResponseDto>} 验证结果
    */
-  login(loginInfo: UserLoginRequestDto): Observable<AccessTokenResponseDto> {
+  login(loginInfo: UserLoginRequestDto): Observable<AccessTokenResponseDto>{
     // 不要手动序列化json数据，否则会导致413错误
     return this.http
       .post<AccessTokenResponseDto>('/api/user/login', loginInfo);

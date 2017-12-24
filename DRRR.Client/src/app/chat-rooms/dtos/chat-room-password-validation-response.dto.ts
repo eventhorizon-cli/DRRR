@@ -1,7 +1,7 @@
 /**
  * 验证房间密码请求DTO
  */
-export interface ChatRoomValidatePasswordResponseDto {
+export interface ChatRoomPasswordValidationResponseDto {
   /**
    * 验证房间密码响应DTO
    */

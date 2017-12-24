@@ -7,7 +7,7 @@
           <i class="fa fa-comments-o"></i>
           &nbsp;{{(initialDto | async)?.roomName}}
           <p class="pull-right" (click)="showOrHideMemberList()">
-            {{onlineUsers}}/{{(memberList | async)?.length}} 人在线&nbsp;
+            {{onlineUsers | async }}/{{(memberList | async)?.length}} 人在线&nbsp;
             <i class="fa fa-chevron-{{ isMemberListVisible ? 'up' : 'down' }}"></i>
           </p>
         </h3>

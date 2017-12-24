@@ -152,6 +152,7 @@ namespace DRRR.Server
             app.UseSignalR(routes =>
             {
                 routes.MapHub<ChatHub>("chat");
+                routes.MapHub<CaptchaHub>("captcha");
             });
             #endregion
 

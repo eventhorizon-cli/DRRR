@@ -110,7 +110,8 @@ namespace DRRR.Server.Controllers
         /// <returns>表示验证房间密码的任务</returns>
         [HttpPost, Route("password-validation")]
         [JwtAuthorize(Roles.User, Roles.Admin, Roles.Guest)]
-        public async Task<ChatRoomValidatePasswordResponseDto> ValidatePasswordAsync([FromBody]ChatRoomValidatePasswordRequestDto entryRequestDto)
+        public async Task<ChatRoomPasswordValidationResponseDto> ValidatePasswordAsync(
+            [FromBody]ChatRoomPasswordValidationRequestDto entryRequestDto)
         {
             var roomId = HashidsHelper.Decode(entryRequestDto.RoomId);
             var userId = HashidsHelper.Decode(HttpContext.User.FindFirst("uid").Value);

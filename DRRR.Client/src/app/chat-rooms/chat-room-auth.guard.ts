@@ -7,7 +7,7 @@ import swal from 'sweetalert2';
 import { AuthService } from '../core/services/auth.service';
 import { SystemMessagesService } from '../core/services/system-messages.service';
 import { ChatRoomEntryPermissionResponseDto } from './dtos/entry-permission-response.dto';
-import { ChatRoomValidatePasswordResponseDto } from './dtos/chat-room-validate-password-response.dto';
+import { ChatRoomPasswordValidationResponseDto } from './dtos/chat-room-password-validation-response.dto';
 import { Roles } from '../core/models/roles.enum';
 
 @Injectable()
@@ -55,7 +55,7 @@ export class ChatRoomAuthGuard implements CanActivate {
               preConfirm: (password) => {
                 return new Promise((innerResolve, innerReject) => {
                   this.auth.http
-                    .post<ChatRoomValidatePasswordResponseDto>(
+                    .post<ChatRoomPasswordValidationResponseDto>(
                     '/api/rooms/password-validation', {
                       roomId: next.params['id'],
                       password

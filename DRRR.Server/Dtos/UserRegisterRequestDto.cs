@@ -21,13 +21,13 @@ namespace DRRR.Server.Dtos
         public string Password { get; set; }
 
         /// <summary>
-        /// 验证码
+        /// 验证码ID
         /// </summary>
-        public string Captcha { get; set; }
+        public string CaptchaId { get; set; }
 
         /// <summary>
-        /// 验证码哈希值
+        /// 验证码内容
         /// </summary>
-        public string CaptchaHash { get; set; }
+        public string CaptchaText { get; set; }
     }
 }

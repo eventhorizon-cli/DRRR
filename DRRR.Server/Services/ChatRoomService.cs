@@ -290,9 +290,10 @@ namespace DRRR.Server.Services
         /// <param name="userId">用户ID</param>
         /// <param name="password">密码</param>
         /// <returns>表示验证房间密码的任务</returns>
-        public async Task<ChatRoomValidatePasswordResponseDto> ValidatePasswordAsync(int roomId, int userId, string password)
+        public async Task<ChatRoomPasswordValidationResponseDto> ValidatePasswordAsync(
+            int roomId, int userId, string password)
         {
-            var res = new ChatRoomValidatePasswordResponseDto();
+            var res = new ChatRoomPasswordValidationResponseDto();
 
             var (room, error) = await CheckRoomStatusAsync(roomId, userId);
 
@@ -305,7 +306,7 @@ namespace DRRR.Server.Services
             else if (!PasswordHelper.ValidatePassword(password, room.Salt, room.PasswordHash))
             {
                 // 密码错误
-                res.Error = _msg.GetMessage("E007", "密码");
+                res.Error = _msg.GetMessage("E001", "密码");
             }
             return res;
         }

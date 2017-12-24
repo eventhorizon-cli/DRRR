@@ -122,15 +122,5 @@ namespace DRRR.Server.Controllers
             string hashid = HttpContext.User.FindFirst("uid").Value;
             return await _userProfileService.UpdatePasswordAsync(HashidsHelper.Decode(hashid), passwordDto.NewPassword);
         }
-
-        /// <summary>
-        /// 获取验证码
-        /// </summary>
-        /// <returns>表示异步获取验证码的任务</returns>
-        [HttpPost, Route("captcha")]
-        public async Task<string> GetCaptchaAsync()
-        {
-            return await _registerService.GetCaptchaAsync();
-        }
     }
 }

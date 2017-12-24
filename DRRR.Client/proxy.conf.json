@@ -7,5 +7,10 @@
     "target": "http://localhost:5000",
     "secure": false,
     "ws": true
+  },
+  "/captcha": {
+    "target": "http://localhost:5000",
+    "secure": false,
+    "ws": true
   }
 }

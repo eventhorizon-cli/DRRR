@@ -23,11 +23,17 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
 
   requiredValidationMessages: { [key: string]: Function };
 
+  captchaId: string;
+
+  captchaUrl: string;
+
   private isValidatingAsync: boolean;
 
   private isWaitingToRegister: boolean;
 
   private controlsValueChanges: Subscription[];
+
+  private isRefreshingCaptch: boolean;
 
   constructor(
     private fb: FormBuilder,
@@ -47,21 +53,30 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
         Validators.required,
         Validators.minLength(6),
         Validators.maxLength(128)]],
-      confirmPassword: ['', Validators.required]
+      confirmPassword: ['',
+        Validators.required],
+      captcha: ['',
+        Validators.required
+      ]
     });
 
     this.formErrorMessages = {};
 
     this.requiredValidationMessages = {
       username: () => this.msg.getMessage('E001', '用户名'),
-      password: () => this.msg.getMessage ('E001', '密码'),
-      confirmPassword: () => this.msg.getMessage('E001', '确认密码')
+      password: () => this.msg.getMessage('E001', '密码'),
+      confirmPassword: () => this.msg.getMessage('E001', '确认密码'),
+      captcha: () => this.msg.getMessage('E001', '验证码')
     };
     this.controlsValueChanges = this.autoClearer.register(this.registerForm, this.formErrorMessages);
+
+    // 获取验证码
+    this.refreshCaptcha();
   }
 
-  ngOnDestroy () {
+  ngOnDestroy() {
     this.controlsValueChanges.forEach(subscription => subscription.unsubscribe());
+    this.registerService.disconnect();
   }
 
   /**
@@ -85,7 +100,7 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
 
           if (this.formErrorMessages['username'] = res.error) {
             // 值改变后，该error会被自动删除
-            username.setErrors({illegal: true});
+            username.setErrors({ illegal: true });
           }
 
           if (this.isWaitingToRegister) {
@@ -117,7 +132,7 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
     if (this.isValidatingAsync) {
       this.isWaitingToRegister = true;
       return;
-    }else {
+    } else {
       this.isWaitingToRegister = false;
     }
 
@@ -133,29 +148,36 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
     if (this.registerForm.valid) {
       this.msg.showLoadingMessage('I005', '注册');
 
-      this.registerService.register(registerInfo)
-        .subscribe(res => {
-          this.msg.closeLoadingMessage();
+      this.registerService.register({
+        username: registerInfo['username'],
+        password: registerInfo['password'],
+        captchaId: this.captchaId,
+        captchaText: registerInfo['captcha']
+      }).subscribe(res => {
+        this.msg.closeLoadingMessage();
 
-          if (!res.error) {
-            this.auth.saveAccessToken(res.accessToken);
-            this.auth.saveRefreshToken(res.refreshToken);
-            swal(this.msg.getMessage('I001', '注册'), '', 'success')
-              .then(() => {
-                this.router.navigate(['/rooms']).then(() => {
-                  this.msg.showAutoCloseMessage('success', 'I001', '登录');
-                });
+        if (!res.error) {
+          this.auth.saveAccessToken(res.accessToken);
+          this.auth.saveRefreshToken(res.refreshToken);
+          swal(this.msg.getMessage('I001', '注册'), '', 'success')
+            .then(() => {
+              this.router.navigate(['/rooms']).then(() => {
+                this.msg.showAutoCloseMessage('success', 'I001', '登录');
               });
-          } else {
-            // 验证错误
-            // 获这多线程导致的用户名重复
-            Object.assign(this.formErrorMessages, res.error);
-            this.registerForm.controls['username'].setErrors({illegal: true});
-          }
-        }, () => {
-          swal(this.msg.getMessage('E004', '注册'),
-            this.msg.getMessage('E010'), 'error');
-        });
+            });
+        } else {
+          // 验证码错误错误
+          // 或者多线程导致的用户名重复
+          Object.assign(this.formErrorMessages, res.error);
+
+          // 用户修改输入的内容后会自动去除
+          this.registerForm.controls[Object.keys(res.error)[0]].setErrors({ illegal: true });
+          this.refreshCaptcha();
+        }
+      }, () => {
+        swal(this.msg.getMessage('E004', '注册'),
+          this.msg.getMessage('E010'), 'error');
+      });
     }
   }
 
@@ -180,5 +202,30 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
     if (!this.registerForm.controls[controlName].value.trim()) {
       this.formErrorMessages[controlName] = this.requiredValidationMessages[controlName]();
     }
+  }
+
+  /**
+   * 刷新验证码
+   */
+  refreshCaptcha() {
+    if (this.isRefreshingCaptch) {
+      return;
+    }
+    this.isRefreshingCaptch = true;
+    this.registerService.refreshCaptcha().then(captcha => {
+      this.captchaId = captcha.id;
+      this.captchaUrl = `data:image/jpeg;base64,${captcha.image}`;
+      this.isRefreshingCaptch = false;
+    }, reason => {
+      if (reason !== 'left') {
+        swal({
+          type: 'error',
+          title: this.msg.getMessage('E004', '验证码获取'),
+          text: this.msg.getMessage('E009')
+        }).then(() => {
+          this.isRefreshingCaptch = false;
+        });
+      }
+    });
   }
 }

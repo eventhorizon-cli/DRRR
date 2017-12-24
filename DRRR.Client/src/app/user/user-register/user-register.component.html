@@ -40,9 +40,26 @@
            formControlName="confirmPassword"
            (blur)="validateRequired('confirmPassword')"
            (keydown.enter)="registerByPressingEnter($event)">
-    <span *ngIf="formErrorMessages['confirmPassword']" class="help-block">
-      {{ formErrorMessages['confirmPassword'] }}
-    </span>
+    <span *ngIf="formErrorMessages['confirmPassword']"
+          class="help-block">{{ formErrorMessages['confirmPassword'] }}</span>
+  </div>
+  <div class="form-group"
+       [ngClass]="{ 'has-error': formErrorMessages['captcha'] }">
+    <div class="input-group">
+      <input type="text"
+             class="form-control"
+             placeholder="请输入验证码"
+             maxlength="4"
+             autocomplete="off"
+             appTextTrim
+             formControlName="captcha"
+             (blur)="validateRequired('captcha')"
+             (keydown.enter)="registerByPressingEnter($event)">
+      <span class="input-group-addon captcha" *ngIf="captchaUrl">
+        <img src="{{captchaUrl}}" (click)="refreshCaptcha()">
+      </span>
+    </div>
+    <span class="help-block">{{ formErrorMessages['captcha'] || '不区分大小写，点击图片刷新' }}</span>
   </div>
   <input type="button"
          class="btn btn-lg btn-primary btn-block"

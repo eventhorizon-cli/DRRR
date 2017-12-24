@@ -8,7 +8,7 @@ namespace DRRR.Server.Dtos
     /// <summary>
     /// 验证房间密码请求DTO
     /// </summary>
-    public class ChatRoomValidatePasswordRequestDto
+    public class ChatRoomPasswordValidationRequestDto
     {
         /// <summary>
         /// 房间ID
