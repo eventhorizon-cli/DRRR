@@ -16,6 +16,30 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `captcha`
+--
+
+DROP TABLE IF EXISTS `captcha`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `captcha` (
+  `id` varchar(36) NOT NULL COMMENT '验证码ID',
+  `text` char(4) NOT NULL COMMENT '验证码内容',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='验证码';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `captcha`
+--
+
+LOCK TABLES `captcha` WRITE;
+/*!40000 ALTER TABLE `captcha` DISABLE KEYS */;
+/*!40000 ALTER TABLE `captcha` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `chat_history`
 --
 
