@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace DRRR.Server.Dtos
 {
+    /// <summary>
+    /// 验证码DTO
+    /// </summary>
     public class CaptchaDto
     {
         /// <summary>

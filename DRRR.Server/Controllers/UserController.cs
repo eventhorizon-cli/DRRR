@@ -62,14 +62,8 @@ namespace DRRR.Server.Controllers
         {
             var (token, error) = await _registerService.RegisterAsync(userDto);
 
-            if (error == null)
-            {
-                return new JsonResult(token);
-            }
-            else
-            {
-                return new JsonResult(new { Error = error });              
-            }
+            return error == null ? new JsonResult(token)
+                                 : new JsonResult(new { Error = error });
         }
 
         /// <summary>
