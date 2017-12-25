@@ -142,7 +142,7 @@ namespace DRRR.Server.Services
                 _dbContext.Remove(captcha);
                 await _dbContext.SaveChangesAsync();
 
-                if (captcha.Text != captchaText?.ToUpper())
+                if (captcha.Text != captchaText.ToUpper())
                 {
                     // 验证码错误
                     return _msg.GetMessage("E001", "验证码");
