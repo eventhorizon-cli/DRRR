@@ -1,5 +1,4 @@
-﻿using HashidsNet;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
@@ -41,7 +40,7 @@ namespace DRRR.Server.Security
             {
                 var randomCodes = GenerateRandomCodes(4);
 
-                using (var bitmap = new Bitmap(randomCodes.Length * 22, 40))
+                using (var bitmap = new Bitmap(randomCodes.Length * 40, 60))
                 {
                     using (var graphics = Graphics.FromImage(bitmap))
                     {
@@ -58,13 +57,13 @@ namespace DRRR.Server.Security
                             graphics.DrawLine(new Pen(GetRandomColor()), x1, x2, y1, y2);
                         }
 
-                        Font font = new Font("Arial", 20, (FontStyle.Bold | FontStyle.Italic));
+                        Font font = new Font("Arial", 40, (FontStyle.Bold | FontStyle.Italic));
 
                         var colors = GetRandomColors(2);
 
                         var brush = new LinearGradientBrush(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
                             colors[0], colors[1], 1.2f, true);
-                        graphics.DrawString(randomCodes, font, brush, 3, 2);
+                        graphics.DrawString(randomCodes, font, brush, 0, 0);
 
                         //画图片的前景干扰线
                         for (int i = 0; i < 100; i++)
