@@ -123,10 +123,10 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           const thumbnailLength = Math.min(cropper.getCropBoxData().width, 150);
           dataURLOriginal = cropper
             .getCroppedCanvas({ height: croppedLength, width: croppedLength })
-            .toDataURL('image/jpeg', 1);
+            .toDataURL('image/jpeg');
           dataURLThumbnail = cropper
             .getCroppedCanvas({ height: thumbnailLength, width: thumbnailLength })
-            .toDataURL('image/jpeg', 0.9);
+            .toDataURL('image/jpeg');
           this.profileService
             .updateAvatar(this.payload.uid, dataURLOriginal, dataURLThumbnail)
             .subscribe(success => success ? resolve() :

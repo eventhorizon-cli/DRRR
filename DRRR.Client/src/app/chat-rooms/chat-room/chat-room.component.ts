@@ -265,18 +265,18 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       },
       preConfirm: () => {
         return new Promise((resolve, reject) => {
-          // 图片最大高度为180，最大宽度为320
+          // 图片最大高度为360，最大宽度为640
           const { height: croppedHeight, width: croppedWidth } = cropper.getCropBoxData();
-          let height = Math.min(croppedHeight, image.naturalHeight, 180);
+          let height = Math.min(croppedHeight, image.naturalHeight, 360);
           let width = croppedWidth / croppedHeight * height;
-          const widthTmp = Math.min(croppedWidth, image.naturalWidth, 320);
+          const widthTmp = Math.min(croppedWidth, image.naturalWidth, 640);
           if (width > widthTmp) {
             width = widthTmp;
             height = croppedHeight / croppedWidth * widthTmp;
           }
           const dataURL = cropper
             .getCroppedCanvas({ height, width })
-            .toDataURL('image/jpeg', 0.9);
+            .toDataURL('image/jpeg');
           this.chatRoomService.sendPicture(dataURL.split(',')[1])
             .then(() => resolve())
             .catch(error => reject(this.msg.getMessage('E004', '图片发送')));
