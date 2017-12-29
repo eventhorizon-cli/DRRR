@@ -109,6 +109,8 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
             this.register(this.registerForm.value);
           }
         });
+    } else {
+      this.validateRequired('username');
     }
   }
 
@@ -120,6 +122,8 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
     if (password.value.trim()) {
       this.formErrorMessages['password'] = password.valid ? '' :
         this.msg.getMessage('E002', '6', '128', '密码');
+    } else {
+      this.validateRequired('password');
     }
   }
 

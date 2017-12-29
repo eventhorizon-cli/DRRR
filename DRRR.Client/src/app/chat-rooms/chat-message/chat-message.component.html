@@ -1,4 +1,9 @@
 <div class="msg-container" [ngClass]="{history: message.isChatHistory}">
+  <div *ngIf="message.timestamp"
+       class="time">
+    <P *ngIf="isToday">{{ message.timestamp | date: 'HH:mm:ss'}}</P>
+    <P *ngIf="!isToday">{{ message.timestamp | date: 'yyyy/MM/dd HH:mm:ss'}}</P>
+  </div>
   <div *ngIf="!message.isSystemMessage" [style.text-align]="position">
     <div [ngClass]="['pull-' + position]">
       <img alt="image" class="img-circle" src="/api/resources/avatars/thumbnails/{{message.userId}}">
@@ -16,10 +21,5 @@
   <div *ngIf="message.isSystemMessage"
        class="system-message">
     <pre>{{ message.data }}</pre>
-  </div>
-  <div *ngIf="message.timestamp"
-       class="time">
-    <P *ngIf="isToday">{{ message.timestamp | date: 'HH:mm:ss'}}</P>
-    <P *ngIf="!isToday">{{ message.timestamp | date: 'yyyy/MM/dd HH:mm:ss'}}</P>
   </div>
 </div>

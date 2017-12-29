@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { Subscription } from 'rxjs/Subscription';
 import { FromEventObservable } from 'rxjs/observable/FromEventObservable';
@@ -8,7 +8,8 @@ import { Message } from '../models/message.model';
 @Component({
   selector: 'app-chat-preview-message',
   templateUrl: './chat-preview-message.component.html',
-  styleUrls: ['./chat-preview-message.component.css']
+  styleUrls: ['./chat-preview-message.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChatPreviewMessageComponent implements OnInit, OnDestroy {
 

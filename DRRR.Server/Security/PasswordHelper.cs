@@ -20,7 +20,7 @@ namespace DRRR.Server.Security
         /// <returns></returns>
         public static string GeneratePasswordHash(string pwd, string salt)
         {
-            byte[] passwordAndSaltBytes = Encoding.UTF8.GetBytes(pwd + salt.ToString());
+            byte[] passwordAndSaltBytes = Encoding.UTF8.GetBytes(pwd + salt);
             byte[] hashBytes = SHA256.Create().ComputeHash(passwordAndSaltBytes);
             string hashString = Convert.ToBase64String(hashBytes);
             return hashString;

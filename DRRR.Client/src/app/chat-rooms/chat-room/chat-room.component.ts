@@ -105,11 +105,20 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
         });
 
     this.chatRoomService.onReconnect = () => {
+      // 上次显示新消息的时间
+      let lastTime: number;
+
       // 显示用户列表
       this.isMemberListVisible = true;
 
       this.messages = this.chatRoomService.message
         .scan((messages: Message[], message: Message) => {
+          const now = Date.now();
+          if (!lastTime || (now - lastTime > 60000)) {
+            lastTime = now;
+            message.timestamp = now;
+          }
+          // 用于在下方显示最新的未读信息
           this.lastMessage = message;
           return messages.concat(message);
         }, []);
