@@ -114,7 +114,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       this.messages = this.chatRoomService.message
         .scan((messages: Message[], message: Message) => {
           const now = Date.now();
-          if (!lastTime || (now - lastTime > 60000)) {
+          if (!message.isSystemMessage && (!lastTime || (now - lastTime > 60000))) {
             lastTime = now;
             message.timestamp = now;
           }
