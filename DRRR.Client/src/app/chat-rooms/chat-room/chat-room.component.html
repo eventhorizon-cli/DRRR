@@ -20,13 +20,18 @@
         [ownerId]="(initialDto | async)?.ownerId"
         (memberRemoved)="onMemberRemoved($event)">
       </app-chat-room-member-list>
-      <div>
-        <button class="btn btn-link btn-block"
-                (click)="showMoreChatHistory()"
-                *ngIf="!noMoreMessage">
-          <i class="fa fa-arrow-up">&nbsp;查看更多消息</i>
-        </button>
-        <p *ngIf="noMoreMessage" class="text-center">没有更多消息</p>
+      <div class="msg-container-top">
+        <div *ngIf="!isLoadingHistory">
+          <button class="btn btn-link btn-block"
+                  (click)="showMoreChatHistory()"
+                  *ngIf="!noMoreMessage">
+            <i class="fa fa-history">&nbsp;查看更多消息</i>
+          </button>
+          <p *ngIf="noMoreMessage" class="text-center">没有更多消息</p>
+        </div>
+        <div *ngIf="isLoadingHistory" class="text-center">
+          <i class="fa fa-spinner fa-pulse" aria-hidden="true"></i>
+        </div>
       </div>
       <app-chat-message
         *ngFor="let message of chatHistory | async"

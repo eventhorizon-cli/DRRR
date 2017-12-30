@@ -52,6 +52,8 @@ export class AppComponent implements OnInit {
           $('html').css('padding-bottom', 50);
         }
       });
+    // 设置滚动条
+    (<any>$(document.body)).niceScroll({cursorcolor: '#d6d6d4'});
   }
 
   /**

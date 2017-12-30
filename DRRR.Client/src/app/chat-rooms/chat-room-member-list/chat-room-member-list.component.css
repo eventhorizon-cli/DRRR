@@ -13,6 +13,7 @@ ul{
   margin-top: -15px;
   padding-top: 10px;
   border-bottom: 1px solid #eee;
+  display: none;
 }
 .member-list *{
   cursor: pointer;

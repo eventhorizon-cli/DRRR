@@ -92,4 +92,5 @@ pre {
 }
 .picture img{
   max-width: calc(100% - 100px);
+  border-radius: 8px;
 }

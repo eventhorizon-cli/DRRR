@@ -44,6 +44,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   // 是否让滚动条固定在底部
   fixedAtBottom: boolean;
 
+  isLoadingHistory: boolean;
+
   private msgSubscription: Subscription;
 
   private resizeSubscription: Subscription;
@@ -52,13 +54,14 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
   private scrollSubscription: Subscription;
 
-  private isLoadingHistory: boolean;
-
   constructor(
     private chatRoomService: ChatRoomService,
     private route: ActivatedRoute,
     private msg: SystemMessagesService
   ) {
+    // 初始化的时候，显示加载的转圈
+    this.isLoadingHistory = true;
+
     // 默认不显示用户列表
     this.isMemberListVisible = false;
 
@@ -106,16 +109,13 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
     this.chatRoomService.onReconnect = () => {
       // 上次显示新消息的时间
-      let lastTime: number;
-
-      // 显示用户列表
-      this.isMemberListVisible = true;
+      let lastTimeStamp: number;
 
       this.messages = this.chatRoomService.message
         .scan((messages: Message[], message: Message) => {
           const now = Date.now();
-          if (!message.isSystemMessage && (!lastTime || (now - lastTime > 60000))) {
-            lastTime = now;
+          if (!message.isSystemMessage && (!lastTimeStamp || (now - lastTimeStamp > 60000))) {
+            lastTimeStamp = now;
             message.timestamp = now;
           }
           // 用于在下方显示最新的未读信息
@@ -125,8 +125,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
       // 聊天历史记录
       this.chatHistory = this.chatRoomService.chatHistory
-        .scan((messages: Message[], message: Message) =>
-          [message].concat(messages), []);
+        .scan((messages: Message[], history: Message[]) =>
+          history.concat(messages), []);
 
       this.msgSubscription = this.messages.subscribe(() => {
         if (this.fixedAtBottom) {
@@ -136,9 +136,17 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
         }
       });
 
+      this.isLoadingHistory = true;
       this.chatRoomService.getChatHistory()
         .then(count => {
+          if (!this.isMemberListVisible) {
+            // 显示用户列表
+            // 重连后，如果之前没有显示，也会切换为显示
+            this.showOrHideMemberList();
+          }
+
           this.noMoreMessage = count < 20;
+          this.isLoadingHistory = false;
           this.scrollToBottom();
         });
     };
@@ -188,8 +196,9 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     }
     this.isLoadingHistory = true;
     // 避免增加历史信息时将下方内容顶下去，
-    const scrollPanel = $('.msg-container-base')[0];
-    const div = $('.history:first-child')[0];
+    const scrollPanel$ = $('.msg-container-base');
+    const scrollPanel = scrollPanel$[0];
+    const div = $('.history div:first-child')[0];
     if (this.domNodeInsertedSubscription) {
       this.domNodeInsertedSubscription.unsubscribe();
     }
@@ -199,11 +208,18 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
           && evt.relatedNode.classList.contains('history'))
         .subscribe(() => {
           div.scrollIntoView();
+          console.log(scrollPanel.scrollTop);
+          scrollPanel.scrollTop -= 50;
+          console.log(scrollPanel.scrollTop);
         });
     this.chatRoomService.getChatHistory()
       .then(count => {
         this.noMoreMessage = count < 20;
         this.isLoadingHistory = false;
+        setTimeout(() => {
+          // 避免滚动条错位
+          (<any>scrollPanel$).getNiceScroll().resize();
+        });
       });
   }
 

@@ -15,7 +15,6 @@ import { SystemMessagesService } from '../../core/services/system-messages.servi
 import { Message } from '../models/message.model';
 import { Payload } from '../../core/models/payload.model';
 import { ChatRoomInitialDisplayDto } from '../dtos/chat-room-initial-display.dto';
-import { ChatHistoryDto } from '../dtos/chat-history.dto';
 import { ChatRoomMemberDto } from '../dtos/chat-room-member.dto';
 
 @Injectable()
@@ -23,7 +22,7 @@ export class ChatRoomService {
 
   message: Subject<Message>;
 
-  chatHistory: Subject<Message>;
+  chatHistory: Subject<Message[]>;
 
   initialDto: Subject<ChatRoomInitialDisplayDto>;
 
@@ -46,9 +45,6 @@ export class ChatRoomService {
   // 进入该房间时的时间（时间戳）
   private entryTime: number;
 
-  // 前一次显示的历史聊天记录时间的时间戳
-  private lastHistoryTimeStamp: number;
-
   // 此次获取的聊天历史记录的开始序号
   private startIndex: number;
 
@@ -58,7 +54,7 @@ export class ChatRoomService {
     private router: Router
   ) {
     this.message = new Subject<Message>();
-    this.chatHistory = new Subject<Message>();
+    this.chatHistory = new Subject<Message[]>();
     this.initialDto = new Subject<ChatRoomInitialDisplayDto>();
     this.memberList = new Subject<ChatRoomMemberDto[]>();
   }
@@ -86,8 +82,6 @@ export class ChatRoomService {
             this.initialDto.next(res);
             this.entryTime = res.entryTime;
             // 初期显示或者是重新连接
-            // 失去连接期间未收到的消息作为历史信息被显示
-            this.lastHistoryTimeStamp = 0;
             this.startIndex = 0;
             this.onReconnect();
           });
@@ -135,7 +129,7 @@ export class ChatRoomService {
         swal(this.msg.getMessage('I013'), '', 'warning')
           .then(() => this.router.navigateByUrl('/login'));
       });
-    }, () => {});
+    }, () => { });
   }
 
   /**
@@ -187,37 +181,37 @@ export class ChatRoomService {
    * 获取历史聊天记录
    * @return {Promise<number>} Promise对象,返回此次获取到的消息数
    */
-  getChatHistory(): Promise<number> {
-    return new Promise<number>(((resolve) => {
-      this.connection.invoke('GetChatHistoryAsync', this.roomId, this.entryTime, this.startIndex)
-        .then((history: ChatHistoryDto[]) => {
-          this.startIndex += history.length;
+  async getChatHistory(): Promise<number> {
+    const history = await this.connection
+      .invoke('GetChatHistoryAsync', this.roomId, this.entryTime, this.startIndex);
+    // 设置下次获取历史记录用的索引
+    this.startIndex += history.length;
 
-          history.forEach(msg => {
-            let timestamp: number;
-            if (!this.lastHistoryTimeStamp
-              || (this.lastHistoryTimeStamp - msg.timestamp) > 60000) {
-              // 超过一分钟以上显示时间
-              this.lastHistoryTimeStamp = msg.timestamp;
-              timestamp = msg.timestamp;
-            }
+    // 前一次显示的历史聊天记录时间的时间戳
+    let lastTimeStamp: number;
 
-            const message: Message = {
-              userId: msg.userId,
-              username: msg.username,
-              isSystemMessage: false,
-              incoming: (msg.userId !== this.userInfo.uid),
-              data: msg.data,
-              timestamp,
-              isPicture: msg.isPicture,
-              isChatHistory: true
-            };
-
-            this.chatHistory.next(message);
-          });
-          resolve(history.length);
-        });
-    }));
+    // 收到的是按时间倒序排的历史消息
+    const messages: Message[] = history.reverse().map(msg => {
+      let timestamp: number;
+      if (!lastTimeStamp
+        || (msg.timestamp - lastTimeStamp) > 60000) {
+        // 超过一分钟以上显示时间
+        lastTimeStamp = msg.timestamp;
+        timestamp = msg.timestamp;
+      }
+      return {
+        userId: msg.userId,
+        username: msg.username,
+        isSystemMessage: false,
+        incoming: (msg.userId !== this.userInfo.uid),
+        data: msg.data,
+        timestamp,
+        isPicture: msg.isPicture,
+        isChatHistory: true
+      };
+    });
+    this.chatHistory.next(messages);
+    return history.length;
   }
 
   /**
@@ -265,7 +259,7 @@ export class ChatRoomService {
         this.message.unsubscribe();
         this.chatHistory.unsubscribe();
         this.message = new Subject<Message>();
-        this.chatHistory = new Subject<Message>();
+        this.chatHistory = new Subject<Message[]>();
       });
   }
 }

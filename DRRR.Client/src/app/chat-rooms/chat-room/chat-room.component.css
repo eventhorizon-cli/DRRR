@@ -23,7 +23,8 @@
 .panel-default {
   margin-bottom: 15px;
 }
-.msg-container-base div:nth-of-type(1){
+.msg-container-top{
+  box-sizing: border-box;
   height: 35px;
 }
 .panel-title p{
@@ -32,6 +33,6 @@
   -webkit-user-select: none;
   -moz-user-select: none;
 }
-input[type=file]{
+input[type="file"]{
   display: none;
 }
