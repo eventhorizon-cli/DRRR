@@ -204,13 +204,9 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     }
     this.domNodeInsertedSubscription
       = FromEventObservable.create<MutationEvent>(scrollPanel, 'DOMNodeInserted')
-        .filter(evt => evt.relatedNode instanceof HTMLDivElement
-          && evt.relatedNode.classList.contains('history'))
         .subscribe(() => {
           div.scrollIntoView();
-          console.log(scrollPanel.scrollTop);
-          scrollPanel.scrollTop -= 50;
-          console.log(scrollPanel.scrollTop);
+          scrollPanel.scrollTop -= 65;
         });
     this.chatRoomService.getChatHistory()
       .then(count => {
