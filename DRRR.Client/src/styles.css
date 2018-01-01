@@ -39,3 +39,6 @@ html {
   position: relative;
   padding-bottom: 50px;
 }
+.scroll-hide::-webkit-scrollbar {
+  display: none;
+}

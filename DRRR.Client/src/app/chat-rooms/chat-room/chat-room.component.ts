@@ -69,6 +69,9 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    // 避免谷歌浏览器在显示更多历史记录的时候，产生横向抖动
+    $('body').addClass('scroll-hide');
+
     // 聊天界面窗口高度
     // 一开始的高度
     this.setHeight();
@@ -171,6 +174,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     this.scrollSubscription.unsubscribe();
     // 离开房间时关闭连接
     this.chatRoomService.disconnect();
+
+    $('body').removeClass('scroll-hide');
   }
 
   /**
