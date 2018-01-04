@@ -43,12 +43,12 @@ namespace DRRR.Server.Controllers
             if (!userDto.IsGuest)
             {
                 var (token, error) = await _loginService.LoginAsRegisteredUserAsync(userDto);
-                return error == null ? new JsonResult(token)
-                                     : new JsonResult(new { Error = error });
+                return error == null ? Json(token)
+                                     : Json(new { Error = error });
             }
             else
             {
-                return new JsonResult(await _loginService.LoginAsGuestAsync());
+                return Json(await _loginService.LoginAsGuestAsync());
             }
         }
 
@@ -57,13 +57,13 @@ namespace DRRR.Server.Controllers
         /// </summary>
         /// <param name="userDto">用户信息</param>
         /// <returns>异步获取Token的任务</returns>
-        [HttpPost, Route("register")]
+        [HttpPost("register")]
         public async Task<JsonResult> RegisterAsync([FromBody]UserRegisterRequestDto userDto)
         {
             var (token, error) = await _registerService.RegisterAsync(userDto);
 
-            return error == null ? new JsonResult(token)
-                                 : new JsonResult(new { Error = error });
+            return error == null ? Json(token)
+                                 : Json(new { Error = error });
         }
 
         /// <summary>
@@ -71,22 +71,22 @@ namespace DRRR.Server.Controllers
         /// </summary>
         /// <param name="username"></param>
         /// <returns>验证结果</returns>
-        [HttpGet, Route("username-validation")]
+        [HttpGet("username-validation")]
         public async Task<JsonResult> ValidateUsernameAsync(string username)
         {
-            return new JsonResult(new { Error = await _registerService.ValidateUsernameAsync(username) });
+            return Json(new { Error = await _registerService.ValidateUsernameAsync(username) });
         }
 
         /// <summary>
         /// 刷新访问令牌
         /// </summary>
         /// <returns>获取新的访问令牌的任务</returns>
-        [HttpPost, Route("refresh-token")]
+        [HttpPost("refresh-token")]
         [JwtAuthorize]
         public async Task<JsonResult> RefreshTokenAsync()
         {
-            string hashid = HttpContext.User.FindFirst("uid").Value;
-            return new JsonResult(new
+            string hashid = User.FindFirst("uid").Value;
+            return Json(new
             {
                 AccessToken = await _tokenAuthService.RefreshTokenAsync(HashidsHelper.Decode(hashid))
             });
@@ -96,11 +96,11 @@ namespace DRRR.Server.Controllers
         /// 获取用户注册时间
         /// </summary>
         /// <returns>获取用户注册时间的任务</returns>
-        [HttpGet, Route("registration-time")]
+        [HttpGet("registration-time")]
         [JwtAuthorize(Roles.User, Roles.Admin)]
         public async Task<string> GetRegistrationTimeAsync()
         {
-            string hashid = HttpContext.User.FindFirst("uid").Value;
+            string hashid = User.FindFirst("uid").Value;
             return await _userProfileService.GetRegistrationTimeAsync(HashidsHelper.Decode(hashid));
         }
 
@@ -109,11 +109,11 @@ namespace DRRR.Server.Controllers
         /// </summary>
         /// <param name="password">新密码</param>
         /// <returns>用于更新密码的任务，如果成功则返回新的TOKEN</returns>
-        [HttpPost, Route("password")]
+        [HttpPost("password")]
         [JwtAuthorize(Roles.User, Roles.Admin)]
         public async Task<AccessTokenResponseDto> UpdatePasswordAsync([FromBody]UserUpdatePasswordRequestDto passwordDto)
         {
-            string hashid = HttpContext.User.FindFirst("uid").Value;
+            string hashid = User.FindFirst("uid").Value;
             return await _userProfileService.UpdatePasswordAsync(HashidsHelper.Decode(hashid), passwordDto.NewPassword);
         }
     }

@@ -25,7 +25,7 @@ namespace DRRR.Server.Controllers
         /// 获取网站状态
         /// </summary>
         /// <returns>表示获取网站状态的任务</returns>
-        [HttpGet, Route("status")]
+        [HttpGet("status")]
         [JwtAuthorize(Roles.Guest, Roles.User, Roles.Admin)]
         public async Task<SiteStatusDto> GetSiteStatusAsync()
         {
