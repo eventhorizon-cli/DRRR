@@ -26,8 +26,9 @@ p, .checkbox label {
   transform: translateY(-50%);
 }
 
-body.swal2-iosfix {
-  position: static;
+/*避免使用swal的时候，底部位置偏移*/
+.swal2-iosfix {
+  position: static!important;
 }
 
 a {
@@ -39,6 +40,17 @@ html {
   position: relative;
   padding-bottom: 50px;
 }
+
+/*避免过度动画时出现横向滚动条*/
+body {
+  overflow-x: hidden;
+}
+
 .scroll-hide::-webkit-scrollbar {
   display: none;
+}
+
+.picture-modal-dialog {
+  display: none;
+  margin: auto;
 }

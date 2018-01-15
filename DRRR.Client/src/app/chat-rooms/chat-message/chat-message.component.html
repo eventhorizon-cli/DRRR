@@ -1,5 +1,5 @@
 <div class="msg-container" [ngClass]="{history: message.isChatHistory}">
-  <div *ngIf="message.timestamp"
+  <div *ngIf="message.showMessageTime"
        class="time">
     <P *ngIf="isToday">{{ message.timestamp | date: 'HH:mm:ss'}}</P>
     <P *ngIf="!isToday">{{ message.timestamp | date: 'yyyy/MM/dd HH:mm:ss'}}</P>
@@ -15,7 +15,7 @@
       </div>
     </div>
     <div *ngIf="message.isPicture" class="picture">
-      <img src="data:image/jpeg;base64,{{ message.data }}">
+      <img src="data:image/jpeg;base64,{{ message.data }}" (click)="showOriginalPicture()">
     </div>
   </div>
   <div *ngIf="message.isSystemMessage"

@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 // 参考资料：https://github.com/aspnet/SignalR/issues/983
 // import { HubConnection } from '@aspnet/signalr-client/dist/browser/signalr-clientES5-1.0.0-alpha2-final.js';
 import { HubConnection } from '@aspnet/signalr-client';
+// import { HubConnection } from '@aspnet/signalr-client/ts/HubConnection';
 
 import { AuthService } from '../../core/services/auth.service';
 

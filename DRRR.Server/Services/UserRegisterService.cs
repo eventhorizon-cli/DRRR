@@ -15,11 +15,11 @@ namespace DRRR.Server.Services
     /// </summary>
     public class UserRegisterService
     {
-        private SystemMessagesService _msg;
+        private readonly SystemMessagesService _msg;
 
-        private TokenAuthService _tokenAuthService;
+        private readonly TokenAuthService _tokenAuthService;
 
-        private DrrrDbContext _dbContext;
+        private readonly DrrrDbContext _dbContext;
 
         public UserRegisterService(
             SystemMessagesService systemMessagesService,

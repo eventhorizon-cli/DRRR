@@ -15,6 +15,7 @@ using System.IO;
 using DRRR.Server.Services;
 using DRRR.Server.Hubs;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace DRRR.Server
 {
@@ -129,17 +130,15 @@ namespace DRRR.Server
             loggerFactory.AddDebug();
             loggerFactory.AddFile(Configuration.GetSection("Serilog"));
 
-            #region SignalR配置
-            // SignalR通过查询字符串携带Token
+            // 允许通过查询字符串携带Token
             // 参考资料 http://infozone.se/en/authenticate-against-signalr-2/
             app.Use(async (context, next) =>
             {
                 if (context.Request.Path.Value.StartsWith("/chat")
+                    || context.Request.Path.Value.StartsWith("/api/resources")
                     && context.Request.QueryString.HasValue)
                 {
-                    var token = context.Request.QueryString.Value
-                        .Split('&')
-                        .SingleOrDefault(x => x.Contains("authorization"))?.Split('=')[1];
+                    var token = Regex.Match(context.Request.QueryString.Value, "(?<=authorization=)[^&]+").Value;
                     if (!string.IsNullOrWhiteSpace(token))
                     {
                         context.Request.Headers.Add("Authorization", new[] { $"Bearer {token}" });
@@ -154,7 +153,6 @@ namespace DRRR.Server
                 routes.MapHub<ChatHub>("chat");
                 routes.MapHub<CaptchaHub>("captcha");
             });
-            #endregion
 
             #region pushstate路由问题解决方案
             // 参考资料 https://stackoverflow.com/questions/38531904/angular-2-routing-with-asp-net-core-non-mvc

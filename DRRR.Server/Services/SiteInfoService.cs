@@ -13,7 +13,7 @@ namespace DRRR.Server.Services
     /// </summary>
     public class SiteInfoService
     {
-        private DrrrDbContext _dbContext;
+        private readonly DrrrDbContext _dbContext;
 
         public SiteInfoService(DrrrDbContext dbContext)
         {

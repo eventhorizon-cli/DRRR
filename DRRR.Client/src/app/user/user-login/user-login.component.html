@@ -1,47 +1,49 @@
-<form [formGroup]="loginForm"
-      class="form-user">
-  <h2>账号登录</h2>
-  <div class="form-group"
-       [ngClass]="{ 'has-error': formErrorMessages['username'] }">
-    <input type="text"
-           class="form-control"
-           placeholder="用户名"
-           maxlength="10"
-           appTextTrim
-           formControlName="username"
-           (keydown.enter)="loginAsRegisteredUser(loginForm.value)">
-    <span *ngIf="formErrorMessages['username']" class="help-block">
+<div class="animated bounceInRight">
+  <form [formGroup]="loginForm"
+        class="form-user">
+    <h2>账号登录</h2>
+    <div class="form-group"
+         [ngClass]="{ 'has-error': formErrorMessages['username'] }">
+      <input type="text"
+             class="form-control"
+             placeholder="用户名"
+             maxlength="10"
+             appTextTrim
+             formControlName="username"
+             (keydown.enter)="loginAsRegisteredUser(loginForm.value)">
+      <span *ngIf="formErrorMessages['username']" class="help-block">
       {{ formErrorMessages['username'] }}
     </span>
-  </div>
-  <div class="form-group"
-       [ngClass]="{ 'has-error': formErrorMessages['password'] }">
-     <input type="password"
-            class="form-control"
-            placeholder="密码"
-            maxlength="128"
-            appTextTrim
-            formControlName="password"
-            (keydown.enter)="loginAsRegisteredUser(loginForm.value)">
-    <span *ngIf="formErrorMessages['password']" class="help-block">
+    </div>
+    <div class="form-group"
+         [ngClass]="{ 'has-error': formErrorMessages['password'] }">
+      <input type="password"
+             class="form-control"
+             placeholder="密码"
+             maxlength="128"
+             appTextTrim
+             formControlName="password"
+             (keydown.enter)="loginAsRegisteredUser(loginForm.value)">
+      <span *ngIf="formErrorMessages['password']" class="help-block">
       {{ formErrorMessages['password'] }}
     </span>
+    </div>
+    <div class="checkbox">
+      <input type="checkbox"
+             id="rememberMe"
+             formControlName="rememberMe">
+      <label for="rememberMe">记住我</label>
+    </div>
+    <input type="button"
+           class="btn btn-lg btn-primary btn-block"
+           value="登录"
+           (click)="loginAsRegisteredUser(loginForm.value)">
+  </form>
+  <div class="login-extra">
+    <p><span>还没有账号？</span>
+      <a routerLink="../register">立即注册</a>
+      <i class="s-line"></i>
+      <a (click)="loginAsGuest()">游客登录</a>
+    </p>
   </div>
-  <div class="checkbox">
-    <input type="checkbox"
-           id="rememberMe"
-           formControlName="rememberMe">
-    <label for="rememberMe">记住我</label>
-  </div>
-  <input type="button"
-         class="btn btn-lg btn-primary btn-block"
-         value="登录"
-         (click)="loginAsRegisteredUser(loginForm.value)">
-</form>
-<div class="login-extra">
-  <p><span>还没有账号？</span>
-    <a routerLink="../register">立即注册</a>
-    <i class="s-line"></i>
-    <a (click)="loginAsGuest()">游客登录</a>
-  </p>
 </div>

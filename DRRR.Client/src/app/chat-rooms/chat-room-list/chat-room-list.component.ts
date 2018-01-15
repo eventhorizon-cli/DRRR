@@ -127,7 +127,8 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
           this.modalService.show(ChatRoomCreateComponent,
             {
               backdrop: 'static',
-              animated: 'inmodal'
+              animated: false,
+              class: 'animated flipInY'
             });
         }
       });

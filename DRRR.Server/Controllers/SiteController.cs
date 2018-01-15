@@ -14,7 +14,7 @@ namespace DRRR.Server.Controllers
     [Route("api/[controller]")]
     public class SiteController : Controller
     {
-        SiteInfoService _siteInfoService;
+        private readonly SiteInfoService _siteInfoService;
 
         public SiteController(SiteInfoService siteInfoService)
         {

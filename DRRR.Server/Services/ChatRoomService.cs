@@ -14,9 +14,9 @@ namespace DRRR.Server.Services
     /// </summary>
     public class ChatRoomService
     {
-        private DrrrDbContext _dbContext;
+        private readonly DrrrDbContext _dbContext;
 
-        private SystemMessagesService _msg;
+        private readonly SystemMessagesService _msg;
 
         public ChatRoomService(
             DrrrDbContext dbContext,
@@ -249,7 +249,7 @@ namespace DRRR.Server.Services
                 var connection = await _dbContext.Connection
                     .Where(conn => conn.RoomId != roomId && conn.UserId == userId)
                     .FirstOrDefaultAsync();
-                if (connection !=null)
+                if (connection != null)
                 {
                     error = _msg.GetMessage("E010");
                 }

@@ -1,14 +1,17 @@
 export interface Message {
   /**
+   * 房间ID
+   */
+  roomId?: string;
+
+  /**
    * 用户ID
    */
-
   userId?: string;
 
   /**
    * 用户名
    */
-
   username?: string;
   /**
    * 是否为接收到的消息
@@ -30,6 +33,11 @@ export interface Message {
    * 时间戳
    */
   timestamp?: number;
+
+  /**
+   * 显示消息时间
+   */
+  showMessageTime?: boolean;
 
   /**
    * 是否为聊天记录

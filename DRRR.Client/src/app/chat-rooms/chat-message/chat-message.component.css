@@ -90,7 +90,8 @@ pre {
 .time{
   height: 21px;
 }
-.picture img{
+.picture>img{
   max-width: calc(100% - 100px);
   border-radius: 8px;
+  cursor: zoom-in;
 }

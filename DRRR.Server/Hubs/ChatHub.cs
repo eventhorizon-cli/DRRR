@@ -12,6 +12,8 @@ using DRRR.Server.Dtos;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Extensions.Configuration;
+using System.Drawing;
+using DRRR.Server.Utils;
 
 namespace DRRR.Server.Hubs
 {
@@ -44,14 +46,16 @@ namespace DRRR.Server.Hubs
         {
             var userHashId = Context.User.FindFirst("uid").Value;
             var username = HttpUtility.UrlDecode(Context.User.Identity.Name);
+            var unixTimeMilliseconds = new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds();
+
             await Clients.Group(roomHashid)
-                .InvokeAsync("broadcastMessage", userHashId, username, message, false);
+                .InvokeAsync("receiveMessage", userHashId, username, message, unixTimeMilliseconds, false);
             // 将消息保存到数据库
             var history = new ChatHistory
             {
                 RoomId = HashidsHelper.Decode(roomHashid),
                 UserId = HashidsHelper.Decode(userHashId),
-                UnixTimeMilliseconds = new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds(),
+                UnixTimeMilliseconds = unixTimeMilliseconds,
                 Username = username,
                 Message = message
             };
@@ -73,14 +77,26 @@ namespace DRRR.Server.Hubs
             var username = HttpUtility.UrlDecode(Context.User.Identity.Name);
             var unixTimeMilliseconds = new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds();
 
-            var dir = Path.Combine(_picturesDirectory, roomId.ToString());
-            Directory.CreateDirectory(dir);
-            var path = Path.Combine(dir, $"{userId}_{unixTimeMilliseconds}.jpg");
-            // 保存图片
-            await File.WriteAllBytesAsync(path, Convert.FromBase64String(base64String));
+            string dirOriginal = Path.Combine(_picturesDirectory, roomId.ToString(), "originals");
+            string dirThumbnail = Path.Combine(_picturesDirectory, roomId.ToString(), "thumbnails");
 
+            Directory.CreateDirectory(dirOriginal);
+            Directory.CreateDirectory(dirThumbnail);
+
+            var pathOriginal = Path.Combine(dirOriginal, $"{userId}_{unixTimeMilliseconds}.jpg");
+            var pathThumbnail = Path.Combine(dirThumbnail, $"{userId}_{unixTimeMilliseconds}.jpg");
+
+            // 保存图片
+            var bytes = Convert.FromBase64String(base64String);
+            ImageHelper.SaveAsThumbnailImage(bytes, pathOriginal, 1920, 1080, 95);
+
+            // 保存缩略图
+            ImageHelper.SaveAsThumbnailImage(bytes, pathThumbnail, 250, 250, 95);
+
+            // 会自动进行base64的转换
             await Clients.Group(roomHashid)
-                .InvokeAsync("broadcastMessage", userHashId, username, base64String, true);
+                .InvokeAsync("receiveMessage", userHashId, username,
+                await File.ReadAllBytesAsync(pathThumbnail), unixTimeMilliseconds, true);
             // 将消息保存到数据库
             var history = new ChatHistory
             {
@@ -149,7 +165,7 @@ namespace DRRR.Server.Hubs
 
             // 显示欢迎用户加入房间的消息
             await Clients.Group(roomHashid).InvokeAsync(
-                "broadcastSystemMessage",
+                "receiveSystemMessage",
                 _msg.GetMessage(msgId, username));
 
             if (!string.IsNullOrEmpty(connIdToBeRemoved))
@@ -198,7 +214,7 @@ namespace DRRR.Server.Hubs
 
             // 通知同一房间里其他人该用户已经离开房间
             await Clients.Group(roomHashid).InvokeAsync(
-               "broadcastSystemMessage",
+               "receiveSystemMessage",
                _msg.GetMessage("I004",
                HttpUtility.UrlDecode(Context.User.Identity.Name)));
 
@@ -268,7 +284,7 @@ namespace DRRR.Server.Hubs
                 }
                 // 通知同一房间里其他人该用户已经离线或游客离开房间
                 await Clients.Group(roomHashid).InvokeAsync(
-                    "broadcastSystemMessage",
+                    "receiveSystemMessage",
                     _msg.GetMessage(msgId,
                     HttpUtility.UrlDecode(Context.User.Identity.Name)));
             }
@@ -378,7 +394,7 @@ namespace DRRR.Server.Hubs
 
             // 通知房间内其他用户
             await Clients.Group(roomHashid)
-                .InvokeAsync("broadcastSystemMessage",
+                .InvokeAsync("receiveSystemMessage",
                 _msg.GetMessage("I005", connection.Username));
 
             // 刷新成员列表
@@ -412,7 +428,7 @@ namespace DRRR.Server.Hubs
                 var data = msg.Message;
                 if (msg.IsPicture.Value)
                 {
-                    var path = Path.Combine(_picturesDirectory, msg.RoomId.ToString(),
+                    var path = Path.Combine(_picturesDirectory, msg.RoomId.ToString(), "thumbnails",
                         $"{msg.UserId}_{msg.UnixTimeMilliseconds}.jpg");
                     data = Convert.ToBase64String(await File.ReadAllBytesAsync(path));
                 }

@@ -1,6 +1,9 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnInit, TemplateRef } from '@angular/core';
+
+import { BsModalService } from 'ngx-bootstrap';
 
 import { Message } from '../models/message.model';
+import {ChatPictureComponent} from '../chat-picture/chat-picture.component';
 
 @Component({
   selector: 'app-chat-message',
@@ -16,14 +19,36 @@ export class ChatMessageComponent implements OnInit {
 
   isToday: boolean;
 
-  constructor() { }
+  constructor(private modalService: BsModalService) { }
 
   ngOnInit() {
-    this.position = this.message.incoming ? 'left' : 'right';
+    const msg = this.message;
+    this.position = msg.incoming ? 'left' : 'right';
 
-    if (this.message.timestamp) {
-      this.isToday = this.formatDate(new Date()) === this.formatDate(new Date(this.message.timestamp));
+    if (msg.showMessageTime) {
+      this.isToday = this.formatDate(new Date()) === this.formatDate(new Date(msg.timestamp));
     }
+  }
+
+  showOriginalPicture() {
+    const { roomId, userId, timestamp } = this.message;
+    const effects =
+      ['bounceIn', 'bounceInUp', 'bounceInDown', 'bounceInLeft', 'bounceInRight',
+        'rotateIn', 'rotateInDownLeft', 'rotateInDownRight', 'rotateInUpLeft', 'rotateInUpRight'];
+    const originalSrc =
+      `/api/resources/chat-pictures/rooms/${roomId}/users/${userId}?timestamp=${timestamp}`;
+    // 暂时保存在sessionStorage内
+    sessionStorage.setItem('originalSrc', originalSrc);
+
+    const index = Math.floor(Math.random() * effects.length);
+    const effect = effects[index];
+    if (!effect) {
+      console.log(index);
+    }
+    this.modalService.show(ChatPictureComponent, {
+      animated: false,
+      class: `picture-modal-dialog animated ${effect}`
+    });
   }
 
   /**

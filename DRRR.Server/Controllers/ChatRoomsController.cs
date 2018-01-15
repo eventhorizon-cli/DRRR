@@ -14,7 +14,7 @@ namespace DRRR.Server.Controllers
     [Route("api/rooms")]
     public class ChatRoomsController : Controller
     {
-        private ChatRoomService _chatRoomService;
+        private readonly ChatRoomService _chatRoomService;
 
         public ChatRoomsController(ChatRoomService chatRoomService)
             => _chatRoomService = chatRoomService;

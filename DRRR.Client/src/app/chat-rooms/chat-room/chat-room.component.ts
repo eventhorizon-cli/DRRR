@@ -78,7 +78,10 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
     // 设置滚动条样式
     const scrollPanel$ = $('.msg-container-base');
-    (<any>scrollPanel$).niceScroll({cursorcolor: '#d6d6d4'});
+
+    setTimeout(() => {
+      (<any>scrollPanel$).niceScroll({cursorcolor: '#d6d6d4'});
+    });
 
     // 重新设置窗口大小后
     this.resizeSubscription = FromEventObservable.create(window, 'resize')
@@ -111,16 +114,8 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
         });
 
     this.chatRoomService.onReconnect = () => {
-      // 上次显示新消息的时间
-      let lastTimeStamp: number;
-
       this.messages = this.chatRoomService.message
         .scan((messages: Message[], message: Message) => {
-          const now = Date.now();
-          if (!message.isSystemMessage && (!lastTimeStamp || (now - lastTimeStamp > 60000))) {
-            lastTimeStamp = now;
-            message.timestamp = now;
-          }
           // 用于在下方显示最新的未读信息
           this.lastMessage = message;
           return messages.concat(message);
@@ -249,18 +244,24 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
   /**
    * 发送图片
-   * @param {HTMLInputElement} file input的dom对象
+   * @param {HTMLInputElement} fileInput input的dom对象
    */
-  sendPicture(file: HTMLInputElement) {
+  sendPicture(fileInput: HTMLInputElement) {
     this.fixedAtBottom = true;
 
     let cropper: Cropper;
 
     let image: HTMLImageElement;
 
-    const url = URL.createObjectURL(file.files[0]);
+    const file = fileInput.files[0];
+
+    const url = URL.createObjectURL(file);
+
     // 清空value值,避免两次选中同样的文件时不触发change事件
-    file.value = '';
+    fileInput.value = '';
+
+    // 简单判断是不是GIF，后台会进行二次判断
+    const isGif = file.type === 'image/gif';
 
     // 设置图像显示区域的最大高度和最大宽度
     // 当前设备屏幕的一半
@@ -280,33 +281,35 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       cancelButtonText: '取消',
       allowOutsideClick: false,
       onOpen() {
-        image = $('.img-container img')[0] as HTMLImageElement;
-        cropper = new Cropper(image, {
-          viewMode: 2,
-          dragMode: 'move',
-          autoCropArea: 1,
-          minContainerWidth: length,
-          minContainerHeight: length
-        });
+        if (!isGif) {
+          image = $('.img-container img')[0] as HTMLImageElement;
+          cropper = new Cropper(image, {
+            viewMode: 2,
+            dragMode: 'move',
+            autoCropArea: 1,
+            minContainerWidth: length,
+            minContainerHeight: length
+          });
+        }
       },
       preConfirm: () => {
-        return new Promise((resolve, reject) => {
-          // 图片最大高度为360，最大宽度为640
-          const { height: croppedHeight, width: croppedWidth } = cropper.getCropBoxData();
-          let height = Math.min(croppedHeight, image.naturalHeight, 360);
-          let width = croppedWidth / croppedHeight * height;
-          const widthTmp = Math.min(croppedWidth, image.naturalWidth, 640);
-          if (width > widthTmp) {
-            width = widthTmp;
-            height = croppedHeight / croppedWidth * widthTmp;
-          }
-          const dataURL = cropper
-            .getCroppedCanvas({ height, width })
-            .toDataURL('image/jpeg');
-          this.chatRoomService.sendPicture(dataURL.split(',')[1])
-            .then(() => resolve())
-            .catch(error => reject(this.msg.getMessage('E004', '图片发送')));
-        });
+          return new Promise(resolve => {
+            if (isGif) {
+              const fileReader = new FileReader();
+              fileReader.readAsDataURL(file);
+              fileReader.addEventListener('load', () => {
+                resolve(fileReader.result);
+              });
+            } else {
+              resolve(cropper.getCroppedCanvas().toDataURL('image/jpeg'));
+            }
+        }).then((dataURL: string) => {
+            return new Promise((resolve, reject) => {
+              this.chatRoomService.sendPicture(dataURL.split(',')[1])
+                .then(() => resolve())
+                .catch(error => reject(this.msg.getMessage('E004', '图片发送')));
+            });
+          });
       },
     }).then(() => {
       // 释放资源

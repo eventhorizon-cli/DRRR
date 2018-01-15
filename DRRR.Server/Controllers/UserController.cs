@@ -12,13 +12,13 @@ namespace DRRR.Server.Controllers
     [Route("api/[controller]")]
     public class UserController : Controller
     {
-        private UserLoginService _loginService;
+        private readonly UserLoginService _loginService;
 
-        private UserRegisterService _registerService;
+        private readonly UserRegisterService _registerService;
 
-        private TokenAuthService _tokenAuthService;
+        private readonly TokenAuthService _tokenAuthService;
 
-        private UserProfileService _userProfileService;
+        private readonly UserProfileService _userProfileService;
 
         public UserController(
             UserLoginService loginService,

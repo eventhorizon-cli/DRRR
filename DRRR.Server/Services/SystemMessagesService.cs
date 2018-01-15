@@ -14,7 +14,7 @@ namespace DRRR.Server.Services
         /// <summary>
         /// 服务器端返回用消息配置信息
         /// </summary>
-        private IConfiguration _systemMessageSettings;
+        private readonly IConfiguration _systemMessageSettings;
 
         public SystemMessagesService()
         {

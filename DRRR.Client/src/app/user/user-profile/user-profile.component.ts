@@ -80,14 +80,12 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   updateAvatar(file: HTMLInputElement) {
     let cropper: Cropper;
 
-    // 裁剪后的原图
-    let dataURLOriginal: string;
-    // 裁剪后的缩略图
-    let dataURLThumbnail: string;
-
     const url = URL.createObjectURL(file.files[0]);
     // 清空value值,避免两次选中同样的文件时不触发change事件
     file.value = '';
+
+    // 裁剪后的图片
+    let dataURL: string;
 
     // 设置图像显示区域的最大高度和最大宽度
     // 当前设备屏幕的一半
@@ -118,17 +116,11 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       preConfirm: () => {
         // 确定设置新头像
         return new Promise((resolve, reject) => {
-          // 图片最大边长为512
-          const croppedLength = Math.min(cropper.getCropBoxData().width, 512);
-          const thumbnailLength = Math.min(cropper.getCropBoxData().width, 150);
-          dataURLOriginal = cropper
-            .getCroppedCanvas({ height: croppedLength, width: croppedLength })
-            .toDataURL('image/jpeg');
-          dataURLThumbnail = cropper
-            .getCroppedCanvas({ height: thumbnailLength, width: thumbnailLength })
+         dataURL = cropper
+            .getCroppedCanvas()
             .toDataURL('image/jpeg');
           this.profileService
-            .updateAvatar(this.payload.uid, dataURLOriginal, dataURLThumbnail)
+            .updateAvatar(this.payload.uid, dataURL)
             .subscribe(success => success ? resolve() :
               reject(this.msg.getMessage('E004', '头像更新')),
               error => reject(this.msg.getMessage('E004', '头像更新')));
@@ -141,7 +133,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           title: this.msg.getMessage('I001', '头像更新'),
         }).then(() => {
           // 更新本地头像显示
-          this.avatarURL = dataURLOriginal;
+          this.avatarURL = dataURL;
         });
       }
       // 释放资源

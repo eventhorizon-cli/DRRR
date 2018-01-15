@@ -1,6 +1,7 @@
 ﻿using DRRR.Server.Dtos;
 using DRRR.Server.Models;
 using DRRR.Server.Security;
+using DRRR.Server.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,11 +21,11 @@ namespace DRRR.Server.Services
         /// <summary>
         /// 存放头像的目录
         /// </summary>
-        private string _avatarsDirectory;
+        private readonly string _avatarsDirectory;
 
-        private DrrrDbContext _dbContext;
+        private readonly DrrrDbContext _dbContext;
 
-        private TokenAuthService _tokenAuthService;
+        private readonly TokenAuthService _tokenAuthService;
 
         public UserProfileService(
             DrrrDbContext dbContext,
@@ -53,26 +54,30 @@ namespace DRRR.Server.Services
             }
 
             return new FileStreamResult(
-                new MemoryStream(await File.ReadAllBytesAsync(path)), "application/x-img");
+                new MemoryStream(await File.ReadAllBytesAsync(path)), "image/jpeg");
         }
 
         /// <summary>
         /// 更新用户头像
         /// </summary>
         /// <param name="uid">用户ID</param>
-        /// <param name="avatars">用户上传的头像资源（包括裁剪后的原图和缩略图）</param>
+        /// <param name="avatar">用户上传的头像资源</param>
         /// <returns>表示异步更新头像的任务,成功返回true,失败返回false</returns>
-        public async Task<bool> UpdateAvatarAsync(int uid, IFormFileCollection avatars)
+        public async Task<bool> UpdateAvatarAsync(int uid, IFormFile avatar)
         {
             string pathOriginal = Path.Combine(_avatarsDirectory, "originals", $"{uid}.jpg");
             string pathThumbnail = Path.Combine(_avatarsDirectory, "thumbnails", $"{uid}.jpg");
             try
             {
-                using (FileStream fsOriginal = File.Create(pathOriginal),
-                                  fsThumbnail = File.Create(pathThumbnail))
+                using (var fsOriginal = File.Create(pathOriginal))
                 {
-                    await Task.WhenAll(avatars[0].CopyToAsync(fsOriginal),
-                                       avatars[1].CopyToAsync(fsThumbnail));
+                    // 保存原图
+                    await avatar.CopyToAsync(fsOriginal);
+                }
+                using (var stream = new MemoryStream())
+                {
+                    await avatar.CopyToAsync(stream);
+                    ImageHelper.SaveAsThumbnailImage(stream, pathThumbnail, 100, 100);
                 }
                 return true;
             }

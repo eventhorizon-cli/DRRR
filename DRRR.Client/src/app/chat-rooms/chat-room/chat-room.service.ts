@@ -7,6 +7,7 @@ import { Subject } from 'rxjs/Subject';
 // 参考资料：https://github.com/aspnet/SignalR/issues/983
 // import { HubConnection } from '@aspnet/signalr-client/dist/browser/signalr-clientES5-1.0.0-alpha2-final.js';
 import { HubConnection } from '@aspnet/signalr-client';
+// import { HubConnection } from '@aspnet/signalr-client/ts/HubConnection';
 
 import swal from 'sweetalert2';
 
@@ -16,6 +17,7 @@ import { Message } from '../models/message.model';
 import { Payload } from '../../core/models/payload.model';
 import { ChatRoomInitialDisplayDto } from '../dtos/chat-room-initial-display.dto';
 import { ChatRoomMemberDto } from '../dtos/chat-room-member.dto';
+import { ChatHistoryDto } from '../dtos/chat-history.dto';
 
 @Injectable()
 export class ChatRoomService {
@@ -65,6 +67,9 @@ export class ChatRoomService {
    */
   connect(roomId: string) {
     this.auth.refreshTokenIfNeeded().then(() => {
+      // 上次显示消息时间的时间
+      let lastTimeStamp: number;
+
       this.roomId = roomId;
 
       this.connection = new HubConnection(`/chat?authorization=${this.auth.accessToken}`);
@@ -89,20 +94,30 @@ export class ChatRoomService {
 
       // 创建回调函数
       // 聊天消息
-      this.connection.on('broadcastMessage',
-        (userId: string, username: string, message: string, isPicture: boolean) => {
+      this.connection.on('receiveMessage',
+        (userId: string, username: string, message: string, timestamp: number, isPicture: boolean) => {
+          let showMessageTime = false;
+          if (!lastTimeStamp || (timestamp - lastTimeStamp >= 60000)) {
+            // 利用的是服务器保存消息的时间，以便后面从服务器获取原图
+            lastTimeStamp = timestamp;
+            showMessageTime = true;
+          }
+
           this.message.next({
+            roomId: this.roomId,
             userId,
             username,
             isSystemMessage: false,
             incoming: (this.userInfo.uid !== userId),
             data: message,
+            timestamp,
+            showMessageTime,
             isPicture
           });
         });
 
       // 系统消息
-      this.connection.on('broadcastSystemMessage',
+      this.connection.on('receiveSystemMessage',
         (message: string) => {
           this.message.next({
             username: '系统消息',
@@ -182,7 +197,7 @@ export class ChatRoomService {
    * @return {Promise<number>} Promise对象,返回此次获取到的消息数
    */
   async getChatHistory(): Promise<number> {
-    const history = await this.connection
+    const history: ChatHistoryDto[] = await this.connection
       .invoke('GetChatHistoryAsync', this.roomId, this.entryTime, this.startIndex);
     // 设置下次获取历史记录用的索引
     this.startIndex += history.length;
@@ -192,21 +207,19 @@ export class ChatRoomService {
 
     // 收到的是按时间倒序排的历史消息
     const messages: Message[] = history.reverse().map(msg => {
-      let timestamp: number;
+      let showMessageTime = false;
       if (!lastTimeStamp
-        || (msg.timestamp - lastTimeStamp) > 60000) {
-        // 超过一分钟以上显示时间
+        || (msg.timestamp - lastTimeStamp) >= 60000) {
+        // 超过一分钟及以上显示时间
         lastTimeStamp = msg.timestamp;
-        timestamp = msg.timestamp;
+        showMessageTime = true;
       }
       return {
-        userId: msg.userId,
-        username: msg.username,
+        ...msg,
+        roomId: this.roomId,
         isSystemMessage: false,
         incoming: (msg.userId !== this.userInfo.uid),
-        data: msg.data,
-        timestamp,
-        isPicture: msg.isPicture,
+        showMessageTime,
         isChatHistory: true
       };
     });

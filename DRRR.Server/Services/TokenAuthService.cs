@@ -15,7 +15,7 @@ namespace DRRR.Server.Services
     /// </summary>
     public class TokenAuthService
     {
-        private DrrrDbContext _dbContext;
+        private readonly DrrrDbContext _dbContext;
 
         public TokenAuthService(DrrrDbContext dbContext) => _dbContext = dbContext;
 
