@@ -57,6 +57,8 @@ body {
 
 /*过场动画速度控制*/
 .animated.fadeInRight,
+.animated.fadeInDown,
+.animated.fadeOutUp,
 .animated.zoomIn{
   animation-duration: 0.5s;
   -moz-animation-duration: 0.5s;

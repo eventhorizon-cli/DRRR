@@ -18,3 +18,26 @@ ul{
 .member-list *{
   cursor: pointer;
 }
+/*这里重写了关键帧*/
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(-70%);
+    transform: translateY(-70%);
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fadeOutUp {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    -webkit-transform: translateY(-70%);
+    transform: translateY(-70%);
+  }
+}

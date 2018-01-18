@@ -1,6 +1,10 @@
 .panel-heading, .panel-footer {
   background: #ffffff;
 }
+.panel-heading {
+  position: relative;
+  z-index: 11;
+}
 .panel-container {
   max-width: 800px;
   margin: 0 auto;

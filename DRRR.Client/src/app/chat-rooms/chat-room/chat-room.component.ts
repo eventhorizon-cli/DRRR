@@ -114,6 +114,12 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
         });
 
     this.chatRoomService.onReconnect = () => {
+      // 重连过程中，隐藏成员列表
+      $('.member-list').hide()
+        .removeClass('fadeInDown fadeOutUp')
+        .addClass('animated fadeOutUp');
+      this.isMemberListVisible = false;
+
       this.messages = this.chatRoomService.message
         .scan((messages: Message[], message: Message) => {
           // 用于在下方显示最新的未读信息
@@ -137,11 +143,9 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       this.isLoadingHistory = true;
       this.chatRoomService.getChatHistory()
         .then(count => {
-          if (!this.isMemberListVisible) {
-            // 显示用户列表
-            // 重连后，如果之前没有显示，也会切换为显示
-            this.showOrHideMemberList();
-          }
+          // 显示用户列表
+          $('.member-list').show();
+          this.showOrHideMemberList();
 
           this.noMoreMessage = count < 20;
           this.isLoadingHistory = false;
@@ -231,7 +235,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
    */
   showOrHideMemberList() {
     this.isMemberListVisible = !this.isMemberListVisible;
-    $('.member-list').toggle();
+    $('.member-list').toggleClass('fadeInDown fadeOutUp');
   }
 
   /**
