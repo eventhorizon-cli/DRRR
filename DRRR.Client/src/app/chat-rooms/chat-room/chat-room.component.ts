@@ -301,7 +301,25 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
                 resolve(fileReader.result);
               });
             } else {
-              resolve(cropper.getCroppedCanvas().toDataURL('image/jpeg'));
+              const dataUrl = cropper.getCroppedCanvas().toDataURL('image/png');
+              // 将图片中的可能的透明色转换为白色
+              const img = document.createElement('img');
+              img.src = dataUrl;
+              img.addEventListener('load', () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+
+                // 在canvas绘制前填充白色背景
+                const context = canvas.getContext('2d');
+
+                context.fillStyle = '#fff';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+
+                context.drawImage(img, 0, 0);
+
+                resolve(canvas.toDataURL('image/jpeg'));
+              });
             }
         }).then((dataURL: string) => {
             return new Promise((resolve, reject) => {

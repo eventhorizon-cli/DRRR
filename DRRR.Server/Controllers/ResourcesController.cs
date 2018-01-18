@@ -30,14 +30,18 @@ namespace DRRR.Server.Controllers
 
         private readonly DrrrDbContext _dbContext;
 
+        private readonly ImageService _imageService;
+
         public ResourcesController(
             SystemMessagesService systemMessagesService,
             UserProfileService userProfileService,
+            ImageService imageService,
             IConfiguration configuration,
             DrrrDbContext dbContext)
         {
             _msg = systemMessagesService;
             _userProfileService = userProfileService;
+            _imageService = imageService;
             _picturesDirectory = configuration["Resources:Pictures"];
             _dbContext = dbContext;
         }
@@ -99,7 +103,7 @@ namespace DRRR.Server.Controllers
             if (Exists(path = $"{fileFullNameWithoutExtension}.jpg")
                 || Exists(path = $"{fileFullNameWithoutExtension}.gif"))
             {
-                return File(await ReadAllBytesAsync(path), ImageHelper.GetMimeType(path));
+                return File(await ReadAllBytesAsync(path), _imageService.GetMimeType(path));
             }
             return NotFound();
         }

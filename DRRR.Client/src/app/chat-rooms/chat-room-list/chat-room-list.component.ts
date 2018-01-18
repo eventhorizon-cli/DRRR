@@ -128,7 +128,7 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
             {
               backdrop: 'static',
               animated: false,
-              class: 'animated flipInY'
+              class: 'animated zoomIn'
             });
         }
       });

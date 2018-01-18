@@ -12,7 +12,7 @@ namespace DRRR.Server.Hubs
 {
     public class CaptchaHub : Hub
     {
-        private DrrrDbContext _dbContext;
+        private readonly DrrrDbContext _dbContext;
 
         public CaptchaHub(DrrrDbContext dbContext) => _dbContext = dbContext;
 

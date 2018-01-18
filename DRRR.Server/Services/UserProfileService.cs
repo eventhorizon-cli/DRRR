@@ -27,14 +27,18 @@ namespace DRRR.Server.Services
 
         private readonly TokenAuthService _tokenAuthService;
 
+        private readonly ImageService _imageService;
+
         public UserProfileService(
             DrrrDbContext dbContext,
             SystemMessagesService systemMessagesService,
             TokenAuthService tokenAuthService,
+            ImageService imageService,
             IConfiguration configuration)
         {
             _dbContext = dbContext;
             _tokenAuthService = tokenAuthService;
+            _imageService = imageService;
             _avatarsDirectory = configuration["Resources:Avatars"];
         }
 
@@ -69,16 +73,15 @@ namespace DRRR.Server.Services
             string pathThumbnail = Path.Combine(_avatarsDirectory, "thumbnails", $"{uid}.jpg");
             try
             {
-                using (var fsOriginal = File.Create(pathOriginal))
-                {
-                    // 保存原图
-                    await avatar.CopyToAsync(fsOriginal);
-                }
                 using (var stream = new MemoryStream())
                 {
                     await avatar.CopyToAsync(stream);
-                    ImageHelper.SaveAsThumbnailImage(stream, pathThumbnail, 100, 100);
+                    _imageService.SaveAsThumbnailImage(stream, pathOriginal, 400, 400, 95);
+                    _imageService.SaveAsThumbnailImage(stream, pathThumbnail, 100, 100, 95);
                 }
+
+                // 不等待的异步任务
+                var task = _imageService.TinifyAsync(pathOriginal, pathThumbnail);
                 return true;
             }
             catch

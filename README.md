@@ -19,7 +19,9 @@ DRRR.Server/appsettings.json
 - 用户头像保存位置：Resources:Avatars
 - 聊天记录图片保存位置：Resources:Pictures
 - JWT配置：Token
-- 异常LOG文件名格式及保存位置：Serilog （具体介绍请关注 [Serilog项目](https://github.com/serilog/serilog-extensions-logging-file)）
+- 异常LOG文件名格式及保存位置：Serilog （具体介绍请关注 [Serilog项目]
+(https://github.com/serilog/serilog-extensions-logging-file)）
+- tinypng压缩图片API key：TinyPNGAPIKey（可选），如需启用须至官网申请[API key](https://tinypng.com/developers)
 
 ## 如何运行
 1. DRRR.Client 目录下执行 `npm start` 命令。

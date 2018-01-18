@@ -20,19 +20,23 @@ namespace DRRR.Server.Hubs
     [JwtAuthorize(Roles.Guest, Roles.User, Roles.Admin)]
     public class ChatHub : Hub
     {
-        private DrrrDbContext _dbContext;
+        private readonly DrrrDbContext _dbContext;
 
-        private SystemMessagesService _msg;
+        private readonly SystemMessagesService _msg;
 
-        private string _picturesDirectory;
+        private readonly ImageService _imageService;
+
+        private readonly string _picturesDirectory;
 
         public ChatHub(
             SystemMessagesService systemMessagesService,
             DrrrDbContext dbContext,
+            ImageService imageService,
             IConfiguration configuration)
         {
             _msg = systemMessagesService;
             _dbContext = dbContext;
+            _imageService = imageService;
             _picturesDirectory = configuration["Resources:Pictures"];
         }
 
@@ -83,15 +87,30 @@ namespace DRRR.Server.Hubs
             Directory.CreateDirectory(dirOriginal);
             Directory.CreateDirectory(dirThumbnail);
 
-            var pathOriginal = Path.Combine(dirOriginal, $"{userId}_{unixTimeMilliseconds}.jpg");
+            // 获取图片数据
+            var bytes = Convert.FromBase64String(base64String);
+            var img = Image.FromStream(new MemoryStream(bytes));
+
+            var isGif = _imageService.IsGif(img);
+            var extension = isGif ? ".gif" : ".jpg";
+
+            var pathOriginal = Path.Combine(dirOriginal, $"{userId}_{unixTimeMilliseconds}{extension}");
             var pathThumbnail = Path.Combine(dirThumbnail, $"{userId}_{unixTimeMilliseconds}.jpg");
 
             // 保存图片
-            var bytes = Convert.FromBase64String(base64String);
-            ImageHelper.SaveAsThumbnailImage(bytes, pathOriginal, 1920, 1080, 95);
+            if (isGif)
+            {
+                // 如果是gif则直接保存
+                await File.WriteAllBytesAsync(pathOriginal, bytes);
+            }
+            else
+            {
+                // 不是gif则进行适当压缩后保存
+                _imageService.SaveAsThumbnailImage(bytes, pathOriginal, 1920, 1080, 95);
+            }
 
             // 保存缩略图
-            ImageHelper.SaveAsThumbnailImage(bytes, pathThumbnail, 250, 250, 95);
+            _imageService.SaveAsThumbnailImage(bytes, pathThumbnail, 250, 250, 95);
 
             // 会自动进行base64的转换
             await Clients.Group(roomHashid)
@@ -108,6 +127,17 @@ namespace DRRR.Server.Hubs
             };
             _dbContext.ChatHistory.Add(history);
             await _dbContext.SaveChangesAsync();
+
+            // 后台执行图片压缩任务
+            // 不等待
+            if (isGif)
+            {
+                Task noWarning = _imageService.TinifyAsync(pathThumbnail);
+            }
+            else
+            {
+                Task noWarning = _imageService.TinifyAsync(pathOriginal, pathThumbnail);
+            }
         }
 
         /// <summary>
