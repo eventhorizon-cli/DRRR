@@ -159,7 +159,7 @@ export class ChatRoomService {
             // 消息发送成功，清空输入框
             message.value = '';
           });
-      } catch (e) {
+      } catch {
         this.reconnect(this.msg.getMessage('E004', '消息发送'));
       }
     } else {
