@@ -33,9 +33,9 @@ namespace DRRR.Server.Services
             var query = _dbContext.Connection
                 .Where(conn => conn.IsOnline.Value && !conn.IsDeleted.Value);
 
-            var onlineRegisteredUsers = await query.Where(conn => !conn.IsGuest.Value).CountAsync();
+            var onlineRegisteredUsers = await query.CountAsync(conn => !conn.IsGuest.Value);
 
-            var onlineGuests = await query.Where(conn => conn.IsGuest.Value).CountAsync();
+            var onlineGuests = await query.CountAsync(conn => conn.IsGuest.Value);
 
             return new SiteStatusDto
             {

@@ -22,8 +22,7 @@ namespace DRRR.Server.Security
         {
             byte[] passwordAndSaltBytes = Encoding.UTF8.GetBytes(pwd + salt);
             byte[] hashBytes = SHA256.Create().ComputeHash(passwordAndSaltBytes);
-            string hashString = Convert.ToBase64String(hashBytes);
-            return hashString;
+            return Convert.ToBase64String(hashBytes);
         }
 
         /// <summary>
@@ -34,8 +33,6 @@ namespace DRRR.Server.Security
         /// <param name="pwdHash">哈希密码</param>
         /// <returns></returns>
         public static bool ValidatePassword(string pwd, string salt, string pwdHash)
-        {
-            return GeneratePasswordHash(pwd, salt) == pwdHash;
-        }
+            => GeneratePasswordHash(pwd, salt) == pwdHash;
     }
 }

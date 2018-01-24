@@ -40,8 +40,7 @@ namespace DRRR.Server.Services
         public async Task<(AccessTokenResponseDto, Dictionary<string, string> error)> LoginAsRegisteredUserAsync(UserLoginRequestDto userDto)
         {
             User user = await _dbContext.User
-                .Where(u => u.Username == userDto.Username)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(u => u.Username == userDto.Username);
 
             if (user != null
                 && ValidatePassword(userDto.Password, user.Salt, user.PasswordHash))

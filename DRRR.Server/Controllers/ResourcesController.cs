@@ -22,28 +22,17 @@ namespace DRRR.Server.Controllers
     [Route("api/[controller]")]
     public class ResourcesController : Controller
     {
-        private readonly SystemMessagesService _msg;
-
-        private readonly UserProfileService _userProfileService;
-
         private readonly string _picturesDirectory;
-
-        private readonly DrrrDbContext _dbContext;
 
         private readonly ImageService _imageService;
 
         public ResourcesController(
             SystemMessagesService systemMessagesService,
-            UserProfileService userProfileService,
             ImageService imageService,
-            IConfiguration configuration,
-            DrrrDbContext dbContext)
+            IConfiguration configuration)
         {
-            _msg = systemMessagesService;
-            _userProfileService = userProfileService;
             _imageService = imageService;
             _picturesDirectory = configuration["Resources:Pictures"];
-            _dbContext = dbContext;
         }
 
         /// <summary>
@@ -63,20 +52,25 @@ namespace DRRR.Server.Controllers
         /// </summary>
         /// <param name="type">图片类型（原图或者缩略图）</param>
         /// <param name="hashid">用户哈希ID</param>
+        /// <param name="userProfileService">用户信息管理服务</param>
         /// <returns>异步获取用户头像资源的任务</returns>
         [HttpGet("avatars/{type}/{hashid}")]
-        public async Task<FileResult> GetAvatarAsync(string type, string hashid) =>
-            await _userProfileService.GetAvatarAsync(type, Decode(hashid));
+        public async Task<FileResult> GetAvatarAsync(string type, string hashid,
+            [FromServices]UserProfileService userProfileService)
+            => await userProfileService.GetAvatarAsync(type, Decode(hashid));
 
         /// <summary>
         /// 更新用户头像资源
         /// </summary>
         /// <param name="hashid">用户哈希ID</param>
+        /// <param name="avatar">用户头像文件</param>
+        /// <param name="userProfileService">用户信息管理服务</param>
         /// <returns>表示用户更新用户头像资源的任务</returns>
         [HttpPut("avatars/{hashid}")]
         [JwtAuthorize(Roles.User, Roles.Admin)]
-        public async Task<bool> UpdateAvatarAsync(string hashid, [FromForm]IFormFile avatar) =>
-            await _userProfileService.UpdateAvatarAsync(Decode(hashid), avatar);
+        public async Task<bool> UpdateAvatarAsync(string hashid, [FromForm]IFormFile avatar,
+            [FromServices]UserProfileService userProfileService)
+            => await userProfileService.UpdateAvatarAsync(Decode(hashid), avatar);
 
         /// <summary>
         /// 获取聊天图片
@@ -84,16 +78,21 @@ namespace DRRR.Server.Controllers
         /// <param name="roomHashid">房间ID</param>
         /// <param name="userHashid">用户ID</param>
         /// <param name="timestamp">图片被发送的时间戳</param>
+        /// <param name="dbContext">DB上下文</param>
         /// <returns>表示异步获取图片的任务</returns>
         [HttpGet("chat-pictures/rooms/{roomHashid}/users/{userHashid}")]
         [JwtAuthorize(Roles.Guest, Roles.User, Roles.Admin)]
-        public async Task<ActionResult> GetChatPictureAsync(string roomHashid, string userHashid, string timestamp)
+        public async Task<ActionResult> GetChatPictureAsync(
+            string roomHashid,
+            string userHashid,
+            string timestamp,
+            [FromServices]DrrrDbContext dbContext)
         {
             int roomId = Decode(roomHashid);
             int userId = Decode(userHashid);
             int currentUserId = Decode(User.FindFirst("uid").Value);
             // 判断当前用户是否属于该聊天室
-            if (!_dbContext.Connection.Any(c => c.RoomId == roomId && c.UserId == currentUserId))
+            if (!dbContext.Connection.Any(c => c.RoomId == roomId && c.UserId == currentUserId))
             {
                 return Forbid(JwtBearerDefaults.AuthenticationScheme);
             }

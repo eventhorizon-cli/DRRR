@@ -154,7 +154,7 @@ namespace DRRR.Server.Hubs
             // 因为用户可能会尝试用一个账号同时登陆两个房间
             // 这里查询条件不加上房间ID，前一个房间内的用户会被提示在别处登录
             var connection = await _dbContext.Connection
-                .Where(x => x.UserId == userId).FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(x => x.UserId == userId);
 
             string msgId = null;
             string connIdToBeRemoved = null;
@@ -201,8 +201,7 @@ namespace DRRR.Server.Hubs
             if (!string.IsNullOrEmpty(connIdToBeRemoved))
             {
                 // 前一个窗口显示消息，告知账号已经在其他地方登陆
-                await Clients.Client(connIdToBeRemoved)
-                    .InvokeAsync("onDuplicateLogin");
+                await Clients.Client(connIdToBeRemoved).InvokeAsync("onDuplicateLogin");
                 await Groups.RemoveAsync(connIdToBeRemoved, roomHashid);
             }
 
@@ -248,8 +247,7 @@ namespace DRRR.Server.Hubs
                _msg.GetMessage("I004",
                HttpUtility.UrlDecode(Context.User.Identity.Name)));
 
-            var room = await _dbContext.ChatRoom.Where(x => x.Id == roomId)
-                .FirstOrDefaultAsync();
+            var room = await _dbContext.ChatRoom.FirstOrDefaultAsync(x => x.Id == roomId);
 
             // 如果该房间已经被删除的话
             if (room == null) return;
@@ -269,8 +267,7 @@ namespace DRRR.Server.Hubs
         public async override Task OnDisconnectedAsync(Exception exception)
         {
             var connenction = await _dbContext
-                .Connection.Where(conn => conn.ConnectionId == Context.ConnectionId)
-                .FirstOrDefaultAsync();
+                .Connection.FirstOrDefaultAsync(conn => conn.ConnectionId == Context.ConnectionId);
 
             // 如果用户开了多个窗口的话，这边可能会出问题
             // 或者用户被移出房间
@@ -379,8 +376,7 @@ namespace DRRR.Server.Hubs
 
                     tran.Commit();
 
-                    await Clients.Group(roomHashid).InvokeAsync("onRoomDeleted",
-                        _msg.GetMessage("E008"));
+                    await Clients.Group(roomHashid).InvokeAsync("onRoomDeleted", _msg.GetMessage("E008"));
                 }
                 catch
                 {
@@ -410,7 +406,7 @@ namespace DRRR.Server.Hubs
             int memberId = HashidsHelper.Decode(memberHashid);
 
             var connection = await _dbContext.Connection
-                .Where(conn => conn.UserId == memberId).FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(conn => conn.UserId == memberId);
 
             // 从数据库中删除
             _dbContext.Remove(connection);
@@ -445,7 +441,7 @@ namespace DRRR.Server.Hubs
             var roomId = HashidsHelper.Decode(roomHashid);
             var query = await _dbContext.ChatHistory
                  .Where(msg => msg.RoomId == roomId
-                 && msg.UnixTimeMilliseconds < entryTime)
+                        && msg.UnixTimeMilliseconds < entryTime)
                  .OrderByDescending(msg => msg.UnixTimeMilliseconds)
                  .Skip(startIndex)
                  .Take(20)
