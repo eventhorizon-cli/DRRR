@@ -77,14 +77,14 @@ export class AppComponent implements OnInit {
         inputValue: 1,
         onOpen: () => {
           // 替换checkbox样式
-          const container = document.querySelector('.swal2-modal.swal2-show');
+          const container = document.querySelector('.swal2-content');
           const oldCheckbox = <HTMLInputElement>container.querySelector('#swal2-checkbox');
           const label = <HTMLLabelElement>container.querySelector('label.swal2-checkbox');
           const lblMsg = document.createElement('label');
           const div = document.createElement('div');
           const newCheckbox = <HTMLInputElement>oldCheckbox.cloneNode();
+          newCheckbox.id = 'rememberRoom';
           label.style.display = 'none';
-          newCheckbox.name = 'rememberRoom';
           div.classList.add('checkbox');
           lblMsg.innerText = this.msg.getMessage('I006');
           lblMsg.setAttribute('for', 'rememberRoom');

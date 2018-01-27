@@ -64,3 +64,7 @@ body {
   -moz-animation-duration: 0.5s;
   -webkit-animation-duration: 0.5s;
 }
+
+label[for="rememberRoom"]::after {
+  padding-top: 2.5px;
+}

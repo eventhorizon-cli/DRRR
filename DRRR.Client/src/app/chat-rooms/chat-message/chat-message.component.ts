@@ -12,6 +12,9 @@ import {ChatPictureComponent} from '../chat-picture/chat-picture.component';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChatMessageComponent implements OnInit {
+  private static effects: string[]
+    = ['bounceIn', 'bounceInUp', 'bounceInDown', 'bounceInLeft', 'bounceInRight',
+    'rotateIn', 'rotateInDownLeft', 'rotateInDownRight', 'rotateInUpLeft', 'rotateInUpRight'];
 
   @Input() message: Message;
 
@@ -32,19 +35,14 @@ export class ChatMessageComponent implements OnInit {
 
   showOriginalPicture() {
     const { roomId, userId, timestamp } = this.message;
-    const effects =
-      ['bounceIn', 'bounceInUp', 'bounceInDown', 'bounceInLeft', 'bounceInRight',
-        'rotateIn', 'rotateInDownLeft', 'rotateInDownRight', 'rotateInUpLeft', 'rotateInUpRight'];
+    // 获取大图用的url
     const originalSrc =
       `/api/resources/chat-pictures/rooms/${roomId}/users/${userId}?timestamp=${timestamp}`;
     // 暂时保存在sessionStorage内
     sessionStorage.setItem('originalSrc', originalSrc);
-
+    const effects = ChatMessageComponent.effects;
     const index = Math.floor(Math.random() * effects.length);
     const effect = effects[index];
-    if (!effect) {
-      console.log(index);
-    }
     this.modalService.show(ChatPictureComponent, {
       animated: false,
       class: `picture-modal-dialog animated ${effect}`
