@@ -90,7 +90,7 @@ export class AppComponent implements OnInit {
           lblMsg.setAttribute('for', 'rememberRoom');
           div.appendChild(newCheckbox);
           div.appendChild(lblMsg);
-          container.insertBefore(div, label);
+          label.parentNode.insertBefore(div, label);
           newCheckbox.addEventListener('click', () => {
             oldCheckbox.click();
           });
