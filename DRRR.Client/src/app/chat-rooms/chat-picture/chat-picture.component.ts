@@ -3,6 +3,7 @@ import { Component, ElementRef, OnInit } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { AuthService } from '../../core/services/auth.service';
 import { SystemMessagesService } from '../../core/services/system-messages.service';
+import swal from "sweetalert2";
 
 @Component({
   selector: 'app-chat-picture',
@@ -20,9 +21,21 @@ export class ChatPictureComponent implements OnInit {
     private msg: SystemMessagesService) { }
 
   ngOnInit() {
-    // 如果加载时间超过0.5秒则显示
+    // 如果加载时间超过0.5秒则显示加载动画
     const timeoutId = setTimeout(() => {
-      this.msg.showLoadingMessage('I005', '图片加载');
+      swal({
+        title: this.msg.getMessage('I005', '图片加载'),
+        showConfirmButton: false,
+        showCloseButton: true,
+        onOpen: function () {
+          swal.showLoading();
+        }
+      }).then(({dismiss}) => {
+        if (dismiss) {
+          // 如果用户点了关闭
+          this.bsModalRef.hide();
+        }
+      });
     }, 500);
     this.auth.refreshTokenIfNeeded().then(() => {
       this.originalSrc = `${sessionStorage.getItem('originalSrc')}&authorization=${this.auth.accessToken}`;
