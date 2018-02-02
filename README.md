@@ -29,7 +29,7 @@ DRRR.Server/appsettings.json
 3. 浏览器打开localhost:3000。
 
 ## 如何发布
-1. DRRR.Client 目录下执行 `npm build` 命令，编译结果位于 DRRR.Client/dist 目录。
+1. DRRR.Client 目录下执行 `npm run build` 命令，编译结果位于 DRRR.Client/dist 目录。
 2. DRRR.Server 目录下执行 [`dotnet publish`](https://docs.microsoft.com/zh-cn/dotnet/core/tools/dotnet-publish?tabs=netcore2x)，或用vs2017 发布为文件系统。
 3. 将第一步得到的 dist 文件夹中的文件复制到第二步得到的文件夹中的wwwroot文件夹中。
 4. 部署 .net core 至生产环境，请参见[官方说明](https://docs.microsoft.com/zh-cn/dotnet/core/deploying/index)。
