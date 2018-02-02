@@ -76,12 +76,13 @@ pre {
 }
 .system-message{
   background-color: #d4d4d4;
-  border-radius: 5px;
+  border-radius: 6px;
   display: inline-block;
 }
-.system-message pre{
-  color: #777777;
-  margin: 0 auto;
+.system-message p{
+  padding: 4px 12px;
+  margin-bottom: 0;
+  font-size: 14px;
 }
 .time p{
   margin-bottom: 0;

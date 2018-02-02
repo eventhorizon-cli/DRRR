@@ -39,3 +39,6 @@
 input[type="file"]{
   display: none;
 }
+.fa-spinner {
+  color: grey;
+}
