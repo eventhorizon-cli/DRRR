@@ -317,7 +317,7 @@ namespace DRRR.Server.Services
             => await _dbContext.ChatRoom
                 .AnyAsync(room => room.OwnerId == uid
                           && room.Owner.RoleId == (int)Roles.User) ?
-            null : _msg.GetMessage("E009");
+            _msg.GetMessage("E009") : null;
 
         /// <summary>
         /// 检查房间状态
