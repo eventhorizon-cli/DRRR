@@ -167,7 +167,7 @@ namespace DRRR.Server.Services
         /// </summary>
         /// <param name="name">房间名</param>
         /// <returns>异步获取验证结果的任务</returns>
-        public async Task<string> ValidateRoomNameAsync(string name = "")
+        public async Task<string> ValidateRoomNameAsync(string name)
         {
             // 房间名仅支持中日英文、数字和下划线,且不能为纯数字
             if (!Regex.IsMatch(name, @"^[\u4e00-\u9fa5\u3040-\u309F\u30A0-\u30FFa-zA-Z_\d]+$")
@@ -176,11 +176,8 @@ namespace DRRR.Server.Services
                 return _msg.GetMessage("E002", "房间名");
             }
 
-            // 检测用户名是否存在
-            int count = await _dbContext
-                .ChatRoom.CountAsync(room => room.Name == name);
-
-            if (count > 0)
+            // 检测房间名是否存在
+            if (await _dbContext.ChatRoom.AnyAsync(room => room.Name == name))
             {
                 return _msg.GetMessage("E003", "房间名");
             }
@@ -315,18 +312,12 @@ namespace DRRR.Server.Services
         /// 申请创建房间
         /// </summary>
         /// <param name="uid">用户ID</param>
-        /// <returns></returns>
+        /// <returns>异步检查用户是否有权限创建房间的任务，如果没有权限则返回错误信息</returns>
         public async Task<string> ApplyForCreatingRoomAsync(int uid)
-        {
-            var count = await _dbContext.ChatRoom
-                .Where(room => room.OwnerId == uid
-                && room.Owner.RoleId == (int)Roles.User).CountAsync();
-            if (count > 0)
-            {
-                return _msg.GetMessage("E009");
-            }
-            return null;
-        }
+            => await _dbContext.ChatRoom
+                .AnyAsync(room => room.OwnerId == uid
+                          && room.Owner.RoleId == (int)Roles.User) ?
+            null : _msg.GetMessage("E009");
 
         /// <summary>
         /// 检查房间状态
