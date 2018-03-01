@@ -33,7 +33,7 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
 
   private controlsValueChanges: Subscription[];
 
-  private isRefreshingCaptch: boolean;
+  private isRefreshingCaptcha: boolean;
 
   constructor(
     private fb: FormBuilder,
@@ -212,14 +212,14 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
    * 刷新验证码
    */
   refreshCaptcha() {
-    if (this.isRefreshingCaptch) {
+    if (this.isRefreshingCaptcha) {
       return;
     }
-    this.isRefreshingCaptch = true;
+    this.isRefreshingCaptcha = true;
     this.registerService.refreshCaptcha().then(captcha => {
       this.captchaId = captcha.id;
       this.captchaUrl = `data:image/jpeg;base64,${captcha.image}`;
-      this.isRefreshingCaptch = false;
+      this.isRefreshingCaptcha = false;
     }, reason => {
       if (reason !== 'left') {
         swal({
@@ -227,7 +227,7 @@ export class UserRegisterComponent implements OnInit, OnDestroy {
           title: this.msg.getMessage('E004', '验证码获取'),
           text: this.msg.getMessage('E009')
         }).then(() => {
-          this.isRefreshingCaptch = false;
+          this.isRefreshingCaptcha = false;
         });
       }
     });
