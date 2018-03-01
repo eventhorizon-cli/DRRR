@@ -3,7 +3,7 @@ import { Component, ElementRef, OnInit } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { AuthService } from '../../core/services/auth.service';
 import { SystemMessagesService } from '../../core/services/system-messages.service';
-import swal from "sweetalert2";
+import swal from 'sweetalert2';
 
 @Component({
   selector: 'app-chat-picture',
