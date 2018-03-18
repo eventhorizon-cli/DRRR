@@ -16,8 +16,8 @@ namespace DRRR.Server.Models
         public string Salt { get; set; }
         public int RoleId { get; set; }
         public int StatusCode { get; set; }
-        public DateTimeOffset CreateTime { get; set; }
-        public DateTimeOffset UpdateTime { get; set; }
+        public DateTime CreateTime { get; set; }
+        public DateTime UpdateTime { get; set; }
 
         public Role Role { get; set; }
         public UserStatus Status { get; set; }
