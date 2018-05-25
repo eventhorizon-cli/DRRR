@@ -150,15 +150,19 @@ namespace DRRR.Server
             // SignalR路由配置
             app.UseSignalR(routes =>
             {
-                routes.MapHub<ChatHub>("chat");
-                routes.MapHub<CaptchaHub>("captcha");
+                routes.MapHub<ChatHub>("/chat", options =>
+                {
+                    // 30Kb message buffer
+                    options.ApplicationMaxBufferSize = 30 * 1024 * 1024;
+                });
+                routes.MapHub<CaptchaHub>("/captcha");
             });
 
             #region pushstate路由问题解决方案
             // 参考资料 https://stackoverflow.com/questions/38531904/angular-2-routing-with-asp-net-core-non-mvc
-            DefaultFilesOptions options = new DefaultFilesOptions();
-            options.DefaultFileNames.Clear();
-            options.DefaultFileNames.Add("index.html");
+            DefaultFilesOptions filesOptions = new DefaultFilesOptions();
+            filesOptions.DefaultFileNames.Clear();
+            filesOptions.DefaultFileNames.Add("index.html");
             app.Use(async (context, next) =>
             {
                 await next();
@@ -170,7 +174,7 @@ namespace DRRR.Server
                     context.Request.Path = "/index.html";
                     await next();
                 }
-            }).UseDefaultFiles(options);
+            }).UseDefaultFiles(filesOptions);
             #endregion
 
             app.UseAuthentication()

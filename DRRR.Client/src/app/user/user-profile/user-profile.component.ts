@@ -1,11 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
+import { Observable, Subscription } from 'rxjs';
+
+import * as Cropper from 'cropperjs';
 
 import swal from 'sweetalert2';
-import * as Cropper from 'cropperjs';
 
 import { AuthService } from '../../core/services/auth.service';
 import { UserProfileService } from './user-profile.service';

@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, OnDestroy, EventEmitter, Output } from '@angular/core';
 
-import { Subscription } from 'rxjs/Subscription';
-import { FromEventObservable } from 'rxjs/observable/FromEventObservable';
+import { Subscription } from 'rxjs';
+import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 
 import { ChatRoomMemberDto } from '../dtos/chat-room-member.dto';
 import { AuthService } from '../../core/services/auth.service';
@@ -32,7 +32,7 @@ export class ChatRoomMemberListComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.setWidth();
     // 重新设置窗口大小后
-    this.resizeSubscription = FromEventObservable.create(window, 'resize')
+    this.resizeSubscription = fromEvent(window, 'resize')
       .subscribe(() => {
         this.setWidth();
       });

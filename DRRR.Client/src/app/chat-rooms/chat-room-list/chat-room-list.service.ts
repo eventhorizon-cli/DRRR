@@ -1,5 +1,5 @@
 import { Injectable, ViewChild } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 import { AuthService } from '../../core/services/auth.service';
 import { ChatRoomSearchResponseDto } from '../dtos/chat-room-search-response.dto';

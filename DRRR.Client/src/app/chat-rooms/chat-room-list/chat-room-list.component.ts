@@ -1,10 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/debounceTime';
-import { FromEventObservable } from 'rxjs/observable/FromEventObservable';
-import { Subscription } from 'rxjs/Subscription';
+import { fromEvent } from 'rxjs/internal/observable/fromEvent';
+import { Subscription } from 'rxjs';
+import { debounceTime, map } from 'rxjs/operators';
 
 import { BsModalService } from 'ngx-bootstrap/modal';
 
@@ -56,14 +55,13 @@ export class ChatRoomListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.routeParams = this.route.params
-      .map(params => +params['page'] || 1)
+      .pipe(map(params => +params['page'] || 1))
       .subscribe(page => {
         this.refresh(page);
       });
 
-    this.keyup = FromEventObservable
-      .create<Event>(document.querySelector('[name=keyword]'), 'keyup')
-      .debounceTime(250)
+    this.keyup = fromEvent<Event>(document.querySelector('[name=keyword]'), 'keyup')
+      .pipe(debounceTime(250))
       .subscribe(() => {
         // 不显示加载消息框
         this.showLoading = false;

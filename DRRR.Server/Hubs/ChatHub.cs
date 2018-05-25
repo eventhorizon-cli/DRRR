@@ -53,7 +53,7 @@ namespace DRRR.Server.Hubs
             var unixTimeMilliseconds = new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds();
 
             await Clients.Group(roomHashid)
-                .InvokeAsync("receiveMessage", userHashId, username, message, unixTimeMilliseconds, false);
+                .SendAsync("receiveMessage", userHashId, username, message, unixTimeMilliseconds, false);
             // 将消息保存到数据库
             var history = new ChatHistory
             {
@@ -114,7 +114,7 @@ namespace DRRR.Server.Hubs
 
             // 会自动进行base64的转换
             await Clients.Group(roomHashid)
-                .InvokeAsync("receiveMessage", userHashId, username,
+                .SendAsync("receiveMessage", userHashId, username,
                 await File.ReadAllBytesAsync(pathThumbnail), unixTimeMilliseconds, true);
             // 将消息保存到数据库
             var history = new ChatHistory
@@ -194,14 +194,14 @@ namespace DRRR.Server.Hubs
             long unixTimeMilliseconds = new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds();
 
             // 显示欢迎用户加入房间的消息
-            await Clients.Group(roomHashid).InvokeAsync(
+            await Clients.Group(roomHashid).SendAsync(
                 "receiveSystemMessage",
                 _msg.GetMessage(msgId, username));
 
             if (!string.IsNullOrEmpty(connIdToBeRemoved))
             {
                 // 前一个窗口显示消息，告知账号已经在其他地方登陆
-                await Clients.Client(connIdToBeRemoved).InvokeAsync("onDuplicateLogin");
+                await Clients.Client(connIdToBeRemoved).SendAsync("onDuplicateLogin");
                 await Groups.RemoveAsync(connIdToBeRemoved, roomHashid);
             }
 
@@ -242,7 +242,7 @@ namespace DRRR.Server.Hubs
             if (count == 0) return;
 
             // 通知同一房间里其他人该用户已经离开房间
-            await Clients.Group(roomHashid).InvokeAsync(
+            await Clients.Group(roomHashid).SendAsync(
                "receiveSystemMessage",
                _msg.GetMessage("I004",
                HttpUtility.UrlDecode(Context.User.Identity.Name)));
@@ -310,7 +310,7 @@ namespace DRRR.Server.Hubs
                     _dbContext.Update(connenction);
                 }
                 // 通知同一房间里其他人该用户已经离线或游客离开房间
-                await Clients.Group(roomHashid).InvokeAsync(
+                await Clients.Group(roomHashid).SendAsync(
                     "receiveSystemMessage",
                     _msg.GetMessage(msgId,
                     HttpUtility.UrlDecode(Context.User.Identity.Name)));
@@ -376,7 +376,7 @@ namespace DRRR.Server.Hubs
 
                     tran.Commit();
 
-                    await Clients.Group(roomHashid).InvokeAsync("onRoomDeleted", _msg.GetMessage("E008"));
+                    await Clients.Group(roomHashid).SendAsync("onRoomDeleted", _msg.GetMessage("E008"));
                 }
                 catch
                 {
@@ -415,12 +415,12 @@ namespace DRRR.Server.Hubs
 
             // 通知被删除的用户
             await Clients.Client(connection.ConnectionId)
-                .InvokeAsync("onRemoved",
+                .SendAsync("onRemoved",
                 _msg.GetMessage("I005", "你"));
 
             // 通知房间内其他用户
             await Clients.Group(roomHashid)
-                .InvokeAsync("receiveSystemMessage",
+                .SendAsync("receiveSystemMessage",
                 _msg.GetMessage("I005", connection.Username));
 
             // 刷新成员列表
@@ -497,7 +497,7 @@ namespace DRRR.Server.Hubs
                 .ThenByDescending(x => x.IsOnline)
                 .ToListAsync();
 
-            await Clients.Group(roomHashid).InvokeAsync("refreshMemberList", list);
+            await Clients.Group(roomHashid).SendAsync("refreshMemberList", list);
         }
     }
 }

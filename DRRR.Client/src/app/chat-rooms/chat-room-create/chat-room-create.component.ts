@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 
 import swal from 'sweetalert2';
 
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 

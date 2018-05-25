@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
-import { Subscription } from 'rxjs/Subscription';
-import { FromEventObservable } from 'rxjs/observable/FromEventObservable';
+import { Subscription } from 'rxjs';
+import { fromEvent } from 'rxjs/internal/observable/fromEvent';
 
 import { Message } from '../models/message.model';
 
@@ -22,7 +22,7 @@ export class ChatPreviewMessageComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.setWidth();
     // 重新设置窗口大小后
-    this.resizeSubscription = FromEventObservable.create(window, 'resize')
+    this.resizeSubscription = fromEvent(window, 'resize')
       .subscribe(() => {
         this.setWidth();
       });

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 import { AuthService } from '../../core/services/auth.service';
 import { AccessTokenResponseDto } from '../dtos/access-token-response.dto';

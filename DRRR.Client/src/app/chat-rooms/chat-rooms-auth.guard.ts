@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import swal from 'sweetalert2';
 
@@ -40,13 +41,13 @@ export class ChatRoomsAuthGuard implements CanActivate {
 
     // 判断用户是否处于某个房间中
     return this.auth.http.get('/api/rooms/previous-room-id', { responseType: 'text' })
-      .map(id => {
+      .pipe(map(id => {
         if (id) {
           // 如果存在之前房间，则直接跳转到之前的房间
           this.router.navigateByUrl(`/rooms/${id}`);
           return false;
         }
         return true;
-      });
+      }));
   }
 }

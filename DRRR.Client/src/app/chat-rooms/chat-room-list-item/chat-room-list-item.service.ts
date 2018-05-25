@@ -1,9 +1,6 @@
 import { Injectable } from '@angular/core';
 
-// 可能会导致编译问题或者ie下兼容问题
-// 参考资料：https://github.com/aspnet/SignalR/issues/983
-// import { HubConnection } from '@aspnet/signalr-client/dist/browser/signalr-clientES5-1.0.0-alpha2-final.js';
-import { HubConnection } from '@aspnet/signalr-client';
+import { HubConnection, HubConnectionBuilder } from '@aspnet/signalr';
 
 import { AuthService } from '../../core/services/auth.service';
 
@@ -23,7 +20,7 @@ export class ChatRoomListItemService {
     return new Promise<never>((resolve) => {
       // 需要打开WebSocket通知房间内的人
       this.auth.refreshTokenIfNeeded().then(() => {
-        const connection = new HubConnection(`/chat?authorization=${this.auth.accessToken}`);
+        const connection = new HubConnectionBuilder().withUrl(`/chat?authorization=${this.auth.accessToken}`).build();
 
         // 打开连接
         connection.start().then(() => {

@@ -1,12 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 
-// 可能会导致编译问题或者ie下兼容问题
-// 参考资料：https://github.com/aspnet/SignalR/issues/983
-// import { HubConnection } from '@aspnet/signalr-client/dist/browser/signalr-clientES5-1.0.0-alpha2-final.js';
-import { HubConnection } from '@aspnet/signalr-client';
+import {HubConnection, HubConnectionBuilder} from '@aspnet/signalr';
 
 import swal from 'sweetalert2';
 
@@ -71,7 +68,9 @@ export class ChatRoomService {
 
       this.roomId = roomId;
 
-      this.connection = new HubConnection(`/chat?authorization=${this.auth.accessToken}`);
+      this.connection = new HubConnectionBuilder()
+        .withUrl(`/chat?authorization=${this.auth.accessToken}`)
+        .build();
 
       this.disconnected = false;
 

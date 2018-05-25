@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/filter';
+import { filter, map } from 'rxjs/operators';
 
 import { SweetAlertOptions } from 'sweetalert2';
 
 import { AuthService } from './core/services/auth.service';
 import { SystemMessagesService } from './core/services/system-messages.service';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -39,8 +38,10 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.router.events
-      .filter(event => event instanceof NavigationEnd)
-      .map((event: NavigationEnd) => /(\/\w+)+/.exec(event.urlAfterRedirects)[0])
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        map((event: NavigationEnd) => /(\/\w+)+/.exec(event.urlAfterRedirects)[0])
+      )
       .subscribe(path => {
         this.currentPath = path;
         // 如果是在没有选择记住登录状态的情况下回到登录界面界面，则依旧显示登录和注册按钮
@@ -99,7 +100,7 @@ export class AppComponent implements OnInit {
     }
     this.msg.showConfirmMessage('warning', this.msg.getMessage('I003', '退出'),
       { text: this.msg.getMessage('I004'), ...additionalSettings })
-      .then(({value, dismiss}) => {
+      .then(({ value, dismiss }) => {
         if (!dismiss) {
           if (value) {
             // 选择下次自动进去该房间

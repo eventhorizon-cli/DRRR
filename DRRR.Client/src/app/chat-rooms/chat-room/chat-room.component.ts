@@ -1,16 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import * as Cropper from 'cropperjs';
-
 import swal from 'sweetalert2';
 
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
-import { Subscription } from 'rxjs/Subscription';
-import { FromEventObservable } from 'rxjs/observable/FromEventObservable';
-import 'rxjs/add/operator/scan';
-import 'rxjs/add/operator/delay';
+import * as Cropper from 'cropperjs';
+
+import { Observable, Subject, Subscription } from 'rxjs';
+import { fromEvent } from 'rxjs/internal/observable/fromEvent';
+import { scan, map } from 'rxjs/operators';
 
 import { ChatRoomService } from './chat-room.service';
 import { Message } from '../models/message.model';
@@ -80,11 +77,11 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     const scrollPanel$ = $('.msg-container-base');
 
     setTimeout(() => {
-      (<any>scrollPanel$).niceScroll({cursorcolor: '#d6d6d4'});
+      (<any>scrollPanel$).niceScroll({ cursorcolor: '#d6d6d4' });
     });
 
     // 重新设置窗口大小后
-    this.resizeSubscription = FromEventObservable.create(window, 'resize')
+    this.resizeSubscription = fromEvent(window, 'resize')
       .subscribe(() => {
         this.setHeight();
         (<any>scrollPanel$).getNiceScroll().resize();
@@ -96,12 +93,14 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     // 避免查看聊天信息的时候有新消息会导致被迫滚到最下面
     const scrollPanel = scrollPanel$[0];
     this.scrollSubscription
-      = FromEventObservable.create<Event>(scrollPanel, 'scroll')
-        .scan((topAndTopDiff: number[]) => {
-          const scrollTop = scrollPanel.scrollTop;
-          return [scrollTop, scrollTop - topAndTopDiff[0]];
-        }, [0, 0])
-        .map(topAndTopDiff => topAndTopDiff[1])
+      = fromEvent<Event>(scrollPanel, 'scroll')
+        .pipe(
+          map(_ => null),
+          scan((topAndTopDiff: number[]) => {
+            const scrollTop = scrollPanel.scrollTop;
+            return [scrollTop, scrollTop - topAndTopDiff[0]];
+          }, [0, 0]),
+          map(topAndTopDiff => topAndTopDiff[1]))
         .subscribe(diff => {
           if (diff < 0) {
             // 如果用户进行了向上滚的动作
@@ -121,16 +120,16 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       this.isMemberListVisible = false;
 
       this.messages = this.chatRoomService.message
-        .scan((messages: Message[], message: Message) => {
+        .pipe(scan((messages: Message[], message: Message) => {
           // 用于在下方显示最新的未读信息
           this.lastMessage = message;
           return messages.concat(message);
-        }, []);
+        }, []));
 
       // 聊天历史记录
       this.chatHistory = this.chatRoomService.chatHistory
-        .scan((messages: Message[], history: Message[]) =>
-          history.concat(messages), []);
+        .pipe(scan((messages: Message[], history: Message[]) =>
+          history.concat(messages), []));
 
       this.msgSubscription = this.messages.subscribe(() => {
         if (this.fixedAtBottom) {
@@ -157,9 +156,9 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
     this.chatRoomService.connect(roomId);
     this.initialDto = this.chatRoomService.initialDto;
     this.memberList = this.chatRoomService.memberList;
-    this.onlineUsers =  this.memberList.map(list => {
+    this.onlineUsers = this.memberList.pipe(map(list => {
       return list.filter(member => member.isOnline).length;
-    });
+    }));
   }
 
   ngOnDestroy() {
@@ -207,7 +206,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       this.domNodeInsertedSubscription.unsubscribe();
     }
     this.domNodeInsertedSubscription
-      = FromEventObservable.create<MutationEvent>(scrollPanel, 'DOMNodeInserted')
+      = fromEvent<MutationEvent>(scrollPanel, 'DOMNodeInserted')
         .subscribe(() => {
           div.scrollIntoView();
           scrollPanel.scrollTop -= 65;
@@ -297,41 +296,41 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
         }
       },
       preConfirm: () => {
-          return new Promise(resolve => {
-            if (isGif) {
-              const fileReader = new FileReader();
-              fileReader.readAsDataURL(file);
-              fileReader.addEventListener('load', () => {
-                resolve(fileReader.result);
-              });
-            } else {
-              const dataUrl = cropper.getCroppedCanvas().toDataURL('image/png');
-              // 将图片中的可能的透明色转换为白色
-              const img = document.createElement('img');
-              img.src = dataUrl;
-              img.addEventListener('load', () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
-
-                // 在canvas绘制前填充白色背景
-                const context = canvas.getContext('2d');
-
-                context.fillStyle = '#fff';
-                context.fillRect(0, 0, canvas.width, canvas.height);
-
-                context.drawImage(img, 0, 0);
-
-                resolve(canvas.toDataURL('image/jpeg'));
-              });
-            }
-        }).then((dataURL: string) => {
-            return new Promise((resolve, reject) => {
-              this.chatRoomService.sendPicture(dataURL.split(',')[1])
-                .then(() => resolve())
-                .catch(error => reject(this.msg.getMessage('E004', '图片发送')));
+        return new Promise(resolve => {
+          if (isGif) {
+            const fileReader = new FileReader();
+            fileReader.readAsDataURL(file);
+            fileReader.addEventListener('load', () => {
+              resolve(fileReader.result);
             });
+          } else {
+            const dataUrl = cropper.getCroppedCanvas().toDataURL('image/png');
+            // 将图片中的可能的透明色转换为白色
+            const img = document.createElement('img');
+            img.src = dataUrl;
+            img.addEventListener('load', () => {
+              const canvas = document.createElement('canvas');
+              canvas.width = img.width;
+              canvas.height = img.height;
+
+              // 在canvas绘制前填充白色背景
+              const context = canvas.getContext('2d');
+
+              context.fillStyle = '#fff';
+              context.fillRect(0, 0, canvas.width, canvas.height);
+
+              context.drawImage(img, 0, 0);
+
+              resolve(canvas.toDataURL('image/jpeg'));
+            });
+          }
+        }).then((dataURL: string) => {
+          return new Promise((resolve, reject) => {
+            this.chatRoomService.sendPicture(dataURL.split(',')[1])
+              .then(() => resolve())
+              .catch(error => reject(this.msg.getMessage('E004', '图片发送')));
           });
+        });
       },
     }).then(() => {
       // 释放资源

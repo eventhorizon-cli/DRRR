@@ -1,12 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
-// 可能会导致编译问题或者ie下兼容问题
-// 参考资料：https://github.com/aspnet/SignalR/issues/983
-// import { HubConnection } from '@aspnet/signalr-client/dist/browser/signalr-clientES5-1.0.0-alpha2-final.js';
-import { HubConnection } from '@aspnet/signalr-client';
+import { HubConnectionBuilder, HubConnection } from '@aspnet/signalr';
 
 import { AccessTokenResponseDto } from '../dtos/access-token-response.dto';
 import { CaptchaDto } from '../dtos/captcha.dto';
@@ -46,7 +43,7 @@ export class UserRegisterService {
   async refreshCaptcha(): Promise<CaptchaDto> {
     try {
       if (!this.connection) {
-        this.connection = new HubConnection('/captcha');
+        this.connection = new HubConnectionBuilder().withUrl('/captcha').build();
         await this.connection.start();
         this.connection.onclose(() => this.connection = null);
       }

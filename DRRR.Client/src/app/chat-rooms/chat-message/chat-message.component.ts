@@ -3,7 +3,7 @@ import {ChangeDetectionStrategy, Component, Input, OnInit, TemplateRef } from '@
 import { BsModalService } from 'ngx-bootstrap';
 
 import { Message } from '../models/message.model';
-import {ChatPictureComponent} from '../chat-picture/chat-picture.component';
+import { ChatPictureComponent } from '../chat-picture/chat-picture.component';
 
 @Component({
   selector: 'app-chat-message',
