@@ -188,7 +188,7 @@ namespace DRRR.Server.Hubs
             await _dbContext.SaveChangesAsync();
 
             // 将用户添加到分组
-            await Groups.AddAsync(Context.ConnectionId, roomHashid);
+            await Groups.AddToGroupAsync(Context.ConnectionId, roomHashid);
 
             // 只加载加入房间前的消息，避免消息重复显示
             long unixTimeMilliseconds = new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds();
@@ -202,7 +202,7 @@ namespace DRRR.Server.Hubs
             {
                 // 前一个窗口显示消息，告知账号已经在其他地方登陆
                 await Clients.Client(connIdToBeRemoved).SendAsync("onDuplicateLogin");
-                await Groups.RemoveAsync(connIdToBeRemoved, roomHashid);
+                await Groups.RemoveFromGroupAsync(connIdToBeRemoved, roomHashid);
             }
 
             // 显示用户列表
@@ -323,7 +323,7 @@ namespace DRRR.Server.Hubs
 
             // 从分组中删除当前连接
             // 注意 移除必须是在最后做，否则会报错
-            await Groups.RemoveAsync(Context.ConnectionId, roomHashid);
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, roomHashid);
             await base.OnDisconnectedAsync(exception);
         }
 
@@ -426,7 +426,7 @@ namespace DRRR.Server.Hubs
             // 刷新成员列表
             await RefreshMemberListAsync(roomHashid, roomId);
 
-            await Groups.RemoveAsync(connection.ConnectionId, roomHashid);
+            await Groups.RemoveFromGroupAsync(connection.ConnectionId, roomHashid);
         }
 
         /// <summary>
